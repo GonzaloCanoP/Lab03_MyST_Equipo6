@@ -1,0 +1,11 @@
+# Fijar versiones exactas tras instalar: pip install -r requirements.txt && pip freeze
+numpy
+pandas
+scipy
+statsmodels
+yfinance
+pyarrow
+plotly
+matplotlib
+streamlit
+pytest

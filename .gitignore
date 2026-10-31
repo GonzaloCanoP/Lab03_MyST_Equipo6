@@ -1,0 +1,14 @@
+.claude
+.venv
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+.DS_Store
+.streamlit/secrets.toml
+
+# Datos crudos: se regeneran con python main.py
+data/raw/
+data/processed/
+
+# artifacts/ SÍ se versiona: el dashboard lo lee sin correr el backtest
