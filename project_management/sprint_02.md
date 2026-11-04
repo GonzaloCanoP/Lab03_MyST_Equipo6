@@ -14,7 +14,7 @@ queda en `docs/` antes del domingo 8 a las 23:59.
 | Universos candidatos con justificación económica | JME (petroleras) / GC (oro) | hecho |
 | Entorno: versiones fijadas, ventana de fechas ≤ 15 años, `.gitignore` | JME | hecho |
 | 01 Datos: descarga con snapshot, limpieza, validación, split congelado + notebook 01 | JME | hecho |
-| 02 Embudo de selección sobre ambos universos + tabla de grupos + notebook 02 | GC | pendiente |
+| 02 Embudo de selección sobre ambos universos + tabla de grupos + notebook 02 | GC | hecho (PR en revisión) |
 | 03 Filtro 1 + `test_normalization` + notebook 03 | JME | pendiente |
 | 04 Filtro 2 + `test_filter` + notebook 04 | GC | pendiente |
 | 05 VECM, señales, grid search + notebook 05 | GC | pendiente |

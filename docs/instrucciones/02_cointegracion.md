@@ -10,13 +10,13 @@ portafolio más reversivo S_t = βᵀP_t. **Todo sobre la partición de entrenam
 
 ## Parámetros de este módulo
 
-`CORR_THRESHOLD = 0.70`, `CORR_WINDOW = 252`, `PVALUE_THRESHOLD = 0.05` en `cointegration/selection.py`; pata de normalización y signo en `cointegration/johansen.py`. Si cambian, actualizar la tabla de parámetros de `CLAUDE.md`.
+`CORR_THRESHOLD = 0.70`, `CORR_WINDOW = 252`, `PVALUE_THRESHOLD = 0.05`, `HALF_LIFE_RANGE = (5, 60)`, `GROUP_SIZE = 4` en `cointegration/selection.py`; `DET_ORDER = 0`, `MAX_VAR_LAGS = 10`, `ROLLING_WINDOW = 504`, `ROLLING_STEP = 21`, `ANCHOR_TICKER = "GLD"` y `SIGN_CONVENTION` en `cointegration/johansen.py`. Si cambian, actualizar la tabla de parámetros de `CLAUDE.md`.
 
 ## Contrato
 
 - **Lee:** particiones de `data/`.
 - **Escribe:** `selection_table.csv`, `johansen_summary.json`, `vector_comparison.csv`, `rolling_eigenvector.parquet`.
-- **Expone:** `select_group() -> (tickers, beta_normalizado)`, `half_life(spread) -> float`.
+- **Expone:** `run_funnel(train_prices, universes) -> selection_table`, `describe_chosen_group(train_prices, tickers, universe) -> (summary, comparison)`, `compute_half_life(spread) -> float`, `normalize_beta(beta, anchor)`, `build_spread(log_prices, beta)`. `main.run_cointegration_stage` devuelve `(tickers, beta_normalizado)`; las demás partes leen `johansen_summary.json`.
 
 ## Loop de trabajo
 
@@ -31,31 +31,31 @@ REPETIR hasta cumplir el criterio de terminado:
 ## Checklist
 
 **Paso 1 — Universo**
-- [ ] Universo definido con justificación económica (mismo sector, cadena de suministro o doble listado).
-- [ ] Justificación escrita como defensa contra pruebas múltiples (va al reporte).
+- [x] Universo definido con justificación económica (mismo sector, cadena de suministro o doble listado).
+- [x] Justificación escrita como defensa contra pruebas múltiples (va al reporte) — `universe.py` y discusión del notebook 02.
 
 **Paso 2 — Correlación**
-- [ ] Matriz de correlación **móvil** (ventana `CORR_WINDOW` = 252) sobre entrenamiento.
-- [ ] Filtro inicial correlación > 0.7 (aclarar si es sobre la media de la correlación móvil o sobre % de tiempo).
+- [x] Matriz de correlación **móvil** (ventana `CORR_WINDOW` = 252) sobre entrenamiento — rendimientos log.
+- [x] Filtro inicial correlación > 0.7 → media de los pares (cada uno promediado en el tiempo); el % de tiempo se reporta (`corr_frac_above`).
 
 **Paso 3 — Engle-Granger**
-- [ ] OLS + ADF sobre residuales para cada subgrupo candidato; filtro p-value < 0.05.
+- [x] OLS + ADF sobre residuales (MacKinnon) para pares y grupo, con R², DW y bandera espuria. **Prioriza, no elimina** (`docs/decisiones.md`).
 
 **Paso 4 — Johansen**
-- [ ] `coint_johansen` con `det_order` y `k_ar_diff` justificados (k por criterio de información sobre VAR).
-- [ ] Reportar estadísticos de **traza** y **máximo eigenvalor** con valores críticos.
-- [ ] Número de relaciones de cointegración (rango r).
-- [ ] Si r > 1: construir spread de **cada** vector, ADF + vida media de cada uno → `vector_comparison.csv`; elegir empíricamente.
+- [x] `coint_johansen` con `det_order = 0` y `k_ar_diff` por BIC sobre el VAR en log-niveles.
+- [x] Reportar estadísticos de **traza** y **máximo eigenvalor** con valores críticos (90/95/99 %).
+- [x] Número de relaciones de cointegración (rango r̂ = 1 por ambas pruebas).
+- [x] Spread de **cada** vector, ADF + vida media → `vector_comparison.csv` (se hace aunque r̂ = 1); elección empírica en `choose_vector`.
 
 **Paso 5 — Validación del vector**
-- [ ] ADF del spread elegido (estacionario) y vida media (AR(1)/Ornstein-Uhlenbeck: `-ln 2 / ln(φ)`).
-- [ ] Normalización sobre la pata de mayor |peso| y convención de signo → constantes en `cointegration/johansen.py`.
+- [x] ADF del spread elegido (p = 0.0001) y vida media 25.3 días (OU de clase: `−ln 2 / λ`, ≈ `−ln 2 / ln(φ)`).
+- [x] Normalización sobre la pata de mayor |peso| (GLD) y convención de signo → constantes en `cointegration/johansen.py`.
 
 **Paso 6 — Documentación**
-- [ ] `selection_table.csv`: **todos** los grupos probados, estadísticos, etapa de descarte y motivo.
-- [ ] Número total de grupos evaluados reportado (clave para el argumento de pruebas múltiples).
-- [ ] Johansen móvil (ventana fija, avanzando sin look-ahead) → primer eigenvector en el tiempo (figura 4).
-- [ ] Discusión: ¿la relación es estructural o artefacto de haber probado muchos grupos? (corrección tipo Bonferroni como referencia, estabilidad del eigenvector, desempeño fuera de muestra).
+- [x] `selection_table.csv`: **todos** los grupos probados, estadísticos, etapa de descarte y motivo.
+- [x] Número total de grupos evaluados reportado: 196 (`johansen_summary.json` → `multiple_testing`).
+- [x] Johansen móvil (504 días, paso 21, sin look-ahead) → `rolling_eigenvector.parquet` y `docs/figuras/fig04_eigenvector_movil.png`.
+- [x] Discusión: ¿la relación es estructural o artefacto de haber probado muchos grupos? — notebook 02 (esperados por azar, 99 %, Bonferroni, mitades de train, Johansen móvil). El desempeño fuera de muestra se completa con el backtest.
 
 ## Criterio de terminado
 
