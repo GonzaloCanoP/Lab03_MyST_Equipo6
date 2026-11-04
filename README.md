@@ -19,10 +19,20 @@ _TODO: 1 párrafo — universo, grupo seleccionado, Johansen → filtro de Kalma
 
 ## Instalación
 
+Requiere **Python 3.12**.
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+```
+
+## Notebooks de demostración
+
+Un notebook por parte en `notebooks/` (solo importan funciones de los módulos; el pipeline evaluado es `main.py`):
+
+```bash
+jupyter notebook notebooks/
 ```
 
 ## Reproducción

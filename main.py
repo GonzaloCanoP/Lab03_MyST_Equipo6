@@ -26,7 +26,7 @@ ARTIFACTS = ROOT / "artifacts"
 FIGURES = ROOT / "docs" / "figuras"
 
 # --- Ventana histórica (10-15 años de precios diarios, fechas fijas para reproducibilidad) ---
-START_DATE = "2011-01-01"  # TODO: confirmar ventana
+START_DATE = "2012-01-01"  # ≈ 14.8 años hasta END_DATE (el enunciado pide 10-15)
 END_DATE = "2026-10-30"
 
 
