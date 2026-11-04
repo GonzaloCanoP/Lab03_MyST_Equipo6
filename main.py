@@ -15,6 +15,7 @@ Los parámetros propios de cada módulo (costos, umbrales, split) viven en ese m
 import json
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -86,7 +87,9 @@ def run_cointegration_stage(prices: pd.DataFrame, split_dates: SplitDates) -> tu
     comparison.to_csv(ARTIFACTS / "vector_comparison.csv", index=False)
     rolling.to_parquet(ARTIFACTS / "rolling_eigenvector.parquet")
     (ARTIFACTS / "johansen_summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False))
-    plot_rolling_eigenvector(rolling, tickers, summary["anchor"], ROLLING_WINDOW, FIGURES / "fig04_eigenvector_movil.png")
+    fig = plot_rolling_eigenvector(rolling, tickers, summary["anchor"], ROLLING_WINDOW,
+                                   FIGURES / "fig04_eigenvector_movil.png")
+    plt.close(fig)  # solo se guarda; main.py no abre ventanas
 
     total = summary["multiple_testing"]["total"]
     print(f"[cointegration] {total['groups_tested']} grupos probados; Johansen rechaza r = 0 en "

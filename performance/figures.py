@@ -5,9 +5,6 @@ Se exportan a `docs/figuras/` desde `main.py`; los notebooks llaman a las mismas
 
 from pathlib import Path
 
-import matplotlib
-
-matplotlib.use("Agg")  # sin ventana: main.py corre sin intervención
 import matplotlib.pyplot as plt
 import pandas as pd
 
