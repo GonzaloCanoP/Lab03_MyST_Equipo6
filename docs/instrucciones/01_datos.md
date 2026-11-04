@@ -30,16 +30,16 @@ REPETIR hasta cumplir el criterio de terminado:
 
 ## Checklist
 
-- [ ] Descarga con `yfinance` usando precios **ajustados** (splits y dividendos), con snapshot local versionado en `data/snapshot/`.
-- [ ] Ventana de 10–15 años; fechas fijas en `main.py` (no "hoy") para reproducibilidad.
-- [ ] Alinear calendarios entre activos (intersección de fechas hábiles).
-- [ ] Manejo de faltantes documentado (forward-fill limitado o eliminar fechas) — nunca back-fill.
-- [ ] Validación: sin NaN, precios > 0, sin duplicados, índice ordenado, detección de saltos anómalos.
-- [ ] Reporte de validación (filas, rango de fechas, faltantes tratados) impreso por `main.py`.
-- [ ] Split cronológico 60/20/20 → entrenamiento / prueba / validación; fechas de corte guardadas.
-- [ ] La partición se define **antes** de cualquier estimación y todas las partes la importan de aquí.
-- [ ] `artifacts/prices.parquet` con columna `split`.
-- [ ] Figura 1: series de precios individuales de los activos del grupo (normalizadas a 100 opcional).
+- [x] Descarga con `yfinance` usando precios **ajustados** (splits y dividendos), con snapshot local versionado en `data/snapshot/`.
+- [x] Ventana de 10–15 años; fechas fijas en `main.py` (no "hoy") para reproducibilidad.
+- [x] Alinear calendarios entre activos (intersección de fechas hábiles).
+- [x] Manejo de faltantes documentado (forward-fill limitado o eliminar fechas) — nunca back-fill.
+- [x] Validación: sin NaN, precios > 0, sin duplicados, índice ordenado, detección de saltos anómalos.
+- [x] Reporte de validación (filas, rango de fechas, faltantes tratados) impreso por `main.py`.
+- [x] Split cronológico 60/20/20 → entrenamiento / prueba / validación; fechas de corte guardadas.
+- [x] La partición se define **antes** de cualquier estimación y todas las partes la importan de aquí.
+- [ ] `artifacts/prices.parquet` con columna `split`. *(pendiente: se escribe cuando 02 elija el grupo)*
+- [ ] Figura 1: series de precios individuales de los activos del grupo (normalizadas a 100 opcional). *(pendiente: requiere el grupo; el notebook 01 ya muestra ambos universos)*
 
 ## Criterio de terminado
 

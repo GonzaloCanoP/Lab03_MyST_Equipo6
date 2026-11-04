@@ -21,7 +21,7 @@ corrección del sesgo de supervivencia más allá de excluir empresas adquiridas
 | Hito | Fecha objetivo | Responsable | Estado |
 |---|---|---|---|
 | Plan, división del trabajo y universos | 2026-11-04 | JME | hecho |
-| Pipeline de datos completo (split congelado, snapshot) | 2026-11-04 | JME | en progreso |
+| Pipeline de datos completo (split congelado, snapshot) | 2026-11-04 | JME | hecho |
 | Prueba de cointegración completa (grupo elegido) | 2026-11-05 | GC | pendiente |
 | Filtro 1 validado | 2026-11-05 | JME | pendiente |
 | Filtro 2 + VECM + señales | 2026-11-06 | GC | pendiente |
