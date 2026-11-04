@@ -26,13 +26,13 @@ from cointegration.half_life import compute_half_life
 from cointegration.johansen import (CV_COLUMN, DET_ORDER, SIGN_CONVENTION, SIGNIFICANCE, adf_pvalue, anchor_index,
                                     build_spread, choose_vector, compare_vectors, normalize_beta, run_johansen,
                                     select_k_ar_diff)
+from data.split import N_ASSETS
 
 # --- Parámetros de este módulo (tabla de parámetros en CLAUDE.md) ---
 CORR_THRESHOLD = 0.70
 CORR_WINDOW = 252
 PVALUE_THRESHOLD = 0.05
 HALF_LIFE_RANGE = (5.0, 60.0)  # días; rango "operable" sugerido en clase
-GROUP_SIZE = 4  # 2 · n integrantes (= N_ASSETS de data/split.py)
 
 
 def check_integration_order(log_prices: pd.DataFrame, pvalue_threshold: float = PVALUE_THRESHOLD) -> pd.DataFrame:
@@ -89,6 +89,9 @@ def evaluate_group(universe: str, tickers: list[str], log_prices: pd.DataFrame, 
     row.update({
         "eg_significant_pairs": int((in_group["pvalue_min"] < PVALUE_THRESHOLD).sum()),
         "eg_group_dependent": eg.dependent,
+        "eg_group_intercept": eg.intercept,
+        "eg_group_hedge_ratios": ";".join(f"{t}={h:.4f}" for t, h in zip(eg.regressors, eg.hedge_ratios)),
+        "eg_group_adf_stat": eg.adf_stat,
         "eg_group_pvalue": eg.pvalue,
         "eg_group_r2": eg.r_squared,
         "eg_group_dw": eg.durbin_watson,
@@ -132,7 +135,7 @@ def evaluate_group(universe: str, tickers: list[str], log_prices: pd.DataFrame, 
     return row
 
 
-def run_funnel(train_prices: pd.DataFrame, universes: dict, group_size: int = GROUP_SIZE) -> pd.DataFrame:
+def run_funnel(train_prices: pd.DataFrame, universes: dict, group_size: int = N_ASSETS) -> pd.DataFrame:
     """Corre el embudo sobre todos los grupos de `group_size` activos de cada universo.
 
     Parámetros:

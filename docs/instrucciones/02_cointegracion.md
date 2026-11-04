@@ -10,7 +10,7 @@ portafolio más reversivo S_t = βᵀP_t. **Todo sobre la partición de entrenam
 
 ## Parámetros de este módulo
 
-`CORR_THRESHOLD = 0.70`, `CORR_WINDOW = 252`, `PVALUE_THRESHOLD = 0.05`, `HALF_LIFE_RANGE = (5, 60)`, `GROUP_SIZE = 4` en `cointegration/selection.py`; `DET_ORDER = 0`, `MAX_VAR_LAGS = 10`, `ROLLING_WINDOW = 504`, `ROLLING_STEP = 21`, `ANCHOR_TICKER = "GLD"` y `SIGN_CONVENTION` en `cointegration/johansen.py`. Si cambian, actualizar la tabla de parámetros de `CLAUDE.md`.
+`CORR_THRESHOLD = 0.70`, `CORR_WINDOW = 252`, `PVALUE_THRESHOLD = 0.05`, `HALF_LIFE_RANGE = (5, 60)` en `cointegration/selection.py` (el tamaño del grupo es `N_ASSETS` de `data/split.py`); `DET_ORDER = 0`, `MAX_VAR_LAGS = 10`, `ROLLING_WINDOW = 504`, `ROLLING_STEP = 21`, `ANCHOR_TICKER = "GLD"` y `SIGN_CONVENTION` en `cointegration/johansen.py`. Si cambian, actualizar la tabla de parámetros de `CLAUDE.md`.
 
 ## Contrato
 
@@ -39,7 +39,7 @@ REPETIR hasta cumplir el criterio de terminado:
 - [x] Filtro inicial correlación > 0.7 → media de los pares (cada uno promediado en el tiempo); el % de tiempo se reporta (`corr_frac_above`).
 
 **Paso 3 — Engle-Granger**
-- [x] OLS + ADF sobre residuales (MacKinnon) para pares y grupo, con R², DW y bandera espuria. **Prioriza, no elimina** (`docs/decisiones.md`).
+- [x] OLS + ADF sobre residuales (MacKinnon) para pares y grupo, con intercepto, hedge ratios, R², DW y bandera espuria. **Prioriza, no elimina** (`docs/decisiones.md`).
 
 **Paso 4 — Johansen**
 - [x] `coint_johansen` con `det_order = 0` y `k_ar_diff` por BIC sobre el VAR en log-niveles.
