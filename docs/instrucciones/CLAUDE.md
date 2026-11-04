@@ -98,7 +98,7 @@ Toda serie de tiempo lleva una columna `split ∈ {train, test, validation}`.
 | `validation_report.json` | data | limpieza (rellenos, fechas eliminadas) y validación (NaN, saltos) |
 | `prices.parquet` | data | precios limpios de los 4 activos |
 | `selection_table.csv` | cointegration | todos los grupos probados, estadísticos, etapa de descarte, motivo |
-| `johansen_summary.json` | cointegration | traza, max-eigen, valores críticos, rango, vector elegido, normalización |
+| `johansen_summary.json` | cointegration | traza, max-eigen, valores críticos, rango, vector elegido, normalización (β crudo y β̃, pata ancla, c), ADF y vida media del spread, orden de integración, `multiple_testing` |
 | `vector_comparison.csv` | cointegration | por cada vector cointegrante: ADF, p-value, vida media |
 | `rolling_eigenvector.parquet` | cointegration | primer eigenvector de Johansen móvil |
 | `kf1_weights.parquet` | kalman | β̂_t por activo, ganancia de Kalman, varianza posterior, ECT dinámico (entrada de KF2) y ECT estático con β de Johansen (para comparar) |

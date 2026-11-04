@@ -24,7 +24,7 @@ from cointegration.selection import describe_chosen_group, multiple_testing_summ
 from cointegration.universe import UNIVERSES, all_tickers
 from data.clean import clean_prices
 from data.download import load_prices
-from data.split import SplitDates, compute_split_dates, label_split, save_split_dates, slice_split
+from data.split import SplitDates, add_split_column, compute_split_dates, save_split_dates, slice_split
 from data.validate import JUMP_THRESHOLD, assert_valid, validate_prices
 from performance.figures import plot_rolling_eigenvector
 
@@ -66,8 +66,9 @@ def run_data_stage() -> tuple[pd.DataFrame, SplitDates]:
 def run_cointegration_stage(prices: pd.DataFrame, split_dates: SplitDates) -> tuple[list[str], dict]:
     """Etapa 2: embudo de selección sobre ambos universos (solo train) y Johansen del grupo elegido.
 
-    Escribe selection_table.csv, johansen_summary.json, vector_comparison.csv, rolling_eigenvector.parquet y la
-    figura 4. Retorna (tickers del grupo, β normalizado por ticker).
+    Escribe selection_table.csv, johansen_summary.json, vector_comparison.csv, rolling_eigenvector.parquet, la
+    figura 4 y prices.parquet (los 4 activos elegidos con la columna split, para las etapas siguientes).
+    Retorna (tickers del grupo, β normalizado por ticker).
     """
     train = slice_split(prices, split_dates, "train")
     table = run_funnel(train, UNIVERSES)
@@ -81,8 +82,10 @@ def run_cointegration_stage(prices: pd.DataFrame, split_dates: SplitDates) -> tu
 
     # Johansen móvil en toda la muestra: cada ventana usa solo datos pasados (diagnóstico, no selección).
     rolling = rolling_first_eigenvector(np.log(prices[tickers]), summary["k_ar_diff"], summary["anchor"])
-    rolling["split"] = label_split(rolling.index, split_dates)
+    rolling = add_split_column(rolling, split_dates)
 
+    # prices.parquet (contrato de la etapa de datos): precios limpios de los 4 activos elegidos + columna split.
+    add_split_column(prices[tickers], split_dates).to_parquet(ARTIFACTS / "prices.parquet")
     table.to_csv(ARTIFACTS / "selection_table.csv", index=False)
     comparison.to_csv(ARTIFACTS / "vector_comparison.csv", index=False)
     rolling.to_parquet(ARTIFACTS / "rolling_eigenvector.parquet")

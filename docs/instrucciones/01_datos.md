@@ -38,8 +38,8 @@ REPETIR hasta cumplir el criterio de terminado:
 - [x] Reporte de validación (filas, rango de fechas, faltantes tratados) impreso por `main.py`.
 - [x] Split cronológico 60/20/20 → entrenamiento / prueba / validación; fechas de corte guardadas.
 - [x] La partición se define **antes** de cualquier estimación y todas las partes la importan de aquí.
-- [ ] `artifacts/prices.parquet` con columna `split`. *(pendiente: se escribe cuando 02 elija el grupo)*
-- [ ] Figura 1: series de precios individuales de los activos del grupo (normalizadas a 100 opcional). *(pendiente: requiere el grupo; el notebook 01 ya muestra ambos universos)*
+- [x] `artifacts/prices.parquet` con columna `split` — GLD, GDX, AEM, FNV (grupo de la parte 02); lo escribe `main.run_cointegration_stage` con `data.split.add_split_column`.
+- [ ] Figura 1: series de precios individuales de los activos del grupo (normalizadas a 100 opcional). *(pendiente, JME: el grupo ya está elegido — GLD, GDX, AEM, FNV en `artifacts/prices.parquet`; el notebook 01 ya muestra ambos universos)*
 
 ## Criterio de terminado
 

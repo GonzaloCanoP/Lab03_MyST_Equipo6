@@ -68,6 +68,11 @@ def label_split(index: pd.DatetimeIndex, dates: SplitDates) -> pd.Series:
     return labels
 
 
+def add_split_column(df: pd.DataFrame, dates: SplitDates) -> pd.DataFrame:
+    """Copia de `df` con la columna `split` que exige el contrato de artefactos para toda serie de tiempo."""
+    return df.assign(split=label_split(df.index, dates))
+
+
 def save_split_dates(dates: SplitDates, path: Path) -> None:
     """Guarda las fechas de corte en JSON (`artifacts/split_dates.json`)."""
     payload = {k: v.strftime("%Y-%m-%d") for k, v in asdict(dates).items()}
