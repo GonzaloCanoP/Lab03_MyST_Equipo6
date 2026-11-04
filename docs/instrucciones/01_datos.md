@@ -10,12 +10,12 @@ cronológicamente 60/20/20 sin look-ahead.
 
 ## Parámetros de este módulo
 
-`SPLIT = (0.60, 0.20, 0.20)`, `N_ASSETS = 4` en `data/split.py`. Recibe `START_DATE`, `END_DATE`, `DATA_RAW` desde `main.py`. Si cambian, actualizar la tabla de parámetros de `CLAUDE.md`.
+`SPLIT = (0.60, 0.20, 0.20)`, `N_ASSETS = 4` en `data/split.py`. `MAX_FFILL = 3` en `data/clean.py`, `JUMP_THRESHOLD = 0.40` en `data/validate.py`. Recibe `START_DATE`, `END_DATE`, `DATA_SNAPSHOT` desde `main.py`. Si cambian, actualizar la tabla de parámetros de `CLAUDE.md`.
 
 ## Contrato
 
 - **Lee:** `START_DATE`, `END_DATE` (argumentos desde `main.py`), lista de tickers del universo (de `cointegration/universe.py`).
-- **Escribe:** `data/raw/` (cache, gitignored), `artifacts/prices.parquet` (solo los 4 activos finales, columna `split`).
+- **Escribe:** `data/snapshot/prices_raw.parquet` (snapshot versionado), `artifacts/split_dates.json`, `artifacts/validation_report.json`, `artifacts/prices.parquet` (solo los 4 activos finales, columna `split`; se escribe cuando 02 elija el grupo).
 - **Expone:** `load_prices(tickers) -> DataFrame`, `split_data(df) -> (train, test, validation)`, `split_dates() -> dict`.
 
 ## Loop de trabajo
@@ -30,7 +30,7 @@ REPETIR hasta cumplir el criterio de terminado:
 
 ## Checklist
 
-- [ ] Descarga con `yfinance` usando precios **ajustados** (splits y dividendos), con cache local en `data/raw/`.
+- [ ] Descarga con `yfinance` usando precios **ajustados** (splits y dividendos), con snapshot local versionado en `data/snapshot/`.
 - [ ] Ventana de 10–15 años; fechas fijas en `main.py` (no "hoy") para reproducibilidad.
 - [ ] Alinear calendarios entre activos (intersección de fechas hábiles).
 - [ ] Manejo de faltantes documentado (forward-fill limitado o eliminar fechas) — nunca back-fill.

@@ -1,0 +1,8 @@
+{
+  "train_start": "2012-01-03",
+  "train_end": "2020-11-19",
+  "test_start": "2020-11-20",
+  "test_end": "2023-11-08",
+  "validation_start": "2023-11-09",
+  "validation_end": "2026-10-30"
+}

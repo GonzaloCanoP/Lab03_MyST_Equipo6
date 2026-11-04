@@ -1,0 +1,37 @@
+{
+  "cleaning": {
+    "rows_raw": 3729,
+    "duplicates_removed": 0,
+    "filled_cells": {},
+    "rows_dropped": 0,
+    "rows_clean": 3729,
+    "max_ffill": 3
+  },
+  "validation": {
+    "n_rows": 3729,
+    "start": "2012-01-03",
+    "end": "2026-10-30",
+    "n_nan": 0,
+    "n_nonpositive": 0,
+    "n_duplicates": 0,
+    "is_sorted": true,
+    "is_valid": true,
+    "jumps": [
+      {
+        "date": "2020-03-09",
+        "ticker": "OXY",
+        "log_return": -0.7343
+      },
+      {
+        "date": "2020-03-09",
+        "ticker": "DVN",
+        "log_return": -0.4684
+      },
+      {
+        "date": "2020-03-09",
+        "ticker": "APA",
+        "log_return": -0.7736
+      }
+    ]
+  }
+}

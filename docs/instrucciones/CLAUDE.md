@@ -44,7 +44,8 @@ si cambias un valor o lo mueves, actualízala.
 | Parámetro | Valor | Dónde vive |
 |---|---|---|
 | Semilla | `SEED = 42` | `main.py` |
-| Rutas (`ARTIFACTS`, `DATA_RAW`, `FIGURES`) | — | `main.py` |
+| Rutas (`ARTIFACTS`, `DATA_SNAPSHOT`, `FIGURES`) | — | `main.py` |
+| Forward-fill máximo / umbral de salto | 3 días / \|rend. log\| > 0.40 | `data/clean.py` / `data/validate.py` |
 | Ventana histórica | 10–15 años, precios diarios (`START_DATE`, `END_DATE`) | `main.py` |
 | Activos por grupo | 4 (2·n, n = 2) | `data/split.py` |
 | División | 60 / 20 / 20 cronológica | `data/split.py` |
@@ -91,6 +92,8 @@ Toda serie de tiempo lleva una columna `split ∈ {train, test, validation}`.
 
 | Archivo | Productor | Contenido |
 |---|---|---|
+| `split_dates.json` | data | fechas de corte congeladas (inicio y fin de cada partición) |
+| `validation_report.json` | data | limpieza (rellenos, fechas eliminadas) y validación (NaN, saltos) |
 | `prices.parquet` | data | precios limpios de los 4 activos |
 | `selection_table.csv` | cointegration | todos los grupos probados, estadísticos, etapa de descarte, motivo |
 | `johansen_summary.json` | cointegration | traza, max-eigen, valores críticos, rango, vector elegido, normalización |
