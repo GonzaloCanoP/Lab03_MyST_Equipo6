@@ -4,6 +4,10 @@ Cada integrante aporta un universo con su justificación económica. La justific
 problema de pruebas múltiples: se prueban solo grupos con una razón económica para compartir una tendencia
 estocástica común, y se reporta cuántos se probaron. Este módulo solo contiene datos; el embudo de selección
 vive en el resto de `cointegration/`.
+
+Los universos están CONGELADOS desde antes de correr el embudo (ver `docs/decisiones.md`): cambiar la lista
+re-descarga el snapshot completo de precios y, además, ajustar el universo después de ver resultados sería
+data snooping.
 """
 
 UNIVERSES = {

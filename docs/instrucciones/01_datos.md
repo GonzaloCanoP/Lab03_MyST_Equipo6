@@ -16,7 +16,7 @@ cronológicamente 60/20/20 sin look-ahead.
 
 - **Lee:** `START_DATE`, `END_DATE` (argumentos desde `main.py`), lista de tickers del universo (de `cointegration/universe.py`).
 - **Escribe:** `data/snapshot/prices_raw.parquet` (snapshot versionado), `artifacts/split_dates.json`, `artifacts/validation_report.json`, `artifacts/prices.parquet` (solo los 4 activos finales, columna `split`; se escribe cuando 02 elija el grupo).
-- **Expone:** `load_prices(tickers) -> DataFrame`, `split_data(df) -> (train, test, validation)`, `split_dates() -> dict`.
+- **Expone:** `load_prices(tickers, start, end, snapshot_path) -> DataFrame`, `clean_prices(raw) -> (DataFrame, dict)`, `slice_split(df, dates, name) -> DataFrame`, `label_split(index, dates) -> Series`, `load_split_dates(path) -> SplitDates`.
 
 ## Loop de trabajo
 

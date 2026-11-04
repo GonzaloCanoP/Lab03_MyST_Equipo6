@@ -20,3 +20,6 @@ data/raw/
 data/processed/
 
 # artifacts/ SÍ se versiona: el dashboard lo lee sin correr el backtest
+
+# Notas de trabajo locales (no se versionan)
+revision_inicial.md
