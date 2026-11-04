@@ -1,6 +1,6 @@
 # 03 — Filtro de Kalman 1: pesos dinámicos β_t
 
-**Dueño:** _por asignar_ · **Carpeta:** `kalman/weights_filter.py` · **Depende de:** 02 · **Alimenta a:** 04, 05, 06, 08
+**Dueño:** Juan Manuel Espinosa (JME) · **Revisor:** Gonzalo Cano (GC) · **Notebook:** `notebooks/03_filtro1_pesos.ipynb` · **Carpeta:** `kalman/weights_filter.py` · **Depende de:** 02 · **Alimenta a:** 04, 05, 06, 08
 **Leer antes:** `docs/notas_clase/03_state_space_kalman.md`, `docs/notas_clase/04_johansen_vecm_kalman_multiactivo.md`,
 `docs/notas_clase/01_sequential_decision_analytics.md`
 

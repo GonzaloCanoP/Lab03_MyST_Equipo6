@@ -1,6 +1,6 @@
 # 12 — Gestión del proyecto
 
-**Dueño:** _por asignar_ (rotar sprints entre ambos) · **Carpeta:** `project_management/`
+**Dueño:** Juan Manuel Espinosa (JME) (charter, sprints 01–02); cierre de sprint y post-mortem ambos · **Carpeta:** `project_management/`
 
 ## Loop semanal
 

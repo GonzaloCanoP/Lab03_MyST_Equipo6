@@ -1,6 +1,6 @@
 # 01 — Datos: ingesta, limpieza, validación y split
 
-**Dueño:** _por asignar_ · **Carpeta:** `data/` · **Depende de:** — · **Alimenta a:** 02, 03, 06
+**Dueño:** Juan Manuel Espinosa (JME) · **Revisor:** Gonzalo Cano (GC) · **Notebook:** `notebooks/01_datos.ipynb` · **Carpeta:** `data/` · **Depende de:** — · **Alimenta a:** 02, 03, 06
 **Leer antes:** `docs/notas_clase/02_pairs_trading_secuencial.md` (sección de datos, si la hay)
 
 ## Objetivo

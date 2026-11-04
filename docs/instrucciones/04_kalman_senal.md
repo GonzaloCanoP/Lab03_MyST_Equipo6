@@ -1,6 +1,6 @@
 # 04 — Filtro de Kalman 2: media y varianza latentes → z-score
 
-**Dueño:** _por asignar_ · **Carpeta:** `kalman/signal_filter.py` · **Depende de:** 03 · **Alimenta a:** 05, 06, 08
+**Dueño:** Gonzalo Cano (GC) · **Revisor:** Juan Manuel Espinosa (JME) · **Notebook:** `notebooks/04_filtro2_senal.ipynb` · **Carpeta:** `kalman/signal_filter.py` · **Depende de:** 03 · **Alimenta a:** 05, 06, 08
 **Leer antes:** `docs/notas_clase/03_state_space_kalman.md`, `docs/notas_clase/02_pairs_trading_secuencial.md`
 
 ## Objetivo

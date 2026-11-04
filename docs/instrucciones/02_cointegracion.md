@@ -1,6 +1,6 @@
 # 02 — Selección del grupo: universo, correlación, Engle-Granger, Johansen
 
-**Dueño:** _por asignar_ · **Carpeta:** `cointegration/` · **Depende de:** 01 · **Alimenta a:** 03, 05, 08
+**Dueño:** Gonzalo Cano (GC) · **Revisor:** Juan Manuel Espinosa (JME) · **Notebook:** `notebooks/02_seleccion_grupo.ipynb` · **Carpeta:** `cointegration/` · **Depende de:** 01 · **Alimenta a:** 03, 05, 08
 **Leer antes:** `docs/notas_clase/04_johansen_vecm_kalman_multiactivo.md`, `docs/notas_clase/02_pairs_trading_secuencial.md`
 
 ## Objetivo

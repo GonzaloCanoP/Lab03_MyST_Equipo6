@@ -1,6 +1,6 @@
 # 06 — Backtest multi-pata con costos y walk-forward
 
-**Dueño:** _por asignar_ · **Carpeta:** `backtest/` · **Depende de:** 05 · **Alimenta a:** 07, 08
+**Dueño:** Juan Manuel Espinosa (JME) · **Revisor:** Gonzalo Cano (GC) · **Notebook:** `notebooks/06_backtest.ipynb` · **Carpeta:** `backtest/` · **Depende de:** 05 · **Alimenta a:** 07, 08
 **Leer antes:** `docs/notas_clase/02_pairs_trading_secuencial.md`
 
 ## Objetivo

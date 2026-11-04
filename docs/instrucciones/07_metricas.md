@@ -1,6 +1,6 @@
 # 07 — Métricas de desempeño
 
-**Dueño:** _por asignar_ · **Carpeta:** `performance/` · **Depende de:** 06 · **Alimenta a:** 08, 11
+**Dueño:** Gonzalo Cano (GC) · **Revisor:** Juan Manuel Espinosa (JME) · **Notebook:** `notebooks/07_metricas.ipynb` · **Carpeta:** `performance/` · **Depende de:** 06 · **Alimenta a:** 08, 11
 
 ## Parámetros de este módulo
 

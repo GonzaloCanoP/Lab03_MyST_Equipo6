@@ -71,6 +71,7 @@ dashboard/app.py     Streamlit: vista ejecutiva + vista técnica (lee artifacts/
 artifacts/           salidas del backtest (se versionan para que el dashboard corra sin main.py)
 tests/               pytest: causalidad, normalización, contabilidad multi-pata, filtro
 project_management/  charter.md, sprint_NN.md (uno por semana), postmortem.md
+notebooks/ *         un notebook de demostración por parte (solo importa módulos)
 docs/                reporte.pdf, Lab03.pdf, decisiones.md *, instrucciones/ *, notas_clase/ *, figuras/ *
 ```
 
@@ -113,7 +114,9 @@ Si cambias el esquema de un artefacto, actualiza esta tabla **y** avisa al otro 
 - Identificadores en inglés (`compute_half_life`), docstrings y comentarios en español.
 - Funciones puras y de responsabilidad única; nada de lógica en `main.py` más allá de orquestar.
 - Docstring en toda función pública: qué hace, parámetros, retorno, y supuestos (look-ahead, unidades).
-- Sin código muerto ni notebooks como entrega (se permiten notebooks de exploración en `notebooks/`, gitignored o no evaluados).
+- Sin código muerto. Los notebooks de `notebooks/` son **de demostración por parte** (uno por guía, ver
+  `00_flujo_de_trabajo.md`): solo importan funciones de los módulos y muestran resultados, sin lógica propia.
+  El pipeline evaluado es `python main.py`, nunca un notebook.
 - Figuras: título, ejes etiquetados, leyenda legible. Las del reporte se exportan a `docs/figuras/`.
 - Correr `pytest` antes de cada push.
 

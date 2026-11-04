@@ -1,0 +1,32 @@
+# Sprint 02 — 4 al 8 de noviembre de 2026 (entrega)
+
+## Objetivo (2–3 oraciones)
+
+Implementar el pipeline completo, de los datos al backtest, de modo que `python main.py`, `pytest` y el
+dashboard corran desde un clon limpio. Cada parte se muestra en su notebook de demostración y el reporte PDF
+queda en `docs/` antes del domingo 8 a las 23:59.
+
+## Tareas
+
+| Tarea | Responsable | Estado |
+|---|---|---|
+| División del trabajo, charter y sprints | JME | hecho |
+| Universos candidatos con justificación económica | JME (petroleras) / GC (oro) | hecho |
+| Entorno: versiones fijadas, ventana de fechas ≤ 15 años, `.gitignore` | JME | en progreso |
+| 01 Datos: descarga con snapshot, limpieza, validación, split congelado + notebook 01 | JME | en progreso |
+| 02 Embudo de selección sobre ambos universos + tabla de grupos + notebook 02 | GC | pendiente |
+| 03 Filtro 1 + `test_normalization` + notebook 03 | JME | pendiente |
+| 04 Filtro 2 + `test_filter` + notebook 04 | GC | pendiente |
+| 05 VECM, señales, grid search + notebook 05 | GC | pendiente |
+| 06 Backtest + `test_accounting` + notebook 06 | JME | pendiente |
+| 07 Métricas, figuras 1–8, `test_causality` + notebook 07 | GC | pendiente |
+| 08 Dashboard: vista ejecutiva / vista técnica | JME / GC | pendiente |
+| Reporte, formulación Powell, README final | ambos | pendiente |
+| Revisión desde clon limpio (`99_checklist_entrega.md`) y post-mortem | ambos | pendiente |
+
+## Bloqueos y desviaciones
+
+- La prueba exploratoria de los universos (fuera del repo) mostró que el ticker `GOLD` hoy pertenece a
+  Gold.com, Inc.; Barrick cotiza como `B`. Se corrige en el universo de oro.
+- La misma prueba mostró que el universo de petroleras no pasa el filtro de correlación > 0.7 y que su
+  cointegración depende del rezago de Johansen y del episodio de 2020; se documenta en la parte 02.

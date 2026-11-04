@@ -1,6 +1,6 @@
 # 05 — VECM, señales, sizing y búsqueda de umbrales
 
-**Dueño:** _por asignar_ · **Carpeta:** `strategy/` · **Depende de:** 02, 03, 04 · **Alimenta a:** 06, 08
+**Dueño:** Gonzalo Cano (GC) · **Revisor:** Juan Manuel Espinosa (JME) · **Notebook:** `notebooks/05_vecm_senales.ipynb` · **Carpeta:** `strategy/` · **Depende de:** 02, 03, 04 · **Alimenta a:** 06, 08
 **Leer antes:** `docs/notas_clase/04_johansen_vecm_kalman_multiactivo.md`, `docs/notas_clase/02_pairs_trading_secuencial.md`
 
 ## Objetivo

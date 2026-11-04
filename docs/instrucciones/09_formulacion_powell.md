@@ -1,6 +1,6 @@
 # 09 — Formulación como proceso de decisión secuencial (Powell)
 
-**Dueño:** _por asignar_ (cada dueño de KF1/KF2 redacta la de su filtro; el sistema completo en conjunto)
+**Dueño:** filtro 1 Juan Manuel Espinosa (JME); filtro 2 Gonzalo Cano (GC); sistema completo ambos
 **Destino:** sección del reporte · **Leer antes:** `docs/notas_clase/01_sequential_decision_analytics.md`,
 `docs/notas_clase/02_pairs_trading_secuencial.md`
 

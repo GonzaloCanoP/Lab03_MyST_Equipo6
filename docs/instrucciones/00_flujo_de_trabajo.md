@@ -31,22 +31,30 @@ y quien va adelante deja un artefacto "dummy" con el esquema correcto para que e
 
 ## División del trabajo (50/50)
 
-_Por definir en la siguiente sesión._ Llenar la tabla y copiar la asignación al `charter.md`.
+Acordada el 2026-11-04. JME = Juan Manuel Espinosa, GC = Gonzalo Cano. La asignación se copia en los roles de `charter.md`.
 
-| Parte | Dueño | Revisor (PR) |
-|---|---|---|
-| 01 Datos | | |
-| 02 Cointegración y selección | | |
-| 03 Kalman 1 — pesos | | |
-| 04 Kalman 2 — señal | | |
-| 05 VECM y señales | | |
-| 06 Backtest | | |
-| 07 Métricas | | |
-| 08 Dashboard | | |
-| 09 Formulación Powell (reporte) | | |
-| 10 Tests | | |
-| 11 Reporte y exposición | | |
-| 12 Project management | | |
+| Parte | Dueño | Revisor (PR) | Notebook de demostración | Pruebas a su cargo |
+|---|---|---|---|---|
+| 01 Datos | JME | GC | `01_datos.ipynb` | — |
+| 02 Cointegración y selección | GC | JME | `02_seleccion_grupo.ipynb` | — |
+| 03 Kalman 1 — pesos | JME | GC | `03_filtro1_pesos.ipynb` | `test_normalization.py` |
+| 04 Kalman 2 — señal | GC | JME | `04_filtro2_senal.ipynb` | `test_filter.py` |
+| 05 VECM y señales | GC | JME | `05_vecm_senales.ipynb` | — |
+| 06 Backtest | JME | GC | `06_backtest.ipynb` | `test_accounting.py` |
+| 07 Métricas y figuras 1–8 | GC | JME | `07_metricas.ipynb` | `test_causality.py` |
+| 08 Dashboard | JME: vista ejecutiva · GC: vista técnica | cruzado | — | — |
+| 09 Formulación Powell (reporte) | JME: filtro 1 · GC: filtro 2 · ambos: sistema completo | cruzado | — | — |
+| 10 Tests | cada quien las de su parte (columna de la derecha) | cruzado | — | — |
+| 11 Reporte y exposición | ambos, mitad y mitad | — | — | — |
+| 12 Project management | JME: charter y sprints 01–02 · ambos: cierre de sprint y post-mortem | — | — | — |
+
+**Universos candidatos (paso 1 de la selección):** cada integrante aporta uno con su justificación económica
+(`cointegration/universe.py`): JME petroleras de EE. UU. y Europa; GC mineras de oro más el metal. El código del
+embudo es uno solo (parte 02) y corre sobre ambos universos; el grupo final de 4 sale de uno de ellos.
+
+**Notebooks (`notebooks/`):** uno por parte, para mostrar avance al profesor y estudiar para la exposición.
+Solo importan funciones de los módulos y muestran resultados; **no contienen lógica propia** (si una celda
+calcula algo que `main.py` necesita, esa lógica va al módulo).
 
 ## Reglas de Git
 

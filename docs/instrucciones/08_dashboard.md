@@ -1,6 +1,6 @@
 # 08 — Dashboard (Streamlit)
 
-**Dueño:** _por asignar_ · **Carpeta:** `dashboard/` · **Depende de:** artefactos de 02–07 · **Alimenta a:** 11
+**Dueño:** vista ejecutiva Juan Manuel Espinosa (JME); vista técnica Gonzalo Cano (GC) · **Carpeta:** `dashboard/` · **Depende de:** artefactos de 02–07 · **Alimenta a:** 11
 
 ## Objetivo
 
