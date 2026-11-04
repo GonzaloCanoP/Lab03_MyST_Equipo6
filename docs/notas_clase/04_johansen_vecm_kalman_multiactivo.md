@@ -85,6 +85,14 @@ Premultiplicando por βᵀ: ΔS_t ≈ (βᵀα)·ECT_{t−1} + …
 - Hay corrección si **−2 < βᵀα < 0**.
 - Vida media implícita en el modelo: **−ln 2 / ln(1 + βᵀα)**.
 
+> **Aclaración del profesor (2026-11-02), sobre los "residuales del VECM" de §3.6:** "El residual de la relación
+> de equilibrio, es el término de corrección de error del VECM, que el Filtro 1 produce día a día. No es residual
+> como tal en términos de diferencia, si no la corrección que se aplica." Y: "Puedes comparar la estática con la
+> dinámica del Filtro 1."
+>
+> Es decir: la serie que normaliza el filtro 2 es el ECT, construido con los pesos dinámicos del filtro 1
+> (β̂_tᵀP_t − ĉ_t), no el residual ε_t de la ecuación del VECM. La versión estática usa el β de Johansen fijo.
+
 **Pruebas múltiples con grupos:** grupos de tamaño 3 a 5 de m activos = C(m,3) + C(m,4) + C(m,5).
 Para m = 20: 1 140 + 4 845 + 15 504 = 21 489 grupos → al 5 %, más de mil falsos positivos aunque nada esté
 cointegrado. Defensas: racional económico primero, estabilidad entre submuestras, y **revelar el número de
@@ -166,6 +174,7 @@ las innovaciones del filtro.
 | Normalización j = argmax \|β_i\| | Constantes de pata ancla y signo en `cointegration/johansen.py`; `tests/test_normalization.py` |
 | Estabilidad / Johansen móvil | `rolling_eigenvector.parquet` → figura 4 |
 | VECM, α, −2 < βᵀα < 0 | `strategy/vecm.py` → `vecm_summary.json`; interpretación de α en el reporte |
+| ECT que alimenta al filtro 2 | ECT dinámico del filtro 1 (`kf1_weights.parquet`) → `kalman/signal_filter.py`; comparación estático vs dinámico en el reporte |
 | Filtro 1 en ℝⁿ | `kalman/weights_filter.py` con estado z_t = (c_t, β_t^{(2)}, …, β_t^{(n)}) |
 | Sizing N_i, q_i | `strategy/sizing.py`; 80 % de V_t |
 | Costos con n patas, costo de rebalancear | `backtest/costs.py`; rebalanceo diario vs banda (`rebalance_comparison.csv`) |
@@ -177,8 +186,8 @@ las innovaciones del filtro.
 - Log-precios vs precios en nivel para Johansen, filtro 1 y spread (y su consistencia con el sizing).
 - Si Engle–Granger elimina o solo prioriza.
 - `det_order` y `k_ar_diff` de Johansen/VECM (k por criterio de información sobre el VAR).
-- Qué "residual del VECM" alimenta al filtro 2: ECT_{t−1} = βᵀP_{t−1} − c, el spread del filtro 1, o el residual
-  de la ecuación; y cómo se concilia con S_t = β̂_tᵀP_t.
+- ~~Qué "residual del VECM" alimenta al filtro 2~~ → **resuelto por el profesor (2026-11-02):** el ECT que
+  produce el filtro 1 día a día; el equipo decidió (2026-11-04) calcularlo con los pesos prior β̂_{t|t−1}.
 - Si el intercepto c_t va en el estado del filtro 1.
 - Ventana y paso del Johansen móvil; rango "operable" de la vida media.
 - Política de banda de no-rebalanceo (ancho de la banda) frente al rebalanceo diario.

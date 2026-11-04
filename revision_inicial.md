@@ -183,7 +183,7 @@ Tipos de retorno como `@dataclass(frozen=True)` sencillos; así se puede seriali
 
 **strategy/**
 - `fit_vecm(train_prices, beta, k_ar_diff) -> VECMResult` (α, Γ, residuales de train)
-- `vecm_residual(prices, vecm, beta_t) -> pd.Series` — la serie que alimenta a KF2 (definición pendiente, pregunta 4).
+- `error_correction_term(prices, beta, intercept) -> pd.Series` — ECT = βᵀP_t − c; con β̂_t de KF1 es la serie que alimenta a KF2, con el β de Johansen es la versión estática (pregunta 4, resuelta).
 - `generate_positions(z, params, half_life) -> pd.DataFrame` (dirección ∈ {-1,0,1}, motivo, días en posición) — recursiva, sin mirar adelante.
 - `target_shares(direction, beta_t, prices, equity, fraction) -> pd.DataFrame`
 - `grid_search(train_inputs, grid, objective) -> (pd.DataFrame, TradingParams)`
@@ -353,7 +353,7 @@ Revisar `git shortlog -sn --no-merges` al cierre de cada sprint.
 1. **Parámetros:** ¿aceptan un `config.py` central (recomendado) o mantienen "constantes por módulo + tabla índice" como dice `CLAUDE.md`?
 2. **Fechas:** ¿cuál es la fecha de la exposición? (define la fecha límite real y los hitos).
 3. **Universo y fuente:** ¿qué sector/relación económica? (p. ej. bancos regionales de EE. UU., energía integrada, ETFs de doble listado, minoristas). ¿`yfinance` o otra fuente? ¿Aceptan versionar un snapshot de precios?
-4. **Spread que alimenta a KF2:** ¿S_t de KF1, el término de corrección βᵀP_{t-1} del VECM, o el residual de la ecuación del VECM? El enunciado dice "residuales del VECM normalizados con KF2"; conviene confirmarlo con la nota de clase o con el profesor.
+4. ~~**Spread que alimenta a KF2**~~ → **Resuelta (profesor, 2026-11-02):** es el término de corrección de error que produce el filtro 1 día a día; comparar el estático contra el dinámico. Se calcula con los pesos prior del filtro 1 (decidido 2026-11-04, ver `docs/decisiones.md`).
 5. **Walk-forward:** ¿basta con train → test → validación usando parámetros congelados, o quieren reestimar periódicamente (ventanas que avanzan)? Lo segundo es más defendible, pero también más trabajo y complica la prueba de causalidad.
 6. **Ejecución y convenciones:** ¿ejecución en t+1 o al cierre de t? ¿Devengo /252 o /360? ¿80 % sobre equity actual o sobre capital inicial?
 7. **Dashboard:** el repo ya asume Streamlit; ¿confirmado? (recomendado: menos código que Dash para dos vistas).

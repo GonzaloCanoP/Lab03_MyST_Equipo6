@@ -13,7 +13,7 @@ Q, R, inicialización y burn-in como constantes en `kalman/signal_filter.py`; se
 
 ## Contrato
 
-- **Lee:** `S_t` de KF1 (o residuales VECM, ver 05).
+- **Lee:** el ECT dinámico que produce KF1 día a día (`kf1_weights.parquet`). Es lo que el enunciado llama "residuales del VECM" (aclarado por el profesor, 2026-11-02; ver 05 y `docs/decisiones.md`).
 - **Escribe:** `kf2_signal.parquet` — μ prior, μ posterior, σ prior, innovación, K_t, varianza posterior, z_t.
 - **Expone:** `predict()` / `update(obs)` separados; `zscore_prior(obs)` que se calcula **antes** de `update`.
 

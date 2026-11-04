@@ -95,7 +95,7 @@ Toda serie de tiempo lleva una columna `split ∈ {train, test, validation}`.
 | `johansen_summary.json` | cointegration | traza, max-eigen, valores críticos, rango, vector elegido, normalización |
 | `vector_comparison.csv` | cointegration | por cada vector cointegrante: ADF, p-value, vida media |
 | `rolling_eigenvector.parquet` | cointegration | primer eigenvector de Johansen móvil |
-| `kf1_weights.parquet` | kalman | β̂_t por activo, ganancia de Kalman, varianza posterior, spread S_t |
+| `kf1_weights.parquet` | kalman | β̂_t por activo, ganancia de Kalman, varianza posterior, ECT dinámico (entrada de KF2) y ECT estático con β de Johansen (para comparar) |
 | `kf2_signal.parquet` | kalman | μ prior/post, σ prior, innovación, ganancia, varianza posterior, z_t |
 | `params.json` | strategy | z_entrada, z_salida, stop, holding máx., Q, R, burn-in, semilla |
 | `grid_search.csv` | strategy | resultados de la búsqueda de umbrales en train |

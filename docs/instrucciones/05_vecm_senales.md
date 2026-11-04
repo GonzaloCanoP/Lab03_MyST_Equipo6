@@ -8,6 +8,11 @@
 Estimar el VECM con el vector de Johansen como término de corrección de error, derivar el z-score de sus residuales
 normalizados por KF2, y traducirlo en posiciones por activo.
 
+> **Aclarado por el profesor (2026-11-02):** los "residuales del VECM" son el **término de corrección de error**
+> que el filtro 1 produce día a día (ECT_t = β̂_tᵀP_t − ĉ_t), no el residual ε_t de la ecuación del VECM. Esa es la
+> serie que normaliza KF2. El VECM en train aporta α, la condición −2 < βᵀα < 0 y la vida media.
+> Ver `docs/decisiones.md`.
+
 ## Parámetros de este módulo
 
 `INITIAL_CAPITAL = 1_000_000`, `POSITION_FRACTION = 0.80` en `strategy/sizing.py`; rejilla del grid search en `strategy/optimization.py`. Si cambian, actualizar la tabla de parámetros de `CLAUDE.md`.
@@ -33,7 +38,9 @@ REPETIR hasta cumplir el criterio de terminado:
 **VECM**
 - [ ] VECM estimado en train con el β de Johansen (statsmodels `VECM`, rango r y k_ar_diff consistentes con 02).
 - [ ] Reportar α (velocidades de ajuste): ¿qué activos corrigen hacia el equilibrio?
-- [ ] Definir claramente qué "residual del VECM" alimenta a KF2 (término de corrección βᵀP_{t-1} vs residual de la ecuación) y conciliarlo con el S_t de KF1 → `docs/decisiones.md`.
+- [x] Definir claramente qué "residual del VECM" alimenta a KF2 → **ECT dinámico del filtro 1** (respuesta del profesor, 2026-11-02; `docs/decisiones.md`).
+- [x] El ECT de t usa los pesos **prior** β̂_{t|t−1} (equivale a la innovación de KF1; causal) — decidido 2026-11-04, `docs/decisiones.md`.
+- [ ] Comparar el ECT **estático** (β de Johansen fijo, βᵀP_t − c) contra el **dinámico** del filtro 1: gráfica de ambos, ADF y vida media de cada uno; si da tiempo, backtest de ambos (sugerencia del profesor).
 
 **Señales**
 - [ ] Largo spread si z_t < −z_entrada; corto si z_t > +z_entrada; salida si |z_t| < z_salida.
@@ -62,4 +69,6 @@ REPETIR hasta cumplir el criterio de terminado:
 ## Preguntas probables
 
 - ¿Qué aporta el VECM si ya tienen el spread de Kalman? ¿Qué dicen los α?
+- ¿Qué es exactamente el "residual del VECM" que usan para el z-score? ¿Por qué no es ε_t?
+- ¿Qué cambia entre el ECT estático y el dinámico? ¿Cuál revierte más rápido y cuál opera mejor?
 - ¿Por qué esos umbrales? ¿Qué tan sensibles son los resultados a ellos?
