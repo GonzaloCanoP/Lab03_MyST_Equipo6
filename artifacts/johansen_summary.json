@@ -1,0 +1,162 @@
+{
+  "universe": "oro",
+  "tickers": [
+    "GLD",
+    "GDX",
+    "AEM",
+    "FNV"
+  ],
+  "train_start": "2012-01-03",
+  "train_end": "2020-11-19",
+  "n_obs": 2237,
+  "prices": "log",
+  "det_order": 0,
+  "k_ar_diff": 1,
+  "k_selection": "BIC sobre VAR en log-niveles; k_ar_diff = p - 1 (mínimo 1)",
+  "eigenvalues": [
+    0.016603474829117126,
+    0.005877623987402891,
+    0.004219685754997998,
+    0.0005538984439526294
+  ],
+  "trace": [
+    {
+      "r0": 0,
+      "stat": 61.28479147113991,
+      "cv90": 44.4929,
+      "cv95": 47.8545,
+      "cv99": 54.6815,
+      "reject_95": true
+    },
+    {
+      "r0": 1,
+      "stat": 23.864504968678514,
+      "cv90": 27.0669,
+      "cv95": 29.7961,
+      "cv99": 35.4628,
+      "reject_95": false
+    },
+    {
+      "r0": 2,
+      "stat": 10.68925774052356,
+      "cv90": 13.4294,
+      "cv95": 15.4943,
+      "cv99": 19.9349,
+      "reject_95": false
+    },
+    {
+      "r0": 3,
+      "stat": 1.2383060017862988,
+      "cv90": 2.7055,
+      "cv95": 3.8415,
+      "cv99": 6.6349,
+      "reject_95": false
+    }
+  ],
+  "max_eigen": [
+    {
+      "r0": 0,
+      "stat": 37.4202865024614,
+      "cv90": 25.1236,
+      "cv95": 27.5858,
+      "cv99": 32.7172,
+      "reject_95": true
+    },
+    {
+      "r0": 1,
+      "stat": 13.175247228154952,
+      "cv90": 18.8928,
+      "cv95": 21.1314,
+      "cv99": 25.865,
+      "reject_95": false
+    },
+    {
+      "r0": 2,
+      "stat": 9.450951738737261,
+      "cv90": 12.2971,
+      "cv95": 14.2639,
+      "cv99": 18.52,
+      "reject_95": false
+    },
+    {
+      "r0": 3,
+      "stat": 1.2383060017862988,
+      "cv90": 2.7055,
+      "cv95": 3.8415,
+      "cv99": 6.6349,
+      "reject_95": false
+    }
+  ],
+  "rank_trace": 1,
+  "rank_maxeig": 1,
+  "chosen_vector": 1,
+  "beta_raw": {
+    "GLD": 23.036590666103965,
+    "GDX": -13.098484820968036,
+    "AEM": 9.224283865256291,
+    "FNV": -8.54507452169084
+  },
+  "beta_normalized": {
+    "GLD": 1.0,
+    "GDX": -0.5685947634708439,
+    "AEM": 0.4004187945583849,
+    "FNV": -0.37093485948266036
+  },
+  "anchor": "GLD",
+  "sign_convention": "beta_anchor = +1 (largo el spread = comprar los activos con beta > 0, vender los de beta < 0)",
+  "intercept_c": 2.987729458698268,
+  "spread_adf_stat": -4.681511832817948,
+  "spread_adf_pvalue": 9.114631803223501e-05,
+  "half_life_days": 25.335550161262756,
+  "integration_order": {
+    "GLD": {
+      "adf_pvalue_level": 0.6925830473220979,
+      "adf_pvalue_diff": 0.0,
+      "is_I1": true
+    },
+    "GDX": {
+      "adf_pvalue_level": 0.1890433098270453,
+      "adf_pvalue_diff": 0.0,
+      "is_I1": true
+    },
+    "AEM": {
+      "adf_pvalue_level": 0.5267271642070315,
+      "adf_pvalue_diff": 0.0,
+      "is_I1": true
+    },
+    "FNV": {
+      "adf_pvalue_level": 0.7758032435735704,
+      "adf_pvalue_diff": 0.0,
+      "is_I1": true
+    }
+  },
+  "multiple_testing": {
+    "petroleras": {
+      "groups_tested": 126,
+      "johansen_reject_95": 11,
+      "johansen_reject_99": 2,
+      "expected_false_positives_95": 6.300000000000006,
+      "pass_correlation": 4,
+      "survive_all_stages": 0,
+      "bonferroni_alpha": 0.0003968253968253972
+    },
+    "oro": {
+      "groups_tested": 70,
+      "johansen_reject_95": 9,
+      "johansen_reject_99": 2,
+      "expected_false_positives_95": 3.500000000000003,
+      "pass_correlation": 66,
+      "survive_all_stages": 9,
+      "bonferroni_alpha": 0.0007142857142857149
+    },
+    "total": {
+      "groups_tested": 196,
+      "johansen_reject_95": 20,
+      "johansen_reject_99": 4,
+      "expected_false_positives_95": 9.800000000000008,
+      "pass_correlation": 70,
+      "survive_all_stages": 9,
+      "bonferroni_alpha": 0.00025510204081632677
+    }
+  }
+}

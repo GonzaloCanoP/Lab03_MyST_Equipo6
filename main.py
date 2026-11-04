@@ -18,11 +18,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from cointegration.universe import all_tickers
+from cointegration.johansen import ANCHOR_TICKER, ROLLING_WINDOW, rolling_first_eigenvector
+from cointegration.selection import describe_chosen_group, multiple_testing_summary, run_funnel
+from cointegration.universe import UNIVERSES, all_tickers
 from data.clean import clean_prices
 from data.download import load_prices
-from data.split import SplitDates, compute_split_dates, save_split_dates
+from data.split import SplitDates, compute_split_dates, label_split, save_split_dates, slice_split
 from data.validate import JUMP_THRESHOLD, assert_valid, validate_prices
+from performance.figures import plot_rolling_eigenvector
 
 # --- Reproducibilidad: semilla fija para todo el pipeline ---
 SEED = 42
@@ -59,10 +62,49 @@ def run_data_stage() -> tuple[pd.DataFrame, SplitDates]:
     return prices, split_dates
 
 
+def run_cointegration_stage(prices: pd.DataFrame, split_dates: SplitDates) -> tuple[list[str], dict]:
+    """Etapa 2: embudo de selección sobre ambos universos (solo train) y Johansen del grupo elegido.
+
+    Escribe selection_table.csv, johansen_summary.json, vector_comparison.csv, rolling_eigenvector.parquet y la
+    figura 4. Retorna (tickers del grupo, β normalizado por ticker).
+    """
+    train = slice_split(prices, split_dates, "train")
+    table = run_funnel(train, UNIVERSES)
+    chosen = table.loc[table["chosen"]].iloc[0]
+    tickers = chosen["group"].split("-")
+
+    summary, comparison = describe_chosen_group(train, tickers, chosen["universe"])
+    if summary["anchor"] != ANCHOR_TICKER:
+        raise ValueError(f"La pata ancla calculada ({summary['anchor']}) no coincide con ANCHOR_TICKER ({ANCHOR_TICKER})")
+    summary["multiple_testing"] = multiple_testing_summary(table)
+
+    # Johansen móvil en toda la muestra: cada ventana usa solo datos pasados (diagnóstico, no selección).
+    rolling = rolling_first_eigenvector(np.log(prices[tickers]), summary["k_ar_diff"], summary["anchor"])
+    rolling["split"] = label_split(rolling.index, split_dates)
+
+    table.to_csv(ARTIFACTS / "selection_table.csv", index=False)
+    comparison.to_csv(ARTIFACTS / "vector_comparison.csv", index=False)
+    rolling.to_parquet(ARTIFACTS / "rolling_eigenvector.parquet")
+    (ARTIFACTS / "johansen_summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False))
+    plot_rolling_eigenvector(rolling, tickers, summary["anchor"], ROLLING_WINDOW, FIGURES / "fig04_eigenvector_movil.png")
+
+    total = summary["multiple_testing"]["total"]
+    print(f"[cointegration] {total['groups_tested']} grupos probados; Johansen rechaza r = 0 en "
+          f"{total['johansen_reject_95']} (esperados por azar: {total['expected_false_positives_95']:.1f}); "
+          f"sobreviven {total['survive_all_stages']}")
+    print(f"[cointegration] grupo elegido ({summary['universe']}): {'-'.join(tickers)}, "
+          f"traza {summary['trace'][0]['stat']:.1f} vs {summary['trace'][0]['cv95']:.1f} (95 %), r̂ = {summary['rank_trace']}")
+    beta_text = ", ".join(f"{t} {b:+.3f}" for t, b in summary["beta_normalized"].items())
+    print(f"[cointegration] β̃ = ({beta_text}); ADF p = {summary['spread_adf_pvalue']:.4f}, "
+          f"vida media {summary['half_life_days']:.1f} días")
+    return tickers, summary["beta_normalized"]
+
+
 def main() -> None:
     np.random.seed(SEED)
     ARTIFACTS.mkdir(exist_ok=True)
     prices, split_dates = run_data_stage()
+    tickers, beta = run_cointegration_stage(prices, split_dates)
     # Las siguientes etapas se conectan aquí conforme se implementan.
 
 
