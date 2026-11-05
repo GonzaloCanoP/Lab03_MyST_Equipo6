@@ -57,7 +57,54 @@ En el notebook 03: (a) el ejemplo 1 de la sesión 13 reproducido por `WeightsFil
 
 ## Filtro 2 — media y escala del ECT → z-score (GC)
 
-*Pendiente.*
+Código: `kalman/signal_filter.py`. Entrada: ECT dinámico del filtro 1 (pesos prior), desde 2013-01-04.
+
+### Proceso de 6 pasos
+
+1. **Problema.** Estimar cada día la media latente del ECT y su escala para convertir el ECT en un z-score que diga
+   qué tan lejos está el portafolio de su equilibrio, sin usar información del día para juzgar al día (z prior).
+2. **Estado.** z_t = (μ_t, x_t)ᵀ: μ_t es la media lenta del ECT (nivel local de clase) y x_t la desviación que revierte.
+   Se agrega x_t porque el ECT revierte en semanas (vida media ≈ 21 días en train) y el nivel local supone que toda
+   desviación es ruido de un día: o persigue al spread o deja innovaciones autocorrelacionadas (`docs/decisiones.md`).
+3. **Transición.** μ_t = μ_{t−1} + w^μ_t, x_t = φ x_{t−1} + w^x_t; A = diag(1, φ), Q = diag(q_μ, q_x).
+4. **Observación.** ECT_t = μ_t + x_t + v_t, v_t ~ N(0, r); C = (1, 1).
+5. **Política.** La regla de Kalman ẑ_{t|t} = ẑ_{t|t−1} + K_t ν_t, K_t = P_{t|t−1} Cᵀ / S_t: una **PFA** con
+   θ = (φ, q_μ, q_x, r). La señal que sale es z_t = (ECT_t − μ̂_{t|t−1}) / σ̂_{t|t−1} con
+   σ̂²_{t|t−1} = q_x / (1 − φ²) + p^μ_{t|t−1} + r, calculada **antes** de actualizar.
+6. **Aprendizaje.** θ se calibra con entrenamiento: φ del AR(1)/OU del ECT; q_x y r por máxima verosimilitud;
+   q_μ por separación de escalas (μ̂ absorbe a lo más 20 % de un desplazamiento en 2 vidas medias, el mismo criterio
+   del filtro 1). La creencia se actualiza cada día con predecir → actualizar.
+
+### 5 elementos
+
+| Elemento | Definición | En el código |
+|---|---|---|
+| Variables de estado S_t | Información I_t = ECT_t; creencia B_t = (μ̂_{t\|t}, x̂_{t\|t}, P_{t\|t}). No hay estado físico | `SignalFilter.state`, `SignalFilter.P_cov` |
+| Decisión x_t | La corrección aplicada a la creencia: K_t ν_t | `update()` |
+| Información exógena W_{t+1} | El ECT del día siguiente (lo produce el filtro 1 con los precios de t + 1) | `ect_dynamic` |
+| Transición S^M(S_t, x_t, W_{t+1}) | Predecir: ẑ_{t+1\|t} = A ẑ_{t\|t}, P_{t+1\|t} = A P_{t\|t} Aᵀ + Q. Actualizar: ν, S, K, ẑ_{t+1\|t+1}, P_{t+1\|t+1} | `predict()`, `update()` |
+| Función objetivo | min_π E[Σ ν_t²] (verosimilitud de las innovaciones para q_x y r), sujeto a que la media se mueva lento frente a la reversión del ECT (q_μ) | `fit_noise_mle`, `calibrate_q_mu` |
+
+### Ganancia de Kalman: cálculo e interpretación
+
+- K_t = (K^μ_t, K^x_t): de cada sorpresa ν_t, qué fracción mueve la media y cuál la desviación. Con parámetros fijos y
+  C constante converge a su estado estable: K^μ ≈ 0.09 y K^x ≈ 0.87 (figura 5, panel 3).
+- K^μ es sobre la **sorpresa de un día**, no sobre la desviación: si el ECT queda desplazado de forma permanente, x̂
+  absorbe primero y μ̂ solo toma ≈ 20 % del desplazamiento en 42 días.
+- q_μ → 0: la media queda fija y z mide distancia a una constante. q_μ grande: μ̂ persigue al ECT y z deja de tener señal.
+
+### Q y R justificados
+
+- φ = 0.967 (vida media 21.2 días, AR(1)/OU del ECT en train).
+- q_x = 9.7 × 10⁻⁵ y r = 4.7 × 10⁻⁶ por máxima verosimilitud en train: casi todo el ruido diario es de la desviación
+  (√(q_x / (1 − φ²)) ≈ 0.039, la dispersión del ECT) y muy poco es ruido de medición.
+- q_μ = 8.6 × 10⁻⁷ por separación de escalas (la verosimilitud casi no depende de q_μ: no lo identifica).
+- P₀ = diag(v_x, v_x), μ̂₀ = x̂₀ = 0; burn-in de 63 días.
+
+### Ejemplo numérico
+
+En el notebook 04: (a) el ejemplo 2 de la sesión 13 reproducido por `SignalFilter` (caso φ = 0, q_x = 0), con el día 4
+donde el z prior (2.04) abre la operación y el posterior (1.82) no; (b) 5 días reales después del burn-in.
 
 ## Sistema completo (ambos)
 

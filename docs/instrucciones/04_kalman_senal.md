@@ -29,15 +29,15 @@ REPETIR hasta cumplir el criterio de terminado:
 
 ## Checklist
 
-- [ ] Modelo de estado para μ_t (nivel local: μ_t = μ_{t-1} + w_t) y observación S_t = μ_t + v_t.
-- [ ] Definir cómo se estima σ_t² (ej. varianza de la innovación F_t = P_prior + R, o EWMA de innovaciones, o estado aumentado) — **confirmar contra notas de clase** y documentar.
-- [ ] z_t calculado con μ̂_{t|t-1} y σ̂_{t|t-1} (prior). Comentario explícito en el código.
-- [ ] Q y R con justificación; inicialización y burn-in.
-- [ ] Ganancia K_t guardada (figura 5, parte KF2) y varianza posterior (diagnóstico).
-- [ ] Innovaciones normalizadas con varianza ≈ 1 y autocorrelación no significativa (Ljung-Box) — prueba 4.
-- [ ] Figura 6: z-score con líneas de umbral de entrada/salida (umbrales vienen de 05).
-- [ ] Ejemplo numérico trabajado de 3–5 periodos para el reporte.
-- [ ] Formulación Powell del filtro 2 (ver `09_formulacion_powell.md`).
+- [x] Modelo de estado: **estado aumentado** (μ_t nivel local + desviación AR(1) x_t), observación ECT_t = μ_t + x_t + v_t; el nivel local es el caso x ≡ 0. Motivo en `docs/decisiones.md`.
+- [x] σ̂²_{t|t−1} = q_x / (1 − φ²) + p^μ_{t|t−1} + r (se reduce a p + q + r, la de clase, con x ≡ 0); documentado.
+- [x] z_t calculado con μ̂_{t|t-1} y σ̂_{t|t-1} (prior) en `zscore_prior()`, antes de `update`. Comentario explícito en el código.
+- [x] Q y R con justificación (φ por OU, q_x y r por MV, q_μ por separación de escalas); inicialización y burn-in de 63 días.
+- [x] Ganancia K_t guardada (`gain_mu`, `gain_x`; figura 5 completa) y varianza posterior (`var_post_mu`, `var_post_x`).
+- [x] Innovaciones normalizadas con varianza ≈ 1 (0.99 en train, tolerancia [0.9, 1.1]) y Ljung–Box del rezago 1 no significativo — `tests/test_filter.py`. A 5–20 rezagos rechaza por el ECT (limitación documentada).
+- [ ] Figura 6: z-score con líneas de umbral de entrada/salida (umbrales vienen de 05). *(se genera en la parte 05)*
+- [x] Ejemplo numérico: ejemplo 2 de la sesión 13 reproducido (6 periodos) y 5 días reales (notebook 04).
+- [x] Formulación Powell del filtro 2 en `docs/powell.md`.
 
 ## Criterio de terminado
 

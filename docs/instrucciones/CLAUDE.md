@@ -59,6 +59,7 @@ si cambias un valor o lo mueves, actualízala.
 | Capital inicial | $1,000,000 | `strategy/sizing.py` |
 | Tamaño de posición | 80 % del capital disponible, repartido según β̂_t | `strategy/sizing.py` |
 | Filtro 1: Q, R, P₀, burn-in | Q = q·I (q calibrado en train, `calibrate_q`), R = var. de residuales de Johansen en train, P₀ = 252·Q, 252 días; tolerancia de absorción 20 % en 2 vidas medias | `kalman/weights_filter.py` → `artifacts/params.json` (`kf1`) |
+| Filtro 2: φ, q_μ, q_x, r, burn-in | estado aumentado; φ por OU, q_x y r por MV, q_μ por separación de escalas (20 % en 2 vidas medias), todo en train; burn-in 63 días; tolerancia de la prueba 4: var. en [0.9, 1.1] | `kalman/signal_filter.py` → `artifacts/params.json` (`kf2`) |
 | Umbrales z, stop, holding máx. | grid search en train | `strategy/optimization.py` → `artifacts/params.json` |
 
 ## Estructura (obligatoria por el enunciado + extras marcados con *)
@@ -103,7 +104,7 @@ Toda serie de tiempo lleva una columna `split ∈ {train, test, validation}`.
 | `vector_comparison.csv` | cointegration | por cada vector cointegrante: ADF, p-value, vida media |
 | `rolling_eigenvector.parquet` | cointegration | primer eigenvector de Johansen móvil |
 | `kf1_weights.parquet` | kalman | `beta_<T>` (posterior β̂_{t\|t}) y `beta_prior_<T>`, `intercept(_prior)`, `gain_<estado>` (K_t), `var_post_<estado>`, `ect_dynamic` (entrada de KF2, pesos prior), `ect_static` (Johansen de train), `innov_var`, `innov_norm`, `absorption` (C_tK_t), `burn_in` |
-| `kf2_signal.parquet` | kalman | μ prior/post, σ prior, innovación, ganancia, varianza posterior, z_t |
+| `kf2_signal.parquet` | kalman | `ect` (entrada), `mu_prior`/`mu_post`, `x_prior`/`x_post`, `sigma_prior`, `zscore` (prior, la señal), `zscore_post` (solo diagnóstico), `innov`, `innov_var`, `innov_norm`, `gain_mu`, `gain_x`, `var_post_mu`, `var_post_x`, `burn_in`, `split`; arranca tras el burn-in del filtro 1 |
 | `params.json` | main (kalman + strategy) | `seed`; `kf1` (q, R, P₀, burn-in, β₀, c₀); filtro 2 y estrategia agregan sus llaves (z_entrada, z_salida, stop, holding máx., Q, R) |
 | `grid_search.csv` | strategy | resultados de la búsqueda de umbrales en train |
 | `signals.parquet` | strategy | z_t, señal, posición objetivo por activo |
