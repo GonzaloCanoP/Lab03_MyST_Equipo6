@@ -5,6 +5,7 @@ Se exportan a `docs/figuras/` desde `main.py`; los notebooks llaman a las mismas
 
 from pathlib import Path
 
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -271,4 +272,80 @@ def plot_grid_heatmap(grid: pd.DataFrame, rule: dict, path: Path | None = None) 
     if path is not None:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(path, dpi=150, bbox_inches="tight")
+    return fig
+
+
+EXIT_MARKERS = {"salida": ("o", "tab:green"), "stop": ("X", "tab:red"), "holding": ("s", "tab:orange"),
+                "fin_particion": ("D", "tab:gray")}
+
+
+def plot_spread_signals(kf2: pd.DataFrame, trades: pd.DataFrame, path: Path | None = None) -> plt.Figure:
+    """Figura 2: ECT dinámico del filtro 1 con su media prior del filtro 2 y las operaciones marcadas.
+
+    Entradas: ▲ largo el spread, ▼ corto (en la fecha de ejecución). Salidas con el marcador de su motivo.
+    Parámetros:
+        kf2: `kf2_signal.parquet` (`ect`, `mu_prior`, `split`).
+        trades: `trades.csv` (`entry_date`, `exit_date`, `direction`, `exit_reason`).
+        path: si se da, guarda la figura (PNG).
+    """
+    fig, ax = plt.subplots(figsize=(13, 5))
+    _shade_splits(ax, kf2["split"])
+    ax.plot(kf2.index, kf2["ect"], color="tab:blue", linewidth=0.8, label="ECT dinámico (filtro 1)")
+    ax.plot(kf2.index, kf2["mu_prior"], color="black", linewidth=1.0, linestyle="--", label="μ̂ prior (filtro 2)")
+    entries = pd.to_datetime(trades["entry_date"])
+    for direction, marker, color, label in ((1, "^", "tab:green", "entrada largo"), (-1, "v", "tab:red", "entrada corto")):
+        dates = entries[trades["direction"] == direction]
+        ax.scatter(dates, kf2["ect"].reindex(dates), marker=marker, color=color, s=40, zorder=3, label=label)
+    exits = pd.to_datetime(trades["exit_date"])
+    for reason, (marker, color) in EXIT_MARKERS.items():
+        dates = exits[trades["exit_reason"] == reason]
+        if len(dates):
+            ax.scatter(dates, kf2["ect"].reindex(dates), marker=marker, facecolor="none" if marker == "o" else color,
+                       edgecolor=color, s=35, zorder=3, label=f"salida: {reason}")
+    ax.axhline(0, color="black", linewidth=0.5)
+    ax.set_title("Figura 2 — Spread del portafolio (ECT dinámico) con las operaciones")
+    ax.set_xlabel("Fecha")
+    ax.set_ylabel("ECT = β̂ᵀ ln P_t − ĉ")
+    ax.legend(fontsize=8, loc="upper left", ncol=4)
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+    if path is not None:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(path, dpi=150)
+    return fig
+
+
+def plot_equity_curves(equity: pd.DataFrame, path: Path | None = None) -> plt.Figure:
+    """Figura 7: curva de capital neta de costos por partición, junto con la curva antes de costos.
+
+    Cada partición arranca con el capital inicial (walk-forward con parámetros congelados desde train). La distancia
+    entre las dos curvas es lo acumulado en comisiones y préstamo.
+    Parámetros:
+        equity: `equity_curve.parquet` (`equity`, `gross_pnl`, `split`).
+        path: si se da, guarda la figura (PNG).
+    """
+    splits = list(dict.fromkeys(equity["split"]))
+    fig, axes = plt.subplots(1, len(splits), figsize=(15, 4.5), sharey=True,
+                             gridspec_kw={"width_ratios": [(equity["split"] == s).sum() for s in splits]})
+    for ax, split in zip(np.atleast_1d(axes), splits):
+        part = equity.loc[equity["split"] == split]
+        start = part["equity"].iloc[0] + part["commission"].iloc[0]
+        before_costs = start + part["gross_pnl"].cumsum()
+        ret = part["equity"].iloc[-1] / start - 1
+        ax.set_facecolor(SPLIT_COLORS[split])
+        ax.plot(part.index, before_costs, color="tab:gray", linewidth=1.0, linestyle="--", label="antes de costos")
+        ax.plot(part.index, part["equity"], color="tab:blue", linewidth=1.4, label="neta de costos")
+        ax.axhline(start, color="black", linewidth=0.6)
+        ax.set_title(f"{SPLIT_LABELS[split]}: {ret:+.1%} neto")
+        ax.xaxis.set_major_locator(mdates.YearLocator())
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+        ax.grid(alpha=0.3)
+    axes = np.atleast_1d(axes)
+    axes[0].set_ylabel("Capital ($)")
+    axes[0].legend(fontsize=8, loc="upper left")
+    fig.suptitle("Figura 7 — Curvas de capital por partición (cada una arranca con $1,000,000)")
+    fig.tight_layout()
+    if path is not None:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(path, dpi=150)
     return fig

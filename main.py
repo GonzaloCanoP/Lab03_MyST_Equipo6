@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from backtest.walk_forward import REBALANCE_BANDS, compare_rebalance, run_walk_forward, split_summary, stack_results
 from cointegration.johansen import ANCHOR_TICKER, ROLLING_WINDOW, rolling_first_eigenvector
 from cointegration.selection import describe_chosen_group, multiple_testing_summary, run_funnel
 from cointegration.universe import UNIVERSES, all_tickers
@@ -28,8 +29,9 @@ from data.split import SplitDates, add_split_column, compute_split_dates, save_s
 from data.validate import JUMP_THRESHOLD, assert_valid, validate_prices
 from kalman.signal_filter import calibrate_signal_filter, innovation_diagnostics, run_signal_filter
 from kalman.weights_filter import BURN_IN, absorbed_fraction, calibrate_q, run_weights_filter, static_ect
-from performance.figures import (plot_dynamic_weights, plot_ect_comparison, plot_grid_heatmap, plot_kalman_gains,
-                                 plot_normalized_prices, plot_rolling_eigenvector, plot_zscore_signals)
+from performance.figures import (plot_dynamic_weights, plot_ect_comparison, plot_equity_curves, plot_grid_heatmap,
+                                 plot_kalman_gains, plot_normalized_prices, plot_rolling_eigenvector,
+                                 plot_spread_signals, plot_zscore_signals)
 from strategy.optimization import (HOLDING_K_GRID, MIN_TRADES, OBJECTIVE, Z_ENTRY_GRID, Z_EXIT_GRID, Z_STOP_GRID,
                                    best_rule, grid_search)
 from strategy.signals import build_signals
@@ -258,6 +260,39 @@ def run_strategy_stage(prices: pd.DataFrame, split_dates: SplitDates, summary: d
     return signals, params
 
 
+def run_backtest_stage(prices: pd.DataFrame, split_dates: SplitDates, signals: pd.DataFrame,
+                       kf2: pd.DataFrame) -> pd.DataFrame:
+    """Etapa 5: walk-forward con θ congelado (rebalanceo diario) y comparación contra bandas de no-rebalanceo.
+
+    Cada partición se simula por separado desde el primer día con señal (después de los burn-in) y arranca con el
+    capital inicial. Escribe equity_curve.parquet, trades.csv, rebalance_comparison.csv y las figuras 2 y 7.
+    Retorna el resumen por partición.
+    """
+    tickers = [c.removeprefix("beta_") for c in signals.columns if c.startswith("beta_")]
+    active_prices = prices.loc[signals.index, tickers]
+    results = run_walk_forward(active_prices, signals, split_dates)
+    equity, trades = stack_results(results)
+    summary = pd.DataFrame({name: split_summary(result) for name, result in results.items()}).T
+    rebalance = compare_rebalance(active_prices, signals, split_dates, None, REBALANCE_BANDS)
+
+    round_floats(equity).to_parquet(ARTIFACTS / "equity_curve.parquet")
+    round_floats(trades).to_csv(ARTIFACTS / "trades.csv", index=False)
+    round_floats(rebalance).to_csv(ARTIFACTS / "rebalance_comparison.csv", index=False)
+    fig = plot_equity_curves(equity, FIGURES / "fig07_curvas_capital.png")
+    plt.close(fig)
+    fig = plot_spread_signals(kf2.loc[signals.index], trades, FIGURES / "fig02_spread_senales.png")
+    plt.close(fig)
+
+    for name, row in summary.iterrows():
+        print(f"[backtest] {name:<10} neto {row['net_return']:+7.2%}, Sharpe neto {row['sharpe_net']:5.2f}, "
+              f"MDD {row['max_drawdown']:7.2%}, {int(row['n_trades'])} operaciones, costos "
+              f"{row['commission'] + row['borrow']:,.0f} ({row['cost_share_of_gross']:.0%} del bruto)")
+    best_band = rebalance.groupby("rebalance_band")["net_pnl"].sum().idxmax()
+    print(f"[backtest] rebalanceo: la banda con más P&L neto acumulado en las tres particiones es {best_band:g} "
+          f"(detalle en rebalance_comparison.csv)")
+    return summary
+
+
 def main() -> None:
     np.random.seed(SEED)
     ARTIFACTS.mkdir(exist_ok=True)
@@ -271,7 +306,7 @@ def main() -> None:
     # params.json: parámetros de cada etapa, todos calibrados solo con train.
     params = {"seed": SEED, "kf1": kf1_params, "kf2": kf2_params, "strategy": strategy_params}
     (ARTIFACTS / "params.json").write_text(json_text(params))
-    # Las siguientes etapas se conectan aquí conforme se implementan.
+    run_backtest_stage(prices, split_dates, signals, kf2)
 
 
 if __name__ == "__main__":
