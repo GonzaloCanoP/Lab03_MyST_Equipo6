@@ -10,8 +10,9 @@ import itertools
 import pandas as pd
 
 from backtest.engine import run_backtest
+from kalman.signal_filter import calibrate_signal_filter, run_signal_filter
 from performance.metrics import sharpe
-from strategy.signals import SignalRule, generate_signals
+from strategy.signals import SignalRule, build_signals, generate_signals
 
 # --- Parámetros de este módulo (tabla de parámetros en CLAUDE.md) ---
 Z_ENTRY_GRID = (1.0, 1.25, 1.5, 1.75, 2.0, 2.5)
@@ -84,3 +85,50 @@ def best_rule(table: pd.DataFrame) -> SignalRule:
         raise ValueError(f"Ninguna combinación tiene al menos {MIN_TRADES} operaciones en train")
     best = valid.iloc[0]
     return SignalRule(float(best["z_entry"]), float(best["z_exit"]), float(best["z_stop"]), int(best["max_holding"]))
+
+
+def evaluate_by_split(prices: pd.DataFrame, signals: pd.DataFrame, rule: SignalRule,
+                      params: dict | None = None) -> pd.DataFrame:
+    """`evaluate_rule` en cada partición por separado (cada una arranca plana con el capital inicial).
+
+    Es una vista previa para elegir y defender la regla; la evaluación oficial (equity_curve, trades, métricas) la
+    hace la parte 06 con `backtest/walk_forward.py`.
+    Parámetros:
+        prices: precios (no log) de los activos del grupo, toda la muestra.
+        signals: `signals.parquet` (o el equivalente con otro ECT), con `zscore`, `beta_<T>` y `split`.
+    """
+    tickers = list(prices.columns)
+    beta_cols = [f"beta_{t}" for t in tickers]
+    rows = []
+    for split, part in signals.groupby("split", sort=False):
+        rows.append({"split": split, **evaluate_rule(prices.loc[part.index], part["zscore"], part[beta_cols], rule,
+                                                     params)})
+    return pd.DataFrame(rows).set_index("split")
+
+
+def compare_static_dynamic(prices: pd.DataFrame, kf1: pd.DataFrame, static_beta: dict, rule: SignalRule,
+                           params: dict | None = None) -> pd.DataFrame:
+    """Backtest con el ECT dinámico del filtro 1 contra el ECT estático de Johansen (sugerencia del profesor).
+
+    A cada ECT se le calibra su propio filtro 2 **en train** y se le aplica la misma regla θ (la elegida con el
+    dinámico). El dinámico dimensiona con β̂_t del filtro 1; el estático con el β̃ fijo de Johansen.
+    Parámetros:
+        prices: precios (no log) del grupo, toda la muestra.
+        kf1: `kf1_weights.parquet` (`ect_dynamic`, `ect_static`, `beta_<T>`, `burn_in`, `split`).
+        static_beta: β̃ de Johansen por ticker.
+    Retorna:
+        Una fila por (ECT, partición) con las métricas de `evaluate_rule` y los parámetros del filtro 2 de cada ECT.
+    """
+    tickers = list(prices.columns)
+    active = kf1.loc[~kf1["burn_in"]]
+    static_weights = kf1.assign(**{f"beta_{t}": static_beta[t] for t in tickers})
+    tables = []
+    for name, weights in (("dynamic", kf1), ("static", static_weights)):
+        ect = active[f"ect_{name}"]
+        kf2_params = calibrate_signal_filter(ect.loc[active["split"] == "train"])
+        kf2 = run_signal_filter(ect, *(kf2_params[k] for k in ("phi", "q_mu", "q_x", "r")))
+        kf2["split"] = active["split"]
+        table = evaluate_by_split(prices, build_signals(kf2, weights, tickers, rule), rule, params)
+        tables.append(table.assign(ect=name, kf2_phi=kf2_params["phi"],
+                                   kf2_half_life=kf2_params["half_life_days"]).reset_index())
+    return pd.concat(tables, ignore_index=True).set_index(["ect", "split"])
