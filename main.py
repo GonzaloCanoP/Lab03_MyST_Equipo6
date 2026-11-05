@@ -28,8 +28,12 @@ from data.split import SplitDates, add_split_column, compute_split_dates, save_s
 from data.validate import JUMP_THRESHOLD, assert_valid, validate_prices
 from kalman.signal_filter import calibrate_signal_filter, innovation_diagnostics, run_signal_filter
 from kalman.weights_filter import BURN_IN, absorbed_fraction, calibrate_q, run_weights_filter, static_ect
-from performance.figures import (plot_dynamic_weights, plot_ect_comparison, plot_kalman_gains,
-                                 plot_normalized_prices, plot_rolling_eigenvector)
+from performance.figures import (plot_dynamic_weights, plot_ect_comparison, plot_grid_heatmap, plot_kalman_gains,
+                                 plot_normalized_prices, plot_rolling_eigenvector, plot_zscore_signals)
+from strategy.optimization import (HOLDING_K_GRID, MIN_TRADES, OBJECTIVE, Z_ENTRY_GRID, Z_EXIT_GRID, Z_STOP_GRID,
+                                   best_rule, grid_search)
+from strategy.signals import build_signals
+from strategy.vecm import fit_vecm
 
 # --- Reproducibilidad: semilla fija para todo el pipeline ---
 SEED = 42
@@ -206,6 +210,54 @@ def run_signal_filter_stage(kf1: pd.DataFrame, kf1_params: dict) -> tuple[pd.Dat
     return kf2, params
 
 
+def run_strategy_stage(prices: pd.DataFrame, split_dates: SplitDates, summary: dict, kf1: pd.DataFrame,
+                       kf2: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """Etapa 4: VECM en train, grid search de θ en train y señales de toda la muestra con θ congelado.
+
+    Escribe vecm_summary.json, grid_search.csv, signals.parquet, la figura 6 y el heatmap del grid.
+    Retorna (señales, parámetros de la estrategia para params.json).
+    """
+    tickers = summary["tickers"]
+    train = slice_split(np.log(prices[tickers]), split_dates, "train")
+    vecm = fit_vecm(train, summary["k_ar_diff"], summary["anchor"], summary["beta_normalized"])
+
+    # Grid search solo con el tramo de train posterior a ambos burn-in.
+    active = kf2.loc[~kf2["burn_in"] & (kf2["split"] == "train")]
+    beta_cols = [f"beta_{t}" for t in tickers]
+    grid = grid_search(prices.loc[active.index, tickers], active["zscore"], kf1.loc[active.index, beta_cols],
+                       summary["half_life_days"])
+    rule = best_rule(grid)
+    signals = build_signals(kf2, kf1, tickers, rule)
+    best = grid.iloc[0]
+    params = {
+        **rule.to_dict(),
+        "holding_k": int(best["holding_k"]),
+        "half_life_days": summary["half_life_days"],
+        "objective": f"{OBJECTIVE}: Sharpe neto anualizado en train (rf = 0, √252), rebalanceo diario, costos completos",
+        "train_objective": float(best[OBJECTIVE]),
+        "train_trades": int(best["n_trades"]),
+        "grid": {"z_entry": Z_ENTRY_GRID, "z_exit": Z_EXIT_GRID, "z_stop": Z_STOP_GRID, "holding_k": HOLDING_K_GRID,
+                 "min_trades": MIN_TRADES, "combinations": len(grid), "valid": int(grid["valid"].sum())},
+        "train_period": [active.index[0].strftime("%Y-%m-%d"), active.index[-1].strftime("%Y-%m-%d")],
+    }
+
+    (ARTIFACTS / "vecm_summary.json").write_text(json_text(vecm))
+    round_floats(grid).to_csv(ARTIFACTS / "grid_search.csv", index=False)
+    round_floats(signals).to_parquet(ARTIFACTS / "signals.parquet")
+    fig = plot_zscore_signals(signals, params, FIGURES / "fig06_zscore_umbrales.png")
+    plt.close(fig)
+    fig = plot_grid_heatmap(grid, params, FIGURES / "grid_search_heatmap.png")
+    plt.close(fig)
+
+    alphas = ", ".join(f"{t} {a:+.4f} (t = {vecm['alpha_tstat'][t]:+.1f})" for t, a in vecm["alpha"].items())
+    print(f"[strategy] VECM en train: α = ({alphas}); βᵀα = {vecm['beta_alpha']:.4f}, "
+          f"vida media {vecm['half_life_days']:.1f} días")
+    print(f"[strategy] grid: {len(grid)} combinaciones ({params['grid']['valid']} con ≥ {MIN_TRADES} operaciones); "
+          f"θ = (entrada {rule.z_entry:g}, salida {rule.z_exit:g}, stop {rule.z_stop:g}, h_max {rule.max_holding} días), "
+          f"Sharpe neto train {params['train_objective']:.2f} con {params['train_trades']} operaciones")
+    return signals, params
+
+
 def main() -> None:
     np.random.seed(SEED)
     ARTIFACTS.mkdir(exist_ok=True)
@@ -214,9 +266,10 @@ def main() -> None:
     summary = json.loads((ARTIFACTS / "johansen_summary.json").read_text())
     kf1, kf1_params = run_weights_filter_stage(prices, split_dates, summary)
     kf2, kf2_params = run_signal_filter_stage(kf1, kf1_params)
+    signals, strategy_params = run_strategy_stage(prices, split_dates, summary, kf1, kf2)
 
-    # params.json: parámetros de cada etapa (la estrategia agrega su llave).
-    params = {"seed": SEED, "kf1": kf1_params, "kf2": kf2_params}
+    # params.json: parámetros de cada etapa, todos calibrados solo con train.
+    params = {"seed": SEED, "kf1": kf1_params, "kf2": kf2_params, "strategy": strategy_params}
     (ARTIFACTS / "params.json").write_text(json_text(params))
     # Las siguientes etapas se conectan aquí conforme se implementan.
 

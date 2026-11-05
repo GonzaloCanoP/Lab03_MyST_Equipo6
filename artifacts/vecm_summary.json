@@ -1,0 +1,42 @@
+{
+  "tickers": [
+    "GLD",
+    "GDX",
+    "AEM",
+    "FNV"
+  ],
+  "k_ar_diff": 1,
+  "coint_rank": 1,
+  "deterministic": "co",
+  "n_obs": 2235,
+  "beta_normalized": {
+    "GLD": 1.0,
+    "GDX": -0.56859476,
+    "AEM": 0.40041879,
+    "FNV": -0.37093486
+  },
+  "alpha": {
+    "GLD": -0.014993862,
+    "GDX": 0.0040563657,
+    "AEM": -0.0097246935,
+    "FNV": 0.012802167
+  },
+  "alpha_stderr": {
+    "GLD": 0.0046550978,
+    "GDX": 0.012455624,
+    "AEM": 0.013356279,
+    "FNV": 0.010707119
+  },
+  "alpha_tstat": {
+    "GLD": -3.2209553,
+    "GDX": 0.3256654,
+    "AEM": -0.728099,
+    "FNV": 1.1956688
+  },
+  "alpha_significant_5pct": [
+    "GLD"
+  ],
+  "beta_alpha": -0.025943011,
+  "error_correction": true,
+  "half_life_days": 26.369978
+}

@@ -38,5 +38,49 @@
     "init": "mu0 = 0, x0 = 0, P0 = diag(q_x / (1 - phi^2), q_x / (1 - phi^2)); arranca tras el burn-in del filtro 1",
     "zscore": "z_t = (ECT_t - mu_prior) / sigma_prior, sigma_prior^2 = q_x / (1 - phi^2) + p_mu_prior + r",
     "start_date": "2013-01-04"
+  },
+  "strategy": {
+    "z_entry": 1.0,
+    "z_exit": 0.5,
+    "z_stop": 3.0,
+    "max_holding": 51,
+    "holding_k": 2,
+    "half_life_days": 25.33555,
+    "objective": "sharpe_net: Sharpe neto anualizado en train (rf = 0, √252), rebalanceo diario, costos completos",
+    "train_objective": 0.77094748,
+    "train_trades": 35,
+    "grid": {
+      "z_entry": [
+        1.0,
+        1.25,
+        1.5,
+        1.75,
+        2.0,
+        2.5
+      ],
+      "z_exit": [
+        0.0,
+        0.25,
+        0.5
+      ],
+      "z_stop": [
+        2.5,
+        3.0,
+        3.5,
+        4.0
+      ],
+      "holding_k": [
+        1,
+        2,
+        3
+      ],
+      "min_trades": 10,
+      "combinations": 207,
+      "valid": 153
+    },
+    "train_period": [
+      "2013-04-08",
+      "2020-11-19"
+    ]
   }
 }

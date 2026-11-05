@@ -192,3 +192,83 @@ def plot_ect_comparison(kf1: pd.DataFrame, path: Path | None = None) -> plt.Figu
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(path, dpi=150)
     return fig
+
+
+def plot_zscore_signals(signals: pd.DataFrame, rule: dict, path: Path | None = None, clip: float = 6.0) -> plt.Figure:
+    """Figura 6: z-score prior del filtro 2 con los umbrales de entrada, salida y stop elegidos en train.
+
+    Parámetros:
+        signals: `signals.parquet` (columnas `zscore`, `signal`, `split`).
+        rule: umbrales (`z_entry`, `z_exit`, `z_stop`, `max_holding`), los de `params.json` → `strategy`.
+        path: si se da, guarda la figura (PNG).
+        clip: límite del eje y; en validación z llega más allá del stop y se recorta para que se lea el resto.
+    Retorna:
+        La figura: arriba z_t con los umbrales, abajo la dirección decidida (+1 largo el spread, −1 corto).
+    """
+    fig, (ax, ax_pos) = plt.subplots(2, 1, figsize=(12, 6.5), sharex=True, gridspec_kw={"height_ratios": [3, 1]})
+    _shade_splits(ax, signals["split"])
+    ax.plot(signals.index, signals["zscore"].clip(-clip, clip), color="tab:blue", linewidth=0.7, label="z_t (prior)")
+    for level, color, name in ((rule["z_entry"], "tab:green", "entrada"), (rule["z_exit"], "tab:orange", "salida"),
+                               (rule["z_stop"], "tab:red", "stop")):
+        for sign in (+1, -1) if level > 0 else (+1,):
+            ax.axhline(sign * level, color=color, linewidth=1.0, linestyle="--",
+                       label=f"{name} ±{level:g}" if sign == +1 else None)
+    ax.set_ylim(-clip, clip)
+    ax.set_title(f"Figura 6 — z-score del filtro 2 y umbrales elegidos en entrenamiento "
+                 f"(h_max = {rule['max_holding']} días)")
+    ax.set_ylabel(f"z_t (recortado a ±{clip:g})")
+    ax.legend(fontsize=8, loc="upper left", ncol=7)
+    ax.grid(alpha=0.3)
+
+    _shade_splits(ax_pos, signals["split"])
+    ax_pos.fill_between(signals.index, signals["signal"], step="post", color="tab:purple", alpha=0.6)
+    ax_pos.set_yticks([-1, 0, 1], ["corto", "plano", "largo"])
+    ax_pos.set_xlabel("Fecha")
+    ax_pos.set_ylabel("Dirección")
+    ax_pos.grid(alpha=0.3)
+    fig.tight_layout()
+    if path is not None:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(path, dpi=150)
+    return fig
+
+
+def plot_grid_heatmap(grid: pd.DataFrame, rule: dict, path: Path | None = None) -> plt.Figure:
+    """Heatmap del grid search en train: Sharpe neto por (z_entrada, z_salida), un panel por k (h_max = k · vida media).
+
+    Cada celda toma el z_stop elegido; las combinaciones con menos operaciones que el mínimo se muestran vacías.
+    Parámetros:
+        grid: `grid_search.csv`.
+        rule: umbrales elegidos (marca la celda ganadora).
+        path: si se da, guarda la figura (PNG).
+    """
+    data = grid.loc[(grid["z_stop"] == rule["z_stop"]) & grid["valid"]]
+    ks = sorted(grid["holding_k"].unique())
+    entries, exits = sorted(grid["z_entry"].unique()), sorted(grid["z_exit"].unique())
+    vmin, vmax = data["sharpe_net"].min(), data["sharpe_net"].max()
+    fig, axes = plt.subplots(1, len(ks), figsize=(4.2 * len(ks), 4.2), sharey=True)
+    for ax, k in zip(np.atleast_1d(axes), ks):
+        table = (data.loc[data["holding_k"] == k].pivot(index="z_entry", columns="z_exit", values="sharpe_net")
+                 .reindex(index=entries, columns=exits))
+        image = ax.imshow(table.to_numpy(), cmap="viridis", vmin=vmin, vmax=vmax, aspect="auto", origin="lower")
+        for i, j in np.ndindex(table.shape):
+            value = table.iat[i, j]
+            if np.isfinite(value):
+                ax.text(j, i, f"{value:.2f}", ha="center", va="center", fontsize=8,
+                        color="white" if value < (vmin + vmax) / 2 else "black")
+        h_max = int(grid.loc[grid["holding_k"] == k, "max_holding"].iloc[0])
+        if rule["max_holding"] == h_max:
+            ax.add_patch(plt.Rectangle((exits.index(rule["z_exit"]) - 0.5, entries.index(rule["z_entry"]) - 0.5),
+                                       1, 1, fill=False, edgecolor="red", linewidth=2))
+        ax.set_xticks(range(len(exits)), [f"{e:g}" for e in exits])
+        ax.set_yticks(range(len(entries)), [f"{e:g}" for e in entries])
+        ax.set_xlabel("z_salida")
+        ax.set_title(f"k = {k} (h_max = {h_max} días)")
+    np.atleast_1d(axes)[0].set_ylabel("z_entrada")
+    fig.colorbar(image, ax=axes, label="Sharpe neto anualizado (train)")
+    fig.suptitle(f"Grid search en entrenamiento, z_stop = {rule['z_stop']:g} (celda roja = elegida; vacías: "
+                 f"menos operaciones que el mínimo)", fontsize=10)
+    if path is not None:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(path, dpi=150, bbox_inches="tight")
+    return fig
