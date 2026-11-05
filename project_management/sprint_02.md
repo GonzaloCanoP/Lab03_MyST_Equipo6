@@ -16,10 +16,10 @@ queda en `docs/` antes del domingo 8 a las 23:59.
 | 01 Datos: descarga con snapshot, limpieza, validación, split congelado + notebook 01 + figura 1 | JME | hecho |
 | 02 Embudo de selección sobre ambos universos + tabla de grupos + notebook 02 | GC | hecho (en `main`; revisado por JME, 2026-11-04) |
 | 03 Filtro 1 + `test_normalization` + notebook 03 | JME | hecho |
-| 04 Filtro 2 + `test_filter` + notebook 04 | GC | hecho (falta figura 6, sale con la parte 05); revisado por JME |
-| 05 VECM, señales, grid search + notebook 05 | GC | pendiente |
+| 04 Filtro 2 + `test_filter` + notebook 04 | GC | hecho (figura 6 generada con la parte 05); revisado por JME |
+| 05 VECM, señales, grid search + notebook 05 | GC | hecho: VECM, regla con stop/holding/rearme, grid en train, `signals.parquet`, figura 6, heatmap, comparación estático vs dinámico; falta revisión de JME |
 | 06 Backtest + `test_accounting` + notebook 06 | JME | motor, costos, sizing, walk-forward y `test_accounting` hechos; faltan señales reales (05), figuras 2 y 7 y notebook 06 |
-| 07 Métricas, figuras 1–8, `test_causality` + notebook 07 | GC | pendiente |
+| 07 Métricas, figuras 1–8, `test_causality` + notebook 07 | GC | `test_causality` y `sharpe` hechos (los necesitaba la 05); faltan las demás métricas, `metrics.json` y notebook 07 |
 | 08 Dashboard: vista ejecutiva / vista técnica | JME / GC | pendiente |
 | Reporte, formulación Powell, README final | ambos | pendiente |
 | Revisión desde clon limpio (`99_checklist_entrega.md`) y post-mortem | ambos | pendiente |
@@ -35,3 +35,6 @@ queda en `docs/` antes del domingo 8 a las 23:59.
   calibra en train y la comparación estático vs dinámico (parte 05) pasa a ser un resultado central.
 - Filtro 1: q se calibra por separación de escalas (no por máxima verosimilitud). El ECT dinámico corrige el
   desplazamiento de prueba pero en validación también se abre (+0.11 de media; el estático +0.44).
+- Parte 05: el óptimo del grid (z_entrada = 1) cae en el borde inferior de la rejilla registrada; no se amplió.
+  En train el stop nunca se activa, así que z_stop = 3 sale del desempate declarado. Las comisiones son el 26 % del
+  P&L bruto en train con rebalanceo diario; la comparación contra la banda (parte 06) importa.

@@ -61,7 +61,9 @@ si cambias un valor o lo mueves, actualízala.
 | Filtro 1: Q, R, P₀, burn-in | Q = q·I (q calibrado en train, `calibrate_q`), R = var. de residuales de Johansen en train, P₀ = 252·Q, 252 días; tolerancia de absorción 20 % en 2 vidas medias | `kalman/weights_filter.py` → `artifacts/params.json` (`kf1`) |
 | Filtro 2: φ, q_μ, q_x, r, burn-in | estado aumentado; φ por OU, q_x y r por MV, q_μ por separación de escalas (20 % en 2 vidas medias), todo en train; burn-in 63 días; tolerancia de la prueba 4: var. en [0.9, 1.1] | `kalman/signal_filter.py` → `artifacts/params.json` (`kf2`) |
 | Ejecución / rebalanceo | señal del cierre de t se ejecuta al cierre de t + 1 (`EXECUTION_LAG = 1`); `REBALANCE_BAND = 0` (diario), banda por pata relativa a su objetivo | `backtest/engine.py` (se cambian con `params`) |
-| Umbrales z, stop, holding máx. | grid search en train | `strategy/optimization.py` → `artifacts/params.json` |
+| VECM | `deterministic="co"`, r = 1, k_ar_diff de Johansen; β debe coincidir con β̃ (tol. 1e-6) | `strategy/vecm.py` |
+| Umbrales z, stop, holding máx. | grid en train: z_entrada {1, 1.25, 1.5, 1.75, 2, 2.5}, z_salida {0, 0.25, 0.5}, z_stop {2.5, 3, 3.5, 4}, k {1, 2, 3} (h_max = k · vida media); objetivo Sharpe neto, mín. 10 operaciones; desempate stop más estricto → θ = (1.0, 0.5, 3.0, 51 días) | `strategy/optimization.py` → `artifacts/params.json` (`strategy`) |
+| Sharpe | tasa libre de riesgo 0, anualización 252 | `performance/metrics.py` |
 
 ## Estructura (obligatoria por el enunciado + extras marcados con *)
 
@@ -107,8 +109,9 @@ Toda serie de tiempo lleva una columna `split ∈ {train, test, validation}`.
 | `kf1_weights.parquet` | kalman | `beta_<T>` (posterior β̂_{t\|t}) y `beta_prior_<T>`, `intercept(_prior)`, `gain_<estado>` (K_t), `var_post_<estado>`, `ect_dynamic` (entrada de KF2, pesos prior), `ect_static` (Johansen de train), `innov_var`, `innov_norm`, `absorption` (C_tK_t), `burn_in` |
 | `kf2_signal.parquet` | kalman | `ect` (entrada), `mu_prior`/`mu_post`, `x_prior`/`x_post`, `sigma_prior`, `zscore` (prior, la señal), `zscore_post` (solo diagnóstico), `innov`, `innov_var`, `innov_norm`, `gain_mu`, `gain_x`, `var_post_mu`, `var_post_x`, `burn_in`, `split`; arranca tras el burn-in del filtro 1 |
 | `params.json` | main (kalman + strategy) | `seed`; `kf1` (q, R, P₀, burn-in, β₀, c₀); filtro 2 y estrategia agregan sus llaves (z_entrada, z_salida, stop, holding máx., Q, R) |
-| `grid_search.csv` | strategy | resultados de la búsqueda de umbrales en train |
-| `signals.parquet` | strategy | `zscore` (prior), `signal` ∈ {−1, 0, +1} (dirección objetivo del spread decidida al cierre de t; el motor la ejecuta al cierre de t + 1), `exit_reason` (`salida`, `stop`, `holding` o vacío, el día en que se cierra), `beta_<T>` (pesos posteriores del filtro 1 para el sizing), `split` |
+| `vecm_summary.json` | strategy | VECM en train: β̃, α con error estándar y t, βᵀα, condición de corrección, vida media |
+| `grid_search.csv` | strategy | resultados de la búsqueda de umbrales en train: θ, h_max, Sharpe neto, rendimiento, MDD, operaciones, motivos de salida, `valid` |
+| `signals.parquet` | strategy | `zscore` (prior), `signal` ∈ {−1, 0, +1} (dirección objetivo del spread decidida al cierre de t; el motor la ejecuta al cierre de t + 1), `exit_reason` (`salida`, `stop`, `holding` o vacío, el día en que se cierra), `holding_days` (h_t), `beta_<T>` (pesos posteriores del filtro 1 para el sizing), `split`; solo fechas después de ambos burn-in, cada partición arranca plana |
 | `equity_curve.parquet` | backtest | equity, cash, valor por pata, drawdown, P&L bruto/neto, comisiones, préstamo |
 | `trades.csv` | backtest | bitácora: entrada, salida, dirección, días, P&L bruto/neto, costos, motivo de salida |
 | `rebalance_comparison.csv` | backtest | rebalanceo diario vs banda de no-rebalanceo |

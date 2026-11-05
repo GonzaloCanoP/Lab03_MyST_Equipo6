@@ -35,7 +35,7 @@ REPETIR hasta cumplir el criterio de terminado:
 - [x] Q y R con justificación (φ por OU, q_x y r por MV, q_μ por separación de escalas); inicialización y burn-in de 63 días.
 - [x] Ganancia K_t guardada (`gain_mu`, `gain_x`; figura 5 completa) y varianza posterior (`var_post_mu`, `var_post_x`).
 - [x] Innovaciones normalizadas con varianza ≈ 1 (0.99 en train, tolerancia [0.9, 1.1]) y Ljung–Box del rezago 1 no significativo — `tests/test_filter.py`. A 5–20 rezagos rechaza por el ECT (limitación documentada).
-- [ ] Figura 6: z-score con líneas de umbral de entrada/salida (umbrales vienen de 05). *(se genera en la parte 05)*
+- [x] Figura 6: z-score con líneas de umbral de entrada/salida (umbrales vienen de 05). *(se genera en la parte 05: `docs/figuras/fig06_zscore_umbrales.png`)*
 - [x] Ejemplo numérico: ejemplo 2 de la sesión 13 reproducido (6 periodos) y 5 días reales (notebook 04).
 - [x] Formulación Powell del filtro 2 en `docs/powell.md`.
 

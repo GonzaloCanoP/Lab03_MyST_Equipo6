@@ -106,6 +106,25 @@ Código: `kalman/signal_filter.py`. Entrada: ECT dinámico del filtro 1 (pesos p
 En el notebook 04: (a) el ejemplo 2 de la sesión 13 reproducido por `SignalFilter` (caso φ = 0, q_x = 0), con el día 4
 donde el z prior (2.04) abre la operación y el posterior (1.82) no; (b) 5 días reales después del burn-in.
 
+## Política de trading — regla de bandas sobre z_t (GC, parte 05)
+
+Código: `strategy/signals.py`, `strategy/optimization.py`. Insumo para el sistema completo.
+
+- **Decisión.** d_t ∈ {−1, 0, +1}, la dirección del spread decidida al cierre de t. Se ejecuta al cierre de t + 1 con
+  q_i = d_t · sgn(β̂_i) · 0.8 V_t |β̂_i| / (Σ|β̂_j| P_i).
+- **Estado que usa la política.** z_t (sale de la creencia del filtro 2), la posición actual d_{t−1}, los días en la
+  operación h_t y si cada dirección está armada. Estos dos últimos son parte del estado físico: sin ellos la regla
+  no sabe cuándo cerrar por holding ni si puede reentrar.
+- **Política.** PFA con θ = (z_entrada, z_salida, z_stop, h_max):
+  - abre si z_entrada < |z_t| < z_stop;
+  - cierra por stop, por holding o por salida direccional, con esa prioridad;
+  - después de un stop o un holding, esa dirección se rearma cuando |z_t| < z_entrada.
+- **Aprendizaje.** θ se elige con un grid search **en train** que maximiza el Sharpe neto de costos de la simulación
+  completa (motor de la parte 06). Resultado: θ = (1.0, 0.5, 3.0, 51 días). La rejilla y el objetivo se registraron
+  antes de ver resultados (`docs/decisiones.md`).
+- **Objetivo.** max_θ Sharpe(rendimientos netos de comisiones y préstamo) en train, con al menos 10 operaciones. Es la
+  versión ajustada por riesgo de max E[Σ P&L neto] de la sesión 11.
+
 ## Sistema completo (ambos)
 
 *Pendiente.* Estado físico (posiciones, efectivo), información (precios, ECT_t, z_t) y creencia (β̂_t, P_t, μ̂_t, σ̂_t).
