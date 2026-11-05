@@ -35,12 +35,12 @@ REPETIR hasta cumplir el criterio de terminado:
 - [x] Comisión 0.125 % por operación, por pata, a la entrada **y** a la salida (y en cada rebalanceo).
 - [x] Préstamo 0.25 % anual sobre nocional corto, devengo **diario** con base 252 sobre los cortos mantenidos de t − 1 a t.
 - [x] 80 % del capital **disponible** = equity actual V_t antes de operar (`strategy/sizing.py`).
-- [ ] Rebalanceo diario por β̂_t con costo registrado vs política de banda de no-rebalanceo → `rebalance_comparison.csv`. *(motor y `compare_rebalance` listos; falta correrlo con las señales de la parte 05)*
-- [ ] Stop por |z| y salida por holding máximo; motivo de salida en la bitácora. *(la bitácora toma `exit_reason` de `signals.parquet`; la regla es de la parte 05)*
+- [x] Rebalanceo diario por β̂_t con costo registrado vs política de banda de no-rebalanceo (bandas 0, 5, 10 y 20 %) → `rebalance_comparison.csv`.
+- [x] Stop por |z| y salida por holding máximo; motivo de salida en la bitácora (`exit_reason` de `signals.parquet`, más `fin_particion`).
 - [x] Walk-forward: train → test → validación con parámetros congelados (`backtest/walk_forward.py`); cada partición arranca con $1,000,000 (decisión en `docs/decisiones.md`) y la curva unida lleva la columna `split`.
 - [x] Bitácora de operaciones: fecha entrada/salida, dirección, días, P&L bruto, comisiones, préstamo, P&L neto, rebalanceos, motivo.
 - [x] Atribución de costos: P&L bruto = neto + comisiones + préstamo (`test_accounting`).
-- [ ] Figura 7: curvas de capital train / test / validación. Figura 2: spread con señales marcadas.
+- [x] Figura 7: `fig07_curvas_capital.png` (neta y antes de costos). Figura 2: `fig02_spread_senales.png` (ECT dinámico, μ̂ prior y operaciones).
 
 ## Criterio de terminado
 
