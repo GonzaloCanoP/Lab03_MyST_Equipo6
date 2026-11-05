@@ -107,7 +107,7 @@ Toda serie de tiempo lleva una columna `split ∈ {train, test, validation}`.
 | `kf2_signal.parquet` | kalman | `ect` (entrada), `mu_prior`/`mu_post`, `x_prior`/`x_post`, `sigma_prior`, `zscore` (prior, la señal), `zscore_post` (solo diagnóstico), `innov`, `innov_var`, `innov_norm`, `gain_mu`, `gain_x`, `var_post_mu`, `var_post_x`, `burn_in`, `split`; arranca tras el burn-in del filtro 1 |
 | `params.json` | main (kalman + strategy) | `seed`; `kf1` (q, R, P₀, burn-in, β₀, c₀); filtro 2 y estrategia agregan sus llaves (z_entrada, z_salida, stop, holding máx., Q, R) |
 | `grid_search.csv` | strategy | resultados de la búsqueda de umbrales en train |
-| `signals.parquet` | strategy | z_t, señal, posición objetivo por activo |
+| `signals.parquet` | strategy | `zscore` (prior), `signal` ∈ {−1, 0, +1} (dirección objetivo del spread decidida al cierre de t; el motor la ejecuta al cierre de t + 1), `exit_reason` (`salida`, `stop`, `holding` o vacío, el día en que se cierra), `beta_<T>` (pesos posteriores del filtro 1 para el sizing), `split` |
 | `equity_curve.parquet` | backtest | equity, cash, valor por pata, drawdown, P&L bruto/neto, comisiones, préstamo |
 | `trades.csv` | backtest | bitácora: entrada, salida, dirección, días, P&L bruto/neto, costos, motivo de salida |
 | `rebalance_comparison.csv` | backtest | rebalanceo diario vs banda de no-rebalanceo |

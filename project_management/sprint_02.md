@@ -16,7 +16,7 @@ queda en `docs/` antes del domingo 8 a las 23:59.
 | 01 Datos: descarga con snapshot, limpieza, validación, split congelado + notebook 01 + figura 1 | JME | hecho |
 | 02 Embudo de selección sobre ambos universos + tabla de grupos + notebook 02 | GC | hecho (en `main`; revisado por JME, 2026-11-04) |
 | 03 Filtro 1 + `test_normalization` + notebook 03 | JME | hecho |
-| 04 Filtro 2 + `test_filter` + notebook 04 | GC | hecho (falta figura 6, sale con la parte 05) |
+| 04 Filtro 2 + `test_filter` + notebook 04 | GC | hecho (falta figura 6, sale con la parte 05); revisado por JME |
 | 05 VECM, señales, grid search + notebook 05 | GC | pendiente |
 | 06 Backtest + `test_accounting` + notebook 06 | JME | pendiente |
 | 07 Métricas, figuras 1–8, `test_causality` + notebook 07 | GC | pendiente |

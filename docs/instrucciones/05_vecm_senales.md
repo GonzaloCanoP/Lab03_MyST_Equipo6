@@ -46,14 +46,14 @@ REPETIR hasta cumplir el criterio de terminado:
 - [ ] Largo spread si z_t < −z_entrada; corto si z_t > +z_entrada; salida si |z_t| < z_salida.
 - [ ] Stop sobre |z_t| (z_stop).
 - [ ] Holding máximo calibrado a la vida media (ej. k · half-life).
-- [ ] Señal en t se ejecuta en t+1 (o al cierre de t, decidir y documentar) — sin usar información futura.
+- [x] Señal en t se ejecuta al cierre de t+1: lo hace el motor (`backtest/engine.py`), la estrategia solo entrega la señal de t (`docs/decisiones.md`).
 
 **Sizing**
 - [ ] Tamaño por activo ∝ β̂_t, signo por dirección; nocional bruto total = 80 % del capital disponible.
 - [ ] Rebalanceo diario conforme evoluciona β̂_t **y** política alternativa de banda de no-rebalanceo (para comparar en 06).
 
 **Optimización**
-- [ ] Grid search de (z_entrada, z_salida, z_stop) en **train**; métrica objetivo declarada (ej. Sharpe neto de costos).
+- [ ] Grid search de (z_entrada, z_salida, z_stop) en **train**; métrica objetivo declarada (ej. Sharpe neto de costos). Incluir z_entrada < 2: en train solo 1.8 % de los días tienen |z| > 2 (revisión de la parte 04).
 - [ ] `grid_search.csv` completo y heatmap para el reporte.
 - [ ] Parámetros finales congelados en `params.json` antes de evaluar test/validación.
 
