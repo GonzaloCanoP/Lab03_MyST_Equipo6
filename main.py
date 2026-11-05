@@ -26,7 +26,9 @@ from data.clean import clean_prices
 from data.download import load_prices
 from data.split import SplitDates, add_split_column, compute_split_dates, save_split_dates, slice_split
 from data.validate import JUMP_THRESHOLD, assert_valid, validate_prices
-from performance.figures import plot_normalized_prices, plot_rolling_eigenvector
+from kalman.weights_filter import BURN_IN, absorbed_fraction, calibrate_q, run_weights_filter, static_ect
+from performance.figures import (plot_dynamic_weights, plot_ect_comparison, plot_kalman_gains,
+                                 plot_normalized_prices, plot_rolling_eigenvector)
 
 # --- Reproducibilidad: semilla fija para todo el pipeline ---
 SEED = 42
@@ -129,11 +131,60 @@ def run_cointegration_stage(prices: pd.DataFrame, split_dates: SplitDates) -> tu
     return tickers, summary["beta_normalized"]
 
 
+def run_weights_filter_stage(prices: pd.DataFrame, split_dates: SplitDates, summary: dict) -> tuple[pd.DataFrame, dict]:
+    """Etapa 3a: filtro de Kalman 1 (pesos dinámicos β̂_t) sobre toda la muestra, calibrado solo con train.
+
+    Escribe kf1_weights.parquet, las figuras 3 y 5 (parte del filtro 1) y la comparación de ECT estático vs dinámico. Retorna (kf1, parámetros del filtro 1).
+    """
+    tickers, anchor = summary["tickers"], summary["anchor"]
+    beta = np.array([summary["beta_normalized"][t] for t in tickers])
+    intercept = summary["intercept_c"]
+    log_prices = np.log(prices[tickers])
+    train = slice_split(log_prices, split_dates, "train")
+
+    # R = varianza de los residuales de Johansen en train; q por separación de escalas (ver calibrate_q).
+    residual_var = float(static_ect(train, beta, intercept).var(ddof=0))
+    q = calibrate_q(train, anchor, beta, intercept, residual_var, summary["half_life_days"])
+
+    kf1 = run_weights_filter(log_prices, anchor, beta, intercept, q, residual_var)
+    kf1["ect_static"] = static_ect(log_prices, beta, intercept)
+    kf1 = add_split_column(kf1, split_dates)
+    train_absorption = kf1.loc[(kf1["split"] == "train") & ~kf1["burn_in"], "absorption"]
+    params = {
+        "q": q, "Q": f"q · I ({len(tickers)}×{len(tickers)})", "R": residual_var, "q_over_R": q / residual_var,
+        "P0": f"{BURN_IN} · Q", "burn_in_days": BURN_IN, "state": ["c"] + [t for t in tickers if t != anchor],
+        "anchor": anchor, "beta0": summary["beta_normalized"], "intercept0": intercept,
+        "absorption_median_train": float(train_absorption.median()),
+        "absorbed_in_trade_train": absorbed_fraction(train_absorption, summary["half_life_days"]),
+        "ect": "dinámico = innovación con pesos prior (ỹ_t); estático = β̃ᵀ ln P_t − c con Johansen de train",
+    }
+
+    round_floats(kf1).to_parquet(ARTIFACTS / "kf1_weights.parquet")
+    fig = plot_dynamic_weights(kf1, tickers, anchor, summary["beta_normalized"], FIGURES / "fig03_pesos_dinamicos.png")
+    plt.close(fig)
+    fig = plot_kalman_gains(kf1, params["state"], path=FIGURES / "fig05_ganancia_kalman.png")
+    plt.close(fig)
+    fig = plot_ect_comparison(kf1, FIGURES / "ect_estatico_vs_dinamico.png")
+    plt.close(fig)
+
+    last = kf1.iloc[-1]
+    print(f"[kalman-1] q = {q:.3e}, R = {residual_var:.3e} (q/R = {q / residual_var:.2e}), burn-in {BURN_IN} días; "
+          f"absorbe {params['absorbed_in_trade_train']:.0%} de una desviación en una operación típica (train)")
+    print(f"[kalman-1] β̂ al final: " + ", ".join(f"{t} {last[f'beta_{t}']:+.3f}" for t in tickers))
+    return kf1, params
+
+
 def main() -> None:
     np.random.seed(SEED)
     ARTIFACTS.mkdir(exist_ok=True)
     prices, split_dates = run_data_stage()
     tickers, beta = run_cointegration_stage(prices, split_dates)
+    summary = json.loads((ARTIFACTS / "johansen_summary.json").read_text())
+    kf1, kf1_params = run_weights_filter_stage(prices, split_dates, summary)
+
+    # params.json: parámetros de cada etapa (el filtro 2 y la estrategia agregan sus llaves).
+    params = {"seed": SEED, "kf1": kf1_params}
+    (ARTIFACTS / "params.json").write_text(json_text(params))
     # Las siguientes etapas se conectan aquí conforme se implementan.
 
 
