@@ -20,6 +20,36 @@ def _shade_splits(ax: plt.Axes, split: pd.Series) -> None:
             ax.axvspan(dates[0], dates[-1], color=color, label=SPLIT_LABELS[name], zorder=0)
 
 
+def plot_normalized_prices(prices: pd.DataFrame, split: pd.Series, title: str, path: Path | None = None) -> plt.Figure:
+    """Figura 1: precios ajustados en base 100 al inicio de la muestra, escala log, particiones sombreadas.
+
+    Parámetros:
+        prices: precios (no log), una columna por activo, índice de fechas.
+        split: etiqueta de partición por fecha (columna `split` de `artifacts/prices.parquet` o `label_split`).
+        title: título de la figura.
+        path: si se da, guarda la figura ahí (PNG).
+    Retorna:
+        La figura de matplotlib. La escala log hace comparables los movimientos porcentuales de todos los activos
+        (y es la escala en la que se estiman la cointegración y los filtros).
+    """
+    normalized = 100 * prices / prices.iloc[0]
+    fig, ax = plt.subplots(figsize=(12, 5))
+    _shade_splits(ax, split)
+    for ticker in normalized.columns:
+        ax.plot(normalized.index, normalized[ticker], linewidth=1.1, label=ticker)
+    ax.set_yscale("log")
+    ax.set_title(title)
+    ax.set_xlabel("Fecha")
+    ax.set_ylabel(f"Precio ajustado, base 100 = {prices.index[0].date()} (escala log)")
+    ax.legend(ncol=6, fontsize=8, loc="upper left")
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+    if path is not None:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(path, dpi=150)
+    return fig
+
+
 def plot_rolling_eigenvector(rolling: pd.DataFrame, tickers: list[str], anchor: str, window: int,
                              path: Path | None = None, clip: float = 3.0) -> plt.Figure:
     """Figura 4: primer eigenvector de Johansen móvil (normalizado sobre la pata ancla) y su significancia.

@@ -39,7 +39,7 @@ REPETIR hasta cumplir el criterio de terminado:
 - [x] Split cronológico 60/20/20 → entrenamiento / prueba / validación; fechas de corte guardadas.
 - [x] La partición se define **antes** de cualquier estimación y todas las partes la importan de aquí.
 - [x] `artifacts/prices.parquet` con columna `split` — GLD, GDX, AEM, FNV (grupo de la parte 02); lo escribe `main.run_cointegration_stage` con `data.split.add_split_column`.
-- [ ] Figura 1: series de precios individuales de los activos del grupo (normalizadas a 100 opcional). *(pendiente, JME: el grupo ya está elegido — GLD, GDX, AEM, FNV en `artifacts/prices.parquet`; el notebook 01 ya muestra ambos universos)*
+- [x] Figura 1: precios de GLD, GDX, AEM y FNV en base 100, escala log, particiones sombreadas → `docs/figuras/fig01_precios_grupo.png` (`performance.figures.plot_normalized_prices`, la genera `main.py`).
 
 ## Criterio de terminado
 

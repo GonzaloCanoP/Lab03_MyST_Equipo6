@@ -26,7 +26,7 @@ from data.clean import clean_prices
 from data.download import load_prices
 from data.split import SplitDates, add_split_column, compute_split_dates, save_split_dates, slice_split
 from data.validate import JUMP_THRESHOLD, assert_valid, validate_prices
-from performance.figures import plot_rolling_eigenvector
+from performance.figures import plot_normalized_prices, plot_rolling_eigenvector
 
 # --- Reproducibilidad: semilla fija para todo el pipeline ---
 SEED = 42
@@ -41,6 +41,23 @@ FIGURES = ROOT / "docs" / "figuras"
 START_DATE = "2012-01-01"  # ≈ 14.8 años hasta END_DATE (el enunciado pide 10-15)
 END_DATE = "2026-10-30"
 
+# --- Artefactos: cifras significativas de los resultados numéricos ---
+# El álgebra lineal (BLAS) da diferencias de ~1e-13 relativo entre computadoras; sin redondear, cada corrida en otra
+# máquina "modifica" los artefactos versionados y genera diffs y conflictos falsos en Git. Los precios no se redondean.
+ARTIFACT_SIG_DIGITS = 8
+
+
+def round_floats(df: pd.DataFrame, digits: int = ARTIFACT_SIG_DIGITS) -> pd.DataFrame:
+    """Copia de `df` con sus columnas flotantes redondeadas a `digits` cifras significativas (para artefactos)."""
+    floats = df.select_dtypes("float").columns
+    return df.assign(**{c: df[c].map(lambda v: float(f"{v:.{digits}g}")) for c in floats})
+
+
+def json_text(obj, digits: int = ARTIFACT_SIG_DIGITS) -> str:
+    """JSON indentado con los flotantes redondeados a `digits` cifras significativas (para artefactos)."""
+    rounded = json.loads(json.dumps(obj), parse_float=lambda v: float(f"{float(v):.{digits}g}"))
+    return json.dumps(rounded, indent=2, ensure_ascii=False)
+
 
 def run_data_stage() -> tuple[pd.DataFrame, SplitDates]:
     """Etapa 1: precios limpios y validados de todos los universos + fechas de corte congeladas."""
@@ -52,7 +69,7 @@ def run_data_stage() -> tuple[pd.DataFrame, SplitDates]:
 
     save_split_dates(split_dates, ARTIFACTS / "split_dates.json")
     (ARTIFACTS / "validation_report.json").write_text(
-        json.dumps({"cleaning": clean_report, "validation": report.to_dict()}, indent=2)
+        json_text({"cleaning": clean_report, "validation": report.to_dict()})
     )
     print(f"[data] {report.n_rows} días × {prices.shape[1]} activos, {report.start.date()} → {report.end.date()}")
     print(f"[data] rellenados: {clean_report['filled_cells'] or 'ninguno'}; fechas eliminadas: {clean_report['rows_dropped']}")
@@ -66,8 +83,8 @@ def run_data_stage() -> tuple[pd.DataFrame, SplitDates]:
 def run_cointegration_stage(prices: pd.DataFrame, split_dates: SplitDates) -> tuple[list[str], dict]:
     """Etapa 2: embudo de selección sobre ambos universos (solo train) y Johansen del grupo elegido.
 
-    Escribe selection_table.csv, johansen_summary.json, vector_comparison.csv, rolling_eigenvector.parquet, la
-    figura 4 y prices.parquet (los 4 activos elegidos con la columna split, para las etapas siguientes).
+    Escribe selection_table.csv, johansen_summary.json, vector_comparison.csv, rolling_eigenvector.parquet, las
+    figuras 1 y 4 y prices.parquet (los 4 activos elegidos con la columna split, para las etapas siguientes).
     Retorna (tickers del grupo, β normalizado por ticker).
     """
     train = slice_split(prices, split_dates, "train")
@@ -85,14 +102,20 @@ def run_cointegration_stage(prices: pd.DataFrame, split_dates: SplitDates) -> tu
     rolling = add_split_column(rolling, split_dates)
 
     # prices.parquet (contrato de la etapa de datos): precios limpios de los 4 activos elegidos + columna split.
-    add_split_column(prices[tickers], split_dates).to_parquet(ARTIFACTS / "prices.parquet")
-    table.to_csv(ARTIFACTS / "selection_table.csv", index=False)
-    comparison.to_csv(ARTIFACTS / "vector_comparison.csv", index=False)
-    rolling.to_parquet(ARTIFACTS / "rolling_eigenvector.parquet")
-    (ARTIFACTS / "johansen_summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False))
+    group_prices = add_split_column(prices[tickers], split_dates)
+    group_prices.to_parquet(ARTIFACTS / "prices.parquet")
+    round_floats(table).to_csv(ARTIFACTS / "selection_table.csv", index=False)
+    round_floats(comparison).to_csv(ARTIFACTS / "vector_comparison.csv", index=False)
+    round_floats(rolling).to_parquet(ARTIFACTS / "rolling_eigenvector.parquet")
+    (ARTIFACTS / "johansen_summary.json").write_text(json_text(summary))
     fig = plot_rolling_eigenvector(rolling, tickers, summary["anchor"], ROLLING_WINDOW,
                                    FIGURES / "fig04_eigenvector_movil.png")
     plt.close(fig)  # solo se guarda; main.py no abre ventanas
+    # Figura 1 (parte 01): requiere el grupo elegido, por eso se genera aquí.
+    fig = plot_normalized_prices(group_prices[tickers], group_prices["split"],
+                                 f"Figura 1 — Precios ajustados del grupo {'-'.join(tickers)}",
+                                 FIGURES / "fig01_precios_grupo.png")
+    plt.close(fig)
 
     total = summary["multiple_testing"]["total"]
     print(f"[cointegration] {total['groups_tested']} grupos probados; Johansen rechaza r = 0 en "
