@@ -13,8 +13,8 @@ queda en `docs/` antes del domingo 8 a las 23:59.
 | División del trabajo, charter y sprints | JME | hecho |
 | Universos candidatos con justificación económica | JME (petroleras) / GC (oro) | hecho |
 | Entorno: versiones fijadas, ventana de fechas ≤ 15 años, `.gitignore` | JME | hecho |
-| 01 Datos: descarga con snapshot, limpieza, validación, split congelado + notebook 01 | JME | hecho |
-| 02 Embudo de selección sobre ambos universos + tabla de grupos + notebook 02 | GC | hecho (PR en revisión) |
+| 01 Datos: descarga con snapshot, limpieza, validación, split congelado + notebook 01 + figura 1 | JME | hecho |
+| 02 Embudo de selección sobre ambos universos + tabla de grupos + notebook 02 | GC | hecho (en `main`; revisado por JME, 2026-11-04) |
 | 03 Filtro 1 + `test_normalization` + notebook 03 | JME | pendiente |
 | 04 Filtro 2 + `test_filter` + notebook 04 | GC | pendiente |
 | 05 VECM, señales, grid search + notebook 05 | GC | pendiente |
@@ -30,3 +30,6 @@ queda en `docs/` antes del domingo 8 a las 23:59.
   Gold.com, Inc.; Barrick cotiza como `B`. Se corrige en el universo de oro.
 - La misma prueba mostró que el universo de petroleras no pasa el filtro de correlación > 0.7 y que su
   cointegración depende del rezago de Johansen y del episodio de 2020; se documenta en la parte 02.
+- Revisión de la parte 02 (JME): el spread estático con β de train pierde la estacionariedad en prueba y validación
+  (media desplazada ≈ 10 desviaciones estándar en validación). No cambia la selección; la Q del filtro 1 se
+  calibra en train y la comparación estático vs dinámico (parte 05) pasa a ser un resultado central.

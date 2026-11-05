@@ -22,7 +22,10 @@ from statsmodels.tsa.vector_ar.vecm import coint_johansen
 from cointegration.half_life import compute_half_life
 
 # --- Parámetros de este módulo (ver docs/decisiones.md) ---
-DET_ORDER = 0  # constante en la relación de largo plazo (ECT = βᵀP − c)
+# det_order = 0 en statsmodels: constante SIN restringir (caso 3 de Johansen). Centra los log-precios y sus
+# diferencias antes de estimar, así que β no trae constante; sus valores críticos son los de ese caso (traza
+# r = 0 con 4 series: 47.85 al 95 %). La constante del ECT = β̃ᵀP − c se estima aparte: c = media del spread en train.
+DET_ORDER = 0
 MAX_VAR_LAGS = 10  # máximo de rezagos del VAR en niveles para elegir k por BIC
 CV_COLUMN = {0.90: 0, 0.95: 1, 0.99: 2}  # columnas de los valores críticos de statsmodels
 SIGNIFICANCE = 0.95
@@ -108,7 +111,7 @@ def run_johansen(log_prices: pd.DataFrame, k_ar_diff: int, det_order: int = DET_
     Parámetros:
         log_prices: log-precios (solo entrenamiento cuando se usa para seleccionar).
         k_ar_diff: rezagos en diferencias (de `select_k_ar_diff`).
-        det_order: 0 = constante.
+        det_order: 0 = constante sin restringir (caso 3; ver DET_ORDER).
     Retorna:
         JohansenResult; statsmodels ya ordena eigenvalores y eigenvectores de mayor a menor.
     """

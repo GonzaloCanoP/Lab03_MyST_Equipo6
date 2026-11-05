@@ -52,7 +52,7 @@ si cambias un valor o lo mueves, actualízala.
 | Correlación mínima / ventana | 0.7 / 252 días | `cointegration/selection.py` |
 | p-value (EG, ADF) | 0.05 | `cointegration/selection.py` |
 | Vida media operable | 5–60 días | `cointegration/selection.py` |
-| Johansen: `det_order` / k / ventana móvil | 0 (constante) / BIC, máx. 10 rezagos / 504 días, paso 21 | `cointegration/johansen.py` |
+| Johansen: `det_order` / k / ventana móvil | 0 (constante sin restringir, caso 3) / BIC, máx. 10 rezagos / 504 días, paso 21 | `cointegration/johansen.py` |
 | Pata de normalización y signo | **GLD**, β̃_GLD = +1 (largo el spread = comprar β̃ > 0) | `cointegration/johansen.py` |
 | Comisión | 0.125 % por operación, entrada y salida, **por pata** | `backtest/costs.py` |
 | Tasa de préstamo | 0.25 % anual sobre nocional corto, devengo diario | `backtest/costs.py` |
