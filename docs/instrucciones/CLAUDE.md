@@ -3,7 +3,8 @@
 Arbitraje estadístico multi-activo con cointegración (Johansen), dos filtros de Kalman, VECM y backtest
 con costos. Materia: Microestructuras y Sistemas de Trading (ITESO). Enunciado original: `docs/Lab03.pdf`.
 
-- **Equipo:** Gonzalo Cano y Juan Manuel Espinosa (2 integrantes → grupo de **4 activos**, justificado como 2·n).
+- **Equipo:** Gonzalo Cano y Juan Manuel Espinosa. Grupo: iteración 1 con 4 activos (2·n); iteración 2, autorizada
+  por el profesor, con la tercia **GLD-GDX-B** (ver `docs/decisiones.md`).
 - **Alcance:** todo el Lab03 **excepto la sección 3.7 Risk Parity** (el profesor indicó ignorarla).
   Por lo tanto también se omiten los incisos "Nivel B": figura 9 y la parte Nivel B de la prueba 4.
 - **Repositorio:** público, `Lab03_MyST_Equipo6`. Se evalúa el último commit antes de las 23:59 del día previo a la exposición.
@@ -47,13 +48,13 @@ si cambias un valor o lo mueves, actualízala.
 | Rutas (`ARTIFACTS`, `DATA_SNAPSHOT`, `FIGURES`) | — | `main.py` |
 | Forward-fill máximo / umbral de salto | 3 días / \|rend. log\| > 0.40 | `data/clean.py` / `data/validate.py` |
 | Ventana histórica | 10–15 años, precios diarios (`START_DATE`, `END_DATE`) | `main.py` |
-| Activos por grupo | 4 (2·n, n = 2) | `data/split.py` |
+| Activos por grupo / universo | iteración 2: tamaños 2–4 en el universo de oro, grupo elegido GLD-GDX-B (`GROUP_SIZES`, `CHOSEN_GROUP`); iteración 1: 4 (`N_ASSETS`) | `cointegration/selection.py`, `cointegration/universe.py` (`ACTIVE_UNIVERSES`) |
 | División | 60 / 20 / 20 cronológica | `data/split.py` |
 | Correlación mínima / ventana | 0.7 / 252 días | `cointegration/selection.py` |
 | p-value (EG, ADF) | 0.05 | `cointegration/selection.py` |
 | Vida media operable | 5–60 días | `cointegration/selection.py` |
 | Johansen: `det_order` / k / ventana móvil | 0 (constante sin restringir, caso 3) / BIC, máx. 10 rezagos / 504 días, paso 21 | `cointegration/johansen.py` |
-| Pata de normalización y signo | **GLD**, β̃_GLD = +1 (largo el spread = comprar β̃ > 0) | `cointegration/johansen.py` |
+| Pata de normalización y signo | **GDX**, β̃_GDX = +1 (largo el spread = comprar β̃ > 0); en la iteración 1 era GLD | `cointegration/johansen.py` |
 | Comisión | 0.125 % por operación, entrada y salida, **por pata** | `backtest/costs.py` |
 | Tasa de préstamo | 0.25 % anual sobre nocional corto, devengo diario | `backtest/costs.py` |
 | Capital inicial | $1,000,000 | `strategy/sizing.py` |
@@ -102,7 +103,7 @@ Toda serie de tiempo lleva una columna `split ∈ {train, test, validation}`.
 |---|---|---|
 | `split_dates.json` | data | fechas de corte congeladas (inicio y fin de cada partición) |
 | `validation_report.json` | data | limpieza (rellenos, fechas eliminadas) y validación (NaN, saltos) |
-| `prices.parquet` | data | precios limpios de los 4 activos |
+| `prices.parquet` | data | precios limpios de los activos del grupo elegido (GLD, GDX, B) |
 | `selection_table.csv` | cointegration | todos los grupos probados, estadísticos, etapa de descarte, motivo |
 | `johansen_summary.json` | cointegration | traza, max-eigen, valores críticos, rango, vector elegido, normalización (β crudo y β̃, pata ancla, c), ADF y vida media del spread, orden de integración, `multiple_testing` |
 | `vector_comparison.csv` | cointegration | por cada vector cointegrante: ADF, p-value, vida media |

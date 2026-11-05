@@ -4,9 +4,9 @@
 
 ## Alcance
 
-**Hará:** seleccionar un grupo de 4 activos cointegrados (2 · n integrantes) a partir de dos universos con
-justificación económica (petroleras de EE. UU. y Europa; mineras de oro más el metal), documentando todos los
-grupos probados; estimar el vector reversivo con Johansen; filtro de Kalman 1 (pesos dinámicos β_t) y filtro 2
+**Hará:** seleccionar un grupo cointegrado a partir de universos con justificación económica (iteración 1:
+petroleras y oro, grupos de 4; iteración 2, autorizada por el profesor: solo oro, pares a cuartetos → GLD-GDX-B),
+documentando todos los grupos probados y el proceso de búsqueda; estimar el vector reversivo con Johansen; filtro de Kalman 1 (pesos dinámicos β_t) y filtro 2
 (media y escala del ECT → z-score prior); VECM en entrenamiento; señales con entrada, salida, stop y holding
 máximo; backtest multi-pata con comisión, préstamo, 80 % del capital y walk-forward 60/20/20; rebalanceo diario
 contra banda de no-rebalanceo; métricas y figuras 1–8; 4 pruebas con pytest; dashboard Streamlit (vista

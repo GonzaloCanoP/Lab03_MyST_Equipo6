@@ -5,7 +5,7 @@
 
 ## Objetivo
 
-Encontrar y defender un grupo de **4 activos** con tendencia estocástica común y obtener el vector β ∈ ℝ⁴ del
+Encontrar y defender un grupo (iteración 1: **4 activos**; iteración 2: tercia **GLD-GDX-B**) con tendencia estocástica común y obtener el vector β del
 portafolio más reversivo S_t = βᵀP_t. **Todo sobre la partición de entrenamiento.**
 
 ## Parámetros de este módulo

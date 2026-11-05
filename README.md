@@ -9,8 +9,8 @@ Microestructuras y Sistemas de Trading · ITESO
 
 ## Nivel de alcance
 
-Lab03 completo **sin la sección 3.7 Risk Parity** (indicación del profesor). Un solo grupo de 4 activos
-cointegrados (2 · n integrantes).
+Lab03 completo **sin la sección 3.7 Risk Parity** (indicación del profesor). Un solo grupo cointegrado: la tercia
+**GLD-GDX-B** (oro, ETF de mineras y Barrick), elegida en la segunda iteración de la selección (ver `docs/decisiones.md`).
 
 ## Descripción
 

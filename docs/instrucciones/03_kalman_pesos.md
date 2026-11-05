@@ -31,7 +31,7 @@ REPETIR hasta cumplir el criterio de terminado:
 ## Checklist
 
 - [x] Formulación de espacio de estados escrita: estado z_t = (c_t, β_GDX, β_AEM, β_FNV), caminata aleatoria, observación P_GLD = (1, −P_GDX, −P_AEM, −P_FNV) z_t + v_t (log-precios) — docstring de `kalman/weights_filter.py`.
-- [x] **Normalización y signo** declarados: GLD fijo en +1; el estado son las 3 restantes y la constante.
+- [x] **Normalización y signo** declarados: la pata ancla (GDX con la tercia; GLD en la iteración 1) fija en +1; el estado son las demás patas y la constante.
 - [x] Inicialización: β_0 = β̃ de Johansen en train (leído de `johansen_summary.json`); P_0 = 252·Q.
 - [x] Matriz **Q** y valor **R** con justificación: R = varianza de residuales de Johansen en train; Q = q·I con q por separación de escalas (`calibrate_q`); máxima verosimilitud descartada (`docs/decisiones.md`).
 - [x] Periodo de **burn-in** de 252 días (columna `burn_in`), documentado.
