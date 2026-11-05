@@ -37,6 +37,7 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
 from statsmodels.stats.diagnostic import acorr_ljungbox
+from statsmodels.tsa.statespace.structural import UnobservedComponents
 
 from cointegration.half_life import compute_half_life, estimate_ou_speed
 from kalman.weights_filter import ABSORPTION_TOLERANCE, TRADE_HALF_LIVES
@@ -122,30 +123,33 @@ class SignalFilter:
                 "state_post": self.state.copy(), "P_post": self.P_cov.copy()}
 
 
-def initial_filter(phi: float, q_mu: float, q_x: float, r: float) -> SignalFilter:
+def initial_filter(phi: float, q_mu: float, q_x: float, r: float, p0_mu: float | None = None) -> SignalFilter:
     """Filtro inicializado con μ̂₀ = 0, x̂₀ = 0 y P₀ = diag(v_x, v_x), v_x = q_x / (1 − φ²).
 
     El ECT dinámico está centrado en cero por construcción (el intercepto va en el estado del filtro 1); P₀ igual a
-    la dispersión del spread es un prior vago en su propia escala.
+    la dispersión del spread es un prior vago en su propia escala. `p0_mu` reemplaza la varianza inicial de μ (se usa
+    para el nivel local puro, donde v_x = 0).
     """
     v_x = stationary_variance(phi, q_x)
-    return SignalFilter(state=np.zeros(2), P_cov=np.diag([v_x, v_x]), phi=phi, q_mu=q_mu, q_x=q_x, r=r)
+    p_mu = v_x if p0_mu is None else p0_mu
+    return SignalFilter(state=np.zeros(2), P_cov=np.diag([p_mu, v_x]), phi=phi, q_mu=q_mu, q_x=q_x, r=r)
 
 
 def run_signal_filter(ect: pd.Series, phi: float, q_mu: float, q_x: float, r: float,
-                      burn_in: int = BURN_IN) -> pd.DataFrame:
+                      burn_in: int = BURN_IN, p0_mu: float | None = None) -> pd.DataFrame:
     """Corre el filtro 2 día por día sobre el ECT (causal: z_t solo usa información hasta t − 1 para μ̂ y σ̂).
 
     Parámetros:
         ect: ECT dinámico del filtro 1, sin su burn-in (índice de fechas).
         phi, q_mu, q_x, r: parámetros calibrados en train (`calibrate_signal_filter`).
         burn_in: días iniciales marcados como burn-in (no se opera con ellos).
+        p0_mu: varianza inicial de μ (ver `initial_filter`).
     Retorna:
         DataFrame indexado por fecha con `ect`, `mu_prior`, `mu_post`, `x_prior`, `x_post`, `sigma_prior`,
         `zscore` (prior, la señal), `zscore_post` (solo diagnóstico, para mostrar por qué no se usa), `innov` (ν_t),
         `innov_var` (S_t), `innov_norm` (ν_t / √S_t), `gain_mu`, `gain_x`, `var_post_mu`, `var_post_x` y `burn_in`.
     """
-    kf = initial_filter(phi, q_mu, q_x, r)
+    kf = initial_filter(phi, q_mu, q_x, r, p0_mu)
     rows = []
     for obs in ect.to_numpy():
         state_prior, _ = kf.predict()
@@ -282,4 +286,35 @@ def innovation_diagnostics(kf2: pd.DataFrame, lags: tuple[int, ...] = (1, 5, 10)
         lb = acorr_ljungbox(e, lags=list(lags))["lb_pvalue"]
         rows[split] = {"n": len(e), "mean": float(e.mean()), "var": float(e.var()), "acf_1": float(e.autocorr(1)),
                        **{f"lb_p_{k}": float(lb.loc[k]) for k in lags}}
+    return pd.DataFrame.from_dict(rows, orient="index")
+
+
+def compare_models(train_ect: pd.Series, params: dict) -> pd.DataFrame:
+    """Compara, solo con train, el nivel local de clase contra el estado aumentado (evidencia de la decisión).
+
+    Modelos:
+        - `nivel local, MV`: x ≡ 0, q y r por máxima verosimilitud (statsmodels, modelo 'local level').
+        - `nivel local, media lenta`: x ≡ 0, la misma q_μ del estado aumentado y r = varianza del ECT en train.
+        - `estado aumentado`: los parámetros calibrados (`params`, de `calibrate_signal_filter`).
+    Retorna:
+        DataFrame con una fila por modelo: `gain_mu` (K^μ de estado estable), varianza, autocorrelación de rezago 1
+        y p-values de Ljung–Box (1 y 10) de ν_t / √S_t; desviación y vida media del z-score. Sin burn-in.
+    """
+    v = float(train_ect.var())
+    mle = UnobservedComponents(train_ect.to_numpy(), level="llevel").fit(disp=False)
+    r_ll, q_ll = (float(x) for x in mle.params)  # orden de statsmodels: sigma2.irregular, sigma2.level
+    specs = {
+        "nivel local, MV": (0.0, q_ll, 0.0, r_ll, v),
+        "nivel local, media lenta": (0.0, params["q_mu"], 0.0, v, v),
+        "estado aumentado": (params["phi"], params["q_mu"], params["q_x"], params["r"], None),
+    }
+    rows = {}
+    for name, (phi, q_mu, q_x, r, p0_mu) in specs.items():
+        out = run_signal_filter(train_ect, phi, q_mu, q_x, r, p0_mu=p0_mu)
+        out = out.loc[~out["burn_in"]]
+        e, z = out["innov_norm"], out["zscore"]
+        lb = acorr_ljungbox(e, lags=[1, 10])["lb_pvalue"]
+        rows[name] = {"q_mu": q_mu, "r": r, "gain_mu": float(out["gain_mu"].median()), "innov_var": float(e.var()),
+                      "innov_acf_1": float(e.autocorr(1)), "lb_p_1": float(lb.loc[1]), "lb_p_10": float(lb.loc[10]),
+                      "z_std": float(z.std()), "z_half_life": compute_half_life(z)}
     return pd.DataFrame.from_dict(rows, orient="index")
