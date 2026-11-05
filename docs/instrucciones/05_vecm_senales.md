@@ -37,15 +37,15 @@ REPETIR hasta cumplir el criterio de terminado:
 
 **VECM**
 - [x] VECM estimado en train con el β de Johansen (statsmodels `VECM`, rango r y k_ar_diff consistentes con 02): `deterministic="co"`, r = 1, k_ar_diff = 1; su β coincide con β̃ (tolerancia 1e-6) → `vecm_summary.json`.
-- [x] Reportar α (velocidades de ajuste): ¿qué activos corrigen hacia el equilibrio? → solo GLD es significativo (α = −0.015, t = −3.2): el oro corrige. βᵀα = −0.026, vida media 26.4 días.
+- [x] Reportar α (velocidades de ajuste): ¿qué activos corrigen hacia el equilibrio? → con la tercia, GDX (α = −0.039, t = −4.1) y B (α = −0.034, t = −3.4) son significativos y el oro no: GDX corrige. βᵀα = −0.021, vida media 33.3 días (iteración 1: solo GLD, βᵀα = −0.026).
 - [x] Definir claramente qué "residual del VECM" alimenta a KF2 → **ECT dinámico del filtro 1** (respuesta del profesor, 2026-11-02; `docs/decisiones.md`).
 - [x] El ECT de t usa los pesos **prior** β̂_{t|t−1} (equivale a la innovación de KF1; causal) — decidido 2026-11-04, `docs/decisiones.md`.
-- [x] Comparar el ECT **estático** (β de Johansen fijo, βᵀP_t − c) contra el **dinámico** del filtro 1: gráfica de ambos, ADF y vida media de cada uno; si da tiempo, backtest de ambos (sugerencia del profesor). → `compare_static_dynamic`, notebook 05 §9: con el mismo θ, Sharpe neto prueba / validación 0.33 / 0.39 (dinámico) contra 0.10 / −0.59 (estático).
+- [x] Comparar el ECT **estático** (β de Johansen fijo, βᵀP_t − c) contra el **dinámico** del filtro 1: gráfica de ambos, ADF y vida media de cada uno; si da tiempo, backtest de ambos (sugerencia del profesor). → `compare_static_dynamic`, notebook 05 §9: con el mismo θ, Sharpe neto prueba / validación 0.74 / 1.01 (dinámico) contra 0.20 / 1.31 (estático) con la tercia; el dinámico es más consistente entre particiones (iteración 1: 0.33 / 0.39 contra 0.10 / −0.59).
 
 **Señales**
 - [x] Largo spread si z_t < −z_entrada; corto si z_t > +z_entrada; salida si |z_t| < z_salida (salida direccional: el largo cierra en z_t ≥ −z_salida; `docs/decisiones.md`).
 - [x] Stop sobre |z_t| (z_stop), con rearme: tras un stop o holding la dirección no reentra hasta |z_t| < z_entrada.
-- [x] Holding máximo calibrado a la vida media (ej. k · half-life): h_max = k · 25.3 días, k en el grid → k = 2 (51 días).
+- [x] Holding máximo calibrado a la vida media (ej. k · half-life): h_max = k · 29.1 días, k en el grid → k = 3 (87 días) con la tercia (iteración 1: k = 2, 51 días).
 - [x] Señal en t se ejecuta al cierre de t+1: lo hace el motor (`backtest/engine.py`), la estrategia solo entrega la señal de t (`docs/decisiones.md`).
 
 **Sizing**
@@ -53,9 +53,9 @@ REPETIR hasta cumplir el criterio de terminado:
 - [x] Rebalanceo diario conforme evoluciona β̂_t **y** política alternativa de banda de no-rebalanceo: parámetro `rebalance_band` del motor (0 = diario).
 
 **Optimización**
-- [x] Grid search de (z_entrada, z_salida, z_stop, k) en **train**; métrica objetivo declarada (ej. Sharpe neto de costos). Incluir z_entrada < 2: en train solo 1.8 % de los días tienen |z| > 2 (revisión de la parte 04).
+- [x] Grid search de (z_entrada, z_salida, z_stop, k) en **train**; métrica objetivo declarada (ej. Sharpe neto de costos). Incluir z_entrada < 2: en train solo ≈ 5 % de los días tienen |z| > 2 con la tercia (1.8 % en la iteración 1).
 - [x] `grid_search.csv` completo y heatmap para el reporte (`docs/figuras/grid_search_heatmap.png`).
-- [x] Parámetros finales congelados en `params.json` antes de evaluar test/validación: θ = (1.0, 0.5, 3.0, 51 días), Sharpe neto train 0.77, 35 operaciones.
+- [x] Parámetros finales congelados en `params.json` antes de evaluar test/validación: θ = (1.0, 0.0, 2.5, 87 días), Sharpe neto train 0.66, 24 operaciones con la tercia (iteración 1: θ = (1.0, 0.5, 3.0, 51 días), 0.77, 35 operaciones).
 
 ## Criterio de terminado
 

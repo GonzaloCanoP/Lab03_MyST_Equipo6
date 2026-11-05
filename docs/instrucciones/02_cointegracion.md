@@ -48,8 +48,8 @@ REPETIR hasta cumplir el criterio de terminado:
 - [x] Spread de **cada** vector, ADF + vida media → `vector_comparison.csv` (se hace aunque r̂ = 1); elección empírica en `choose_vector`.
 
 **Paso 5 — Validación del vector**
-- [x] ADF del spread elegido (p = 0.0001) y vida media 25.3 días (OU de clase: `−ln 2 / λ`, ≈ `−ln 2 / ln(φ)`).
-- [x] Normalización sobre la pata de mayor |peso| (GLD) y convención de signo → constantes en `cointegration/johansen.py`.
+- [x] ADF del spread elegido (tercia GLD-GDX-B: p = 0.0009, vida media 29.1 días; iteración 1: p = 0.0001, 25.3 días) (OU de clase: `−ln 2 / λ`, ≈ `−ln 2 / ln(φ)`).
+- [x] Normalización sobre la pata de mayor |peso| (GDX con la tercia; GLD en la iteración 1) y convención de signo → constantes en `cointegration/johansen.py`.
 
 **Paso 6 — Documentación**
 - [x] `selection_table.csv`: **todos** los grupos probados, estadísticos, etapa de descarte y motivo.

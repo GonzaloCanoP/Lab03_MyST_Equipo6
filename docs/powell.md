@@ -57,14 +57,14 @@ En el notebook 03: (a) el ejemplo 1 de la sesión 13 reproducido por `WeightsFil
 
 ## Filtro 2 — media y escala del ECT → z-score (GC)
 
-Código: `kalman/signal_filter.py`. Entrada: ECT dinámico del filtro 1 (pesos prior), desde 2013-01-04.
+Código: `kalman/signal_filter.py`. Entrada: ECT dinámico del filtro 1 (pesos prior) de la tercia GLD-GDX-B, desde 2013-01-04.
 
 ### Proceso de 6 pasos
 
 1. **Problema.** Estimar cada día la media latente del ECT y su escala para convertir el ECT en un z-score que diga
    qué tan lejos está el portafolio de su equilibrio, sin usar información del día para juzgar al día (z prior).
 2. **Estado.** z_t = (μ_t, x_t)ᵀ: μ_t es la media lenta del ECT (nivel local de clase) y x_t la desviación que revierte.
-   Se agrega x_t porque el ECT revierte en semanas (vida media ≈ 21 días en train) y el nivel local supone que toda
+   Se agrega x_t porque el ECT revierte en semanas (vida media ≈ 22 días en train) y el nivel local supone que toda
    desviación es ruido de un día: o persigue al spread o deja innovaciones autocorrelacionadas (`docs/decisiones.md`).
 3. **Transición.** μ_t = μ_{t−1} + w^μ_t, x_t = φ x_{t−1} + w^x_t; A = diag(1, φ), Q = diag(q_μ, q_x).
 4. **Observación.** ECT_t = μ_t + x_t + v_t, v_t ~ N(0, r); C = (1, 1).
@@ -88,17 +88,17 @@ Código: `kalman/signal_filter.py`. Entrada: ECT dinámico del filtro 1 (pesos p
 ### Ganancia de Kalman: cálculo e interpretación
 
 - K_t = (K^μ_t, K^x_t): de cada sorpresa ν_t, qué fracción mueve la media y cuál la desviación. Con parámetros fijos y
-  C constante converge a su estado estable: K^μ ≈ 0.09 y K^x ≈ 0.87 (figura 5, panel 3).
+  C constante converge a su estado estable: K^μ ≈ 0.08 y K^x ≈ 0.74 (figura 5, panel 3).
 - K^μ es sobre la **sorpresa de un día**, no sobre la desviación: si el ECT queda desplazado de forma permanente, x̂
-  absorbe primero y μ̂ solo toma ≈ 20 % del desplazamiento en 42 días.
+  absorbe primero y μ̂ solo toma ≈ 20 % del desplazamiento en 44 días.
 - q_μ → 0: la media queda fija y z mide distancia a una constante. q_μ grande: μ̂ persigue al ECT y z deja de tener señal.
 
 ### Q y R justificados
 
-- φ = 0.967 (vida media 21.2 días, AR(1)/OU del ECT en train).
-- q_x = 9.7 × 10⁻⁵ y r = 4.7 × 10⁻⁶ por máxima verosimilitud en train: casi todo el ruido diario es de la desviación
-  (√(q_x / (1 − φ²)) ≈ 0.039, la dispersión del ECT) y muy poco es ruido de medición.
-- q_μ = 8.6 × 10⁻⁷ por separación de escalas (la verosimilitud casi no depende de q_μ: no lo identifica).
+- φ = 0.969 (vida media 22.1 días, AR(1)/OU del ECT en train).
+- q_x = 1.1 × 10⁻⁴ y r = 2.8 × 10⁻⁵ por máxima verosimilitud en train: casi todo el ruido diario es de la desviación
+  (√(q_x / (1 − φ²)) ≈ 0.042, la dispersión del ECT) y muy poco es ruido de medición.
+- q_μ = 9.3 × 10⁻⁷ por separación de escalas (la verosimilitud casi no depende de q_μ: no lo identifica).
 - P₀ = diag(v_x, v_x), μ̂₀ = x̂₀ = 0; burn-in de 63 días.
 
 ### Ejemplo numérico
@@ -120,7 +120,7 @@ Código: `strategy/signals.py`, `strategy/optimization.py`. Insumo para el siste
   - cierra por stop, por holding o por salida direccional, con esa prioridad;
   - después de un stop o un holding, esa dirección se rearma cuando |z_t| < z_entrada.
 - **Aprendizaje.** θ se elige con un grid search **en train** que maximiza el Sharpe neto de costos de la simulación
-  completa (motor de la parte 06). Resultado: θ = (1.0, 0.5, 3.0, 51 días). La rejilla y el objetivo se registraron
+  completa (motor de la parte 06). Resultado con la tercia: θ = (1.0, 0.0, 2.5, 87 días) (iteración 1: (1.0, 0.5, 3.0, 51 días)). La rejilla y el objetivo se registraron
   antes de ver resultados (`docs/decisiones.md`).
 - **Objetivo.** max_θ Sharpe(rendimientos netos de comisiones y préstamo) en train, con al menos 10 operaciones. Es la
   versión ajustada por riesgo de max E[Σ P&L neto] de la sesión 11.
