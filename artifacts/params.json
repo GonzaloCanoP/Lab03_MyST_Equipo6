@@ -24,5 +24,19 @@
     "absorption_median_train": 0.0043940814,
     "absorbed_in_trade_train": 0.2,
     "ect": "dinámico = innovación con pesos prior (ỹ_t); estático = β̃ᵀ ln P_t − c con Johansen de train"
+  },
+  "kf2": {
+    "phi": 0.96728046,
+    "half_life_days": 21.184501,
+    "q_mu": 8.5510558e-07,
+    "q_x": 9.7476836e-05,
+    "r": 4.7128247e-06,
+    "stationary_sd": 0.038914725,
+    "absorbed_in_trade_train": 0.2,
+    "burn_in_days": 63,
+    "model": "estado aumentado: mu_t = mu_{t-1} + w (q_mu); x_t = phi x_{t-1} + w (q_x); ECT_t = mu_t + x_t + v (r)",
+    "init": "mu0 = 0, x0 = 0, P0 = diag(q_x / (1 - phi^2), q_x / (1 - phi^2)); arranca tras el burn-in del filtro 1",
+    "zscore": "z_t = (ECT_t - mu_prior) / sigma_prior, sigma_prior^2 = q_x / (1 - phi^2) + p_mu_prior + r",
+    "start_date": "2013-01-04"
   }
 }

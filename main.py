@@ -26,6 +26,7 @@ from data.clean import clean_prices
 from data.download import load_prices
 from data.split import SplitDates, add_split_column, compute_split_dates, save_split_dates, slice_split
 from data.validate import JUMP_THRESHOLD, assert_valid, validate_prices
+from kalman.signal_filter import calibrate_signal_filter, innovation_diagnostics, run_signal_filter
 from kalman.weights_filter import BURN_IN, absorbed_fraction, calibrate_q, run_weights_filter, static_ect
 from performance.figures import (plot_dynamic_weights, plot_ect_comparison, plot_kalman_gains,
                                  plot_normalized_prices, plot_rolling_eigenvector)
@@ -174,6 +175,37 @@ def run_weights_filter_stage(prices: pd.DataFrame, split_dates: SplitDates, summ
     return kf1, params
 
 
+def run_signal_filter_stage(kf1: pd.DataFrame, kf1_params: dict) -> tuple[pd.DataFrame, dict]:
+    """Etapa 3b: filtro de Kalman 2 (media lenta + desviación AR(1)) sobre el ECT dinámico → z-score prior.
+
+    Arranca después del burn-in del filtro 1 y se calibra solo con train. Escribe kf2_signal.parquet y completa la
+    figura 5 con el panel del filtro 2. Retorna (kf2, parámetros del filtro 2).
+    """
+    active = kf1.loc[~kf1["burn_in"]]
+    params = calibrate_signal_filter(active.loc[active["split"] == "train", "ect_dynamic"])
+    kf2 = run_signal_filter(active["ect_dynamic"], params["phi"], params["q_mu"], params["q_x"], params["r"])
+    kf2["split"] = active["split"]
+    params.update({
+        "model": "estado aumentado: mu_t = mu_{t-1} + w (q_mu); x_t = phi x_{t-1} + w (q_x); ECT_t = mu_t + x_t + v (r)",
+        "init": "mu0 = 0, x0 = 0, P0 = diag(q_x / (1 - phi^2), q_x / (1 - phi^2)); arranca tras el burn-in del filtro 1",
+        "zscore": "z_t = (ECT_t - mu_prior) / sigma_prior, sigma_prior^2 = q_x / (1 - phi^2) + p_mu_prior + r",
+        "start_date": kf2.index[0].strftime("%Y-%m-%d"),
+    })
+
+    round_floats(kf2).to_parquet(ARTIFACTS / "kf2_signal.parquet")
+    fig = plot_kalman_gains(kf1, kf1_params["state"], kf2=kf2, kf2_gain_column="gain_mu",
+                            path=FIGURES / "fig05_ganancia_kalman.png")
+    plt.close(fig)
+
+    train_diag = innovation_diagnostics(kf2).loc["train"]
+    print(f"[kalman-2] φ = {params['phi']:.4f} (vida media {params['half_life_days']:.1f} días), q_μ = {params['q_mu']:.2e}, "
+          f"q_x = {params['q_x']:.2e}, r = {params['r']:.2e}; μ̂ absorbe {params['absorbed_in_trade_train']:.0%} "
+          f"de un desplazamiento en una operación típica (train)")
+    print(f"[kalman-2] innovaciones normalizadas en train: varianza {train_diag['var']:.3f}, "
+          f"Ljung–Box rezago 1 p = {train_diag['lb_p_1']:.2f}")
+    return kf2, params
+
+
 def main() -> None:
     np.random.seed(SEED)
     ARTIFACTS.mkdir(exist_ok=True)
@@ -181,9 +213,10 @@ def main() -> None:
     tickers, beta = run_cointegration_stage(prices, split_dates)
     summary = json.loads((ARTIFACTS / "johansen_summary.json").read_text())
     kf1, kf1_params = run_weights_filter_stage(prices, split_dates, summary)
+    kf2, kf2_params = run_signal_filter_stage(kf1, kf1_params)
 
-    # params.json: parámetros de cada etapa (el filtro 2 y la estrategia agregan sus llaves).
-    params = {"seed": SEED, "kf1": kf1_params}
+    # params.json: parámetros de cada etapa (la estrategia agrega su llave).
+    params = {"seed": SEED, "kf1": kf1_params, "kf2": kf2_params}
     (ARTIFACTS / "params.json").write_text(json_text(params))
     # Las siguientes etapas se conectan aquí conforme se implementan.
 

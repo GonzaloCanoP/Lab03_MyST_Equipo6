@@ -129,11 +129,13 @@ def plot_kalman_gains(kf1: pd.DataFrame, state_names: list[str], kf2: pd.DataFra
     Panel 1 (filtro 1): C_t K_t = 1 − R / S_t, la fracción de cada sorpresa que el filtro absorbe moviendo sus pesos
     (es la versión escalar de K_t; con estado de 4 dimensiones K_t es un vector).
     Panel 2 (filtro 1): componentes de K_t por estado (intercepto y pesos).
-    Panel 3 (filtro 2, opcional): ganancia escalar del nivel local; se agrega cuando exista `kf2_signal.parquet`.
+    Panel 3 (filtro 2, opcional): ganancia de la media K^μ_t (cuánto de cada sorpresa mueve μ̂) y de la desviación
+    K^x_t; se agrega cuando exista `kf2_signal.parquet`.
 
     Parámetros:
         kf1: `kf1_weights.parquet`; state_names: nombres de estado (`c` y tickers no ancla), columnas `gain_<n>`.
-        kf2: `kf2_signal.parquet` (opcional) y el nombre de su columna de ganancia.
+        kf2: `kf2_signal.parquet` (opcional); `kf2_gain_column` es su ganancia de la media y, si existe, se dibuja
+            también `gain_x` (ganancia de la desviación del estado aumentado).
         path: si se da, guarda la figura (PNG).
     """
     n_panels = 3 if kf2 is not None else 2
@@ -149,7 +151,11 @@ def plot_kalman_gains(kf1: pd.DataFrame, state_names: list[str], kf2: pd.DataFra
     axes[1].axhline(0, color="black", linewidth=0.6)
     axes[1].set_ylabel("componentes de K_t")
     if kf2 is not None:
-        axes[2].plot(kf2.index, kf2[kf2_gain_column], color="tab:green", linewidth=1.3, label="filtro 2: K_t")
+        axes[2].plot(kf2.index, kf2[kf2_gain_column], color="tab:green", linewidth=1.3,
+                     label="filtro 2: K^μ_t (media)")
+        if "gain_x" in kf2:
+            axes[2].plot(kf2.index, kf2["gain_x"], color="tab:olive", linewidth=1.0, alpha=0.8,
+                         label="filtro 2: K^x_t (desviación)")
         axes[2].set_ylabel("K_t (filtro 2)")
     for ax in axes:
         ax.legend(fontsize=8, loc="best", ncol=4)
