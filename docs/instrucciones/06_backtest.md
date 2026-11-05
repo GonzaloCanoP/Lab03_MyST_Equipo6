@@ -30,16 +30,16 @@ REPETIR hasta cumplir el criterio de terminado:
 
 ## Checklist
 
-- [ ] Estado del portafolio por día: efectivo, acciones por activo, valor por pata, equity.
-- [ ] Identidad contable: equity = cash + Σ valor de patas (largo positivo, corto negativo) en **cada** día.
-- [ ] Comisión 0.125 % por operación, por pata, a la entrada **y** a la salida (y en cada rebalanceo).
-- [ ] Préstamo 0.25 % anual sobre nocional corto, devengo **diario** (`/252` o `/360`: declararlo).
-- [ ] 80 % del capital **disponible** (definir: equity actual vs capital inicial).
-- [ ] Rebalanceo diario por β̂_t con costo registrado vs política de banda de no-rebalanceo → `rebalance_comparison.csv`.
-- [ ] Stop por |z| y salida por holding máximo; motivo de salida en la bitácora.
-- [ ] Walk-forward: train → test → validación con parámetros congelados; curva de capital continua con columna `split`.
-- [ ] Bitácora de operaciones: fecha entrada/salida, dirección, días, P&L bruto, comisiones, préstamo, P&L neto, motivo.
-- [ ] Atribución de costos: P&L bruto = neto + comisiones + préstamo.
+- [x] Estado del portafolio por día: efectivo, acciones por activo, valor por pata, equity (`BacktestResult.equity`).
+- [x] Identidad contable: equity = cash + Σ valor de patas (largo positivo, corto negativo) en **cada** día (`test_accounting`).
+- [x] Comisión 0.125 % por operación, por pata, a la entrada **y** a la salida (y en cada rebalanceo).
+- [x] Préstamo 0.25 % anual sobre nocional corto, devengo **diario** con base 252 sobre los cortos mantenidos de t − 1 a t.
+- [x] 80 % del capital **disponible** = equity actual V_t antes de operar (`strategy/sizing.py`).
+- [ ] Rebalanceo diario por β̂_t con costo registrado vs política de banda de no-rebalanceo → `rebalance_comparison.csv`. *(motor y `compare_rebalance` listos; falta correrlo con las señales de la parte 05)*
+- [ ] Stop por |z| y salida por holding máximo; motivo de salida en la bitácora. *(la bitácora toma `exit_reason` de `signals.parquet`; la regla es de la parte 05)*
+- [x] Walk-forward: train → test → validación con parámetros congelados (`backtest/walk_forward.py`); cada partición arranca con $1,000,000 (decisión en `docs/decisiones.md`) y la curva unida lleva la columna `split`.
+- [x] Bitácora de operaciones: fecha entrada/salida, dirección, días, P&L bruto, comisiones, préstamo, P&L neto, rebalanceos, motivo.
+- [x] Atribución de costos: P&L bruto = neto + comisiones + préstamo (`test_accounting`).
 - [ ] Figura 7: curvas de capital train / test / validación. Figura 2: spread con señales marcadas.
 
 ## Criterio de terminado

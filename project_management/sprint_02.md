@@ -18,7 +18,7 @@ queda en `docs/` antes del domingo 8 a las 23:59.
 | 03 Filtro 1 + `test_normalization` + notebook 03 | JME | hecho |
 | 04 Filtro 2 + `test_filter` + notebook 04 | GC | hecho (falta figura 6, sale con la parte 05); revisado por JME |
 | 05 VECM, señales, grid search + notebook 05 | GC | pendiente |
-| 06 Backtest + `test_accounting` + notebook 06 | JME | pendiente |
+| 06 Backtest + `test_accounting` + notebook 06 | JME | motor, costos, sizing, walk-forward y `test_accounting` hechos; faltan señales reales (05), figuras 2 y 7 y notebook 06 |
 | 07 Métricas, figuras 1–8, `test_causality` + notebook 07 | GC | pendiente |
 | 08 Dashboard: vista ejecutiva / vista técnica | JME / GC | pendiente |
 | Reporte, formulación Powell, README final | ambos | pendiente |

@@ -60,6 +60,7 @@ si cambias un valor o lo mueves, actualízala.
 | Tamaño de posición | 80 % del capital disponible, repartido según β̂_t | `strategy/sizing.py` |
 | Filtro 1: Q, R, P₀, burn-in | Q = q·I (q calibrado en train, `calibrate_q`), R = var. de residuales de Johansen en train, P₀ = 252·Q, 252 días; tolerancia de absorción 20 % en 2 vidas medias | `kalman/weights_filter.py` → `artifacts/params.json` (`kf1`) |
 | Filtro 2: φ, q_μ, q_x, r, burn-in | estado aumentado; φ por OU, q_x y r por MV, q_μ por separación de escalas (20 % en 2 vidas medias), todo en train; burn-in 63 días; tolerancia de la prueba 4: var. en [0.9, 1.1] | `kalman/signal_filter.py` → `artifacts/params.json` (`kf2`) |
+| Ejecución / rebalanceo | señal del cierre de t se ejecuta al cierre de t + 1 (`EXECUTION_LAG = 1`); `REBALANCE_BAND = 0` (diario), banda por pata relativa a su objetivo | `backtest/engine.py` (se cambian con `params`) |
 | Umbrales z, stop, holding máx. | grid search en train | `strategy/optimization.py` → `artifacts/params.json` |
 
 ## Estructura (obligatoria por el enunciado + extras marcados con *)

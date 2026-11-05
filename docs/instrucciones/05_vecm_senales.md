@@ -49,8 +49,8 @@ REPETIR hasta cumplir el criterio de terminado:
 - [x] Señal en t se ejecuta al cierre de t+1: lo hace el motor (`backtest/engine.py`), la estrategia solo entrega la señal de t (`docs/decisiones.md`).
 
 **Sizing**
-- [ ] Tamaño por activo ∝ β̂_t, signo por dirección; nocional bruto total = 80 % del capital disponible.
-- [ ] Rebalanceo diario conforme evoluciona β̂_t **y** política alternativa de banda de no-rebalanceo (para comparar en 06).
+- [x] Tamaño por activo ∝ β̂_t, signo por dirección; nocional bruto total = 80 % del capital disponible (`strategy/sizing.py`, lo escribió JME porque el motor lo necesita; revisar).
+- [x] Rebalanceo diario conforme evoluciona β̂_t **y** política alternativa de banda de no-rebalanceo: parámetro `rebalance_band` del motor (0 = diario).
 
 **Optimización**
 - [ ] Grid search de (z_entrada, z_salida, z_stop) en **train**; métrica objetivo declarada (ej. Sharpe neto de costos). Incluir z_entrada < 2: en train solo 1.8 % de los días tienen |z| > 2 (revisión de la parte 04).
