@@ -58,6 +58,7 @@ si cambias un valor o lo mueves, actualízala.
 | Tasa de préstamo | 0.25 % anual sobre nocional corto, devengo diario | `backtest/costs.py` |
 | Capital inicial | $1,000,000 | `strategy/sizing.py` |
 | Tamaño de posición | 80 % del capital disponible, repartido según β̂_t | `strategy/sizing.py` |
+| Filtro 1: Q, R, P₀, burn-in | Q = q·I (q calibrado en train, `calibrate_q`), R = var. de residuales de Johansen en train, P₀ = 252·Q, 252 días; tolerancia de absorción 20 % en 2 vidas medias | `kalman/weights_filter.py` → `artifacts/params.json` (`kf1`) |
 | Umbrales z, stop, holding máx. | grid search en train | `strategy/optimization.py` → `artifacts/params.json` |
 
 ## Estructura (obligatoria por el enunciado + extras marcados con *)
@@ -101,9 +102,9 @@ Toda serie de tiempo lleva una columna `split ∈ {train, test, validation}`.
 | `johansen_summary.json` | cointegration | traza, max-eigen, valores críticos, rango, vector elegido, normalización (β crudo y β̃, pata ancla, c), ADF y vida media del spread, orden de integración, `multiple_testing` |
 | `vector_comparison.csv` | cointegration | por cada vector cointegrante: ADF, p-value, vida media |
 | `rolling_eigenvector.parquet` | cointegration | primer eigenvector de Johansen móvil |
-| `kf1_weights.parquet` | kalman | β̂_t por activo, ganancia de Kalman, varianza posterior, ECT dinámico (entrada de KF2) y ECT estático con β de Johansen (para comparar) |
+| `kf1_weights.parquet` | kalman | `beta_<T>` (posterior β̂_{t\|t}) y `beta_prior_<T>`, `intercept(_prior)`, `gain_<estado>` (K_t), `var_post_<estado>`, `ect_dynamic` (entrada de KF2, pesos prior), `ect_static` (Johansen de train), `innov_var`, `innov_norm`, `absorption` (C_tK_t), `burn_in` |
 | `kf2_signal.parquet` | kalman | μ prior/post, σ prior, innovación, ganancia, varianza posterior, z_t |
-| `params.json` | strategy | z_entrada, z_salida, stop, holding máx., Q, R, burn-in, semilla |
+| `params.json` | main (kalman + strategy) | `seed`; `kf1` (q, R, P₀, burn-in, β₀, c₀); filtro 2 y estrategia agregan sus llaves (z_entrada, z_salida, stop, holding máx., Q, R) |
 | `grid_search.csv` | strategy | resultados de la búsqueda de umbrales en train |
 | `signals.parquet` | strategy | z_t, señal, posición objetivo por activo |
 | `equity_curve.parquet` | backtest | equity, cash, valor por pata, drawdown, P&L bruto/neto, comisiones, préstamo |

@@ -28,9 +28,9 @@ función de transición S^M(S_t, x_t, W_{t+1}), función objetivo.
 
 ## Checklist
 
-**Filtro 1**
-- [ ] 6 pasos. - [ ] 5 elementos. - [ ] Cálculo e interpretación de K_t. - [ ] Q y R justificados.
-- [ ] Ejemplo numérico de varios periodos.
+**Filtro 1** (`docs/powell.md`)
+- [x] 6 pasos. - [x] 5 elementos. - [x] Cálculo e interpretación de K_t. - [x] Q y R justificados.
+- [x] Ejemplo numérico de varios periodos.
 
 **Filtro 2**
 - [ ] 6 pasos. - [ ] 5 elementos. - [ ] Cálculo e interpretación de K_t. - [ ] Q y R justificados.

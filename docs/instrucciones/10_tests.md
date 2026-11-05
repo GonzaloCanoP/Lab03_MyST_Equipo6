@@ -15,7 +15,7 @@ REPETIR hasta que pytest pase en verde con las 4 pruebas:
 ## Checklist
 
 - [ ] `test_causality.py` — z_t no cambia al recalcular el pipeline completo con datos hasta t, para ≥ 3 valores de t.
-- [ ] `test_normalization.py` — β̂ mantiene escala y signo estables entre reestimaciones consecutivas.
+- [x] `test_normalization.py` — β̂ mantiene escala y signo estables entre reestimaciones consecutivas (Johansen en ventanas consecutivas, invariancia a la escala del eigenvector, filtro 1 con ancla fija y sin cambios de signo, datos del proyecto).
 - [ ] `test_accounting.py` — equity = cash + Σ patas; costo total = nº operaciones por pata × comisión + devengo de préstamo en cortos.
 - [ ] `test_filter.py` — innovaciones normalizadas con varianza ≈ 1 (tolerancia declarada) y autocorrelación no significativa.
 - [ ] ~~Nivel B: contribuciones al riesgo iguales~~ (fuera de alcance, sin Risk Parity).

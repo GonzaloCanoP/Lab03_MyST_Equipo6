@@ -15,7 +15,7 @@ queda en `docs/` antes del domingo 8 a las 23:59.
 | Entorno: versiones fijadas, ventana de fechas ≤ 15 años, `.gitignore` | JME | hecho |
 | 01 Datos: descarga con snapshot, limpieza, validación, split congelado + notebook 01 + figura 1 | JME | hecho |
 | 02 Embudo de selección sobre ambos universos + tabla de grupos + notebook 02 | GC | hecho (en `main`; revisado por JME, 2026-11-04) |
-| 03 Filtro 1 + `test_normalization` + notebook 03 | JME | pendiente |
+| 03 Filtro 1 + `test_normalization` + notebook 03 | JME | hecho |
 | 04 Filtro 2 + `test_filter` + notebook 04 | GC | pendiente |
 | 05 VECM, señales, grid search + notebook 05 | GC | pendiente |
 | 06 Backtest + `test_accounting` + notebook 06 | JME | pendiente |
@@ -33,3 +33,5 @@ queda en `docs/` antes del domingo 8 a las 23:59.
 - Revisión de la parte 02 (JME): el spread estático con β de train pierde la estacionariedad en prueba y validación
   (media desplazada ≈ 10 desviaciones estándar en validación). No cambia la selección; la Q del filtro 1 se
   calibra en train y la comparación estático vs dinámico (parte 05) pasa a ser un resultado central.
+- Filtro 1: q se calibra por separación de escalas (no por máxima verosimilitud). El ECT dinámico corrige el
+  desplazamiento de prueba pero en validación también se abre (+0.11 de media; el estático +0.44).

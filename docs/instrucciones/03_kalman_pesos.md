@@ -30,17 +30,17 @@ REPETIR hasta cumplir el criterio de terminado:
 
 ## Checklist
 
-- [ ] Formulación de espacio de estados escrita: estado β_t, transición (caminata aleatoria β_t = β_{t-1} + w_t, w ~ N(0,Q)), observación (definir: una pata normalizada vs las demás).
-- [ ] **Normalización y signo** declarados: coeficiente de la pata de normalización fijo en 1; el estado son las n−1 restantes (y constante si se usa).
-- [ ] Inicialización: β_0 = vector de Johansen en train; P_0 justificado.
-- [ ] Matriz **Q** y valor **R** con justificación (ej. R = varianza de residuales en train; Q por razón δ/(1−δ) o máxima verosimilitud en train).
-- [ ] Periodo de **burn-in** descartado antes de operar, documentado.
-- [ ] Ganancia de Kalman K_t guardada en cada paso (figura 5).
-- [ ] Varianza posterior guardada (diagnóstico de convergencia en dashboard).
-- [ ] Salida S_t = β̂_tᵀP_t usando β̂ disponible en t (prior si la decisión se toma antes de observar P_t — definir y documentar).
-- [ ] Figura 3: evolución de β̂_t, una línea por activo.
-- [ ] Ejemplo numérico trabajado de 3–5 periodos (predicción, innovación, K, actualización) para el reporte.
-- [ ] Formulación Powell del filtro 1 (ver `09_formulacion_powell.md`).
+- [x] Formulación de espacio de estados escrita: estado z_t = (c_t, β_GDX, β_AEM, β_FNV), caminata aleatoria, observación P_GLD = (1, −P_GDX, −P_AEM, −P_FNV) z_t + v_t (log-precios) — docstring de `kalman/weights_filter.py`.
+- [x] **Normalización y signo** declarados: GLD fijo en +1; el estado son las 3 restantes y la constante.
+- [x] Inicialización: β_0 = β̃ de Johansen en train (leído de `johansen_summary.json`); P_0 = 252·Q.
+- [x] Matriz **Q** y valor **R** con justificación: R = varianza de residuales de Johansen en train; Q = q·I con q por separación de escalas (`calibrate_q`); máxima verosimilitud descartada (`docs/decisiones.md`).
+- [x] Periodo de **burn-in** de 252 días (columna `burn_in`), documentado.
+- [x] Ganancia de Kalman K_t guardada en cada paso (`gain_*` y `absorption` = C_tK_t) → figura 5, panel del filtro 1 (`plot_kalman_gains` acepta el filtro 2).
+- [x] Varianza posterior guardada (`var_post_*`, diagonal de P_{t|t}).
+- [x] ECT dinámico con pesos **prior** (`ect_dynamic` = ỹ_t) y ECT estático (`ect_static`) para comparar; pesos posteriores para el sizing.
+- [x] Figura 3: `docs/figuras/fig03_pesos_dinamicos.png` (+ comparación `ect_estatico_vs_dinamico.png`).
+- [x] Ejemplo numérico: ejemplo de clase reproducido por el filtro (4 periodos) y 5 días reales — notebook 03.
+- [x] Formulación Powell del filtro 1 → `docs/powell.md`.
 
 ## Criterio de terminado
 
