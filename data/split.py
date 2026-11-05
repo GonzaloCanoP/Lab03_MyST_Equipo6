@@ -14,7 +14,7 @@ import pandas as pd
 
 SPLIT = (0.60, 0.20, 0.20)
 SPLIT_NAMES = ("train", "test", "validation")
-N_ASSETS = 4  # activos por grupo: 2 · n integrantes, n = 2
+N_ASSETS = 4  # tamaño de grupo de la iteración 1 (2 · n integrantes); la iteración 2 usa GROUP_SIZES de selection.py
 
 
 @dataclass(frozen=True)

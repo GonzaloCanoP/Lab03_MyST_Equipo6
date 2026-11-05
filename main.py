@@ -22,7 +22,7 @@ import pandas as pd
 from backtest.walk_forward import REBALANCE_BANDS, compare_rebalance, run_walk_forward, split_summary, stack_results
 from cointegration.johansen import ANCHOR_TICKER, ROLLING_WINDOW, rolling_first_eigenvector
 from cointegration.selection import describe_chosen_group, multiple_testing_summary, run_funnel
-from cointegration.universe import UNIVERSES, all_tickers
+from cointegration.universe import active_universes, all_tickers
 from data.clean import clean_prices
 from data.download import load_prices
 from data.split import SplitDates, add_split_column, compute_split_dates, save_split_dates, slice_split
@@ -97,7 +97,7 @@ def run_cointegration_stage(prices: pd.DataFrame, split_dates: SplitDates) -> tu
     Retorna (tickers del grupo, β normalizado por ticker).
     """
     train = slice_split(prices, split_dates, "train")
-    table = run_funnel(train, UNIVERSES)
+    table = run_funnel(train, active_universes())
     chosen = table.loc[table["chosen"]].iloc[0]
     tickers = chosen["group"].split("-")
 

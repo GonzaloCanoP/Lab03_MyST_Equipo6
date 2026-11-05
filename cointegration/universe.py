@@ -6,8 +6,13 @@ estocástica común, y se reporta cuántos se probaron. Este módulo solo contie
 vive en el resto de `cointegration/`.
 
 Los universos están CONGELADOS desde antes de correr el embudo (ver `docs/decisiones.md`): cambiar la lista
-re-descarga el snapshot completo de precios y, además, ajustar el universo después de ver resultados sería
-data snooping.
+re-descarga el snapshot completo de precios.
+
+Iteraciones de la selección (detalle en `docs/decisiones.md`):
+    1. Ambos universos, grupos de 4 → GLD-GDX-AEM-FNV. Perdió la cointegración en validación.
+    2. Solo el universo de oro (autorizado por el profesor), pares, tercias y cuartetos → GLD-GDX-B.
+Las petroleras se conservan aquí porque sus precios siguen en el snapshot y forman parte del registro de la
+iteración 1; el embudo actual solo usa `ACTIVE_UNIVERSES`.
 """
 
 UNIVERSES = {
@@ -62,8 +67,16 @@ UNIVERSES = {
 }
 
 
+ACTIVE_UNIVERSES = ("oro",)  # iteración 2: un solo sector
+
+
+def active_universes() -> dict:
+    """Universos que entran al embudo de selección (iteración 2: solo oro + mineras)."""
+    return {name: UNIVERSES[name] for name in ACTIVE_UNIVERSES}
+
+
 def all_tickers() -> list[str]:
-    """Devuelve los tickers de todos los universos, sin repetidos y en el orden en que aparecen."""
+    """Tickers de TODOS los universos (los que descarga y limpia la etapa de datos), sin repetidos, en orden."""
     tickers = []
     for universe in UNIVERSES.values():
         tickers += [t for t in universe["tickers"] if t not in tickers]

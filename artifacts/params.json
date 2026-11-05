@@ -1,37 +1,35 @@
 {
   "seed": 42,
   "kf1": {
-    "q": 9.2310924e-10,
-    "Q": "q · I (4×4)",
-    "R": 0.0019210468,
-    "q_over_R": 4.8052409e-07,
+    "q": 1.5980147e-09,
+    "Q": "q · I (3×3)",
+    "R": 0.0033131219,
+    "q_over_R": 4.82329e-07,
     "P0": "252 · Q",
     "burn_in_days": 252,
     "state": [
       "c",
-      "GDX",
-      "AEM",
-      "FNV"
+      "GLD",
+      "B"
     ],
-    "anchor": "GLD",
+    "anchor": "GDX",
     "beta0": {
-      "GLD": 1.0,
-      "GDX": -0.56859476,
-      "AEM": 0.40041879,
-      "FNV": -0.37093486
+      "GLD": -0.82655161,
+      "GDX": 1.0,
+      "B": -0.44809807
     },
-    "intercept0": 2.9877295,
-    "absorption_median_train": 0.0043940814,
+    "intercept0": -2.0659571,
+    "absorption_median_train": 0.0038250628,
     "absorbed_in_trade_train": 0.2,
     "ect": "dinámico = innovación con pesos prior (ỹ_t); estático = β̃ᵀ ln P_t − c con Johansen de train"
   },
   "kf2": {
-    "phi": 0.96728046,
-    "half_life_days": 21.184501,
-    "q_mu": 8.5510558e-07,
-    "q_x": 9.7476836e-05,
-    "r": 4.7128247e-06,
-    "stationary_sd": 0.038914725,
+    "phi": 0.96870591,
+    "half_life_days": 22.149457,
+    "q_mu": 9.3299696e-07,
+    "q_x": 0.00010637444,
+    "r": 2.8307852e-05,
+    "stationary_sd": 0.041552488,
     "absorbed_in_trade_train": 0.2,
     "burn_in_days": 63,
     "model": "estado aumentado: mu_t = mu_{t-1} + w (q_mu); x_t = phi x_{t-1} + w (q_x); ECT_t = mu_t + x_t + v (r)",
@@ -41,14 +39,14 @@
   },
   "strategy": {
     "z_entry": 1.0,
-    "z_exit": 0.5,
-    "z_stop": 3.0,
-    "max_holding": 51,
-    "holding_k": 2,
-    "half_life_days": 25.33555,
+    "z_exit": 0.0,
+    "z_stop": 2.5,
+    "max_holding": 87,
+    "holding_k": 3,
+    "half_life_days": 29.112791,
     "objective": "sharpe_net: Sharpe neto anualizado en train (rf = 0, √252), rebalanceo diario, costos completos",
-    "train_objective": 0.77094748,
-    "train_trades": 35,
+    "train_objective": 0.65753332,
+    "train_trades": 24,
     "grid": {
       "z_entry": [
         1.0,
@@ -76,7 +74,7 @@
       ],
       "min_trades": 10,
       "combinations": 207,
-      "valid": 153
+      "valid": 135
     },
     "train_period": [
       "2013-04-08",

@@ -3,8 +3,7 @@
   "tickers": [
     "GLD",
     "GDX",
-    "AEM",
-    "FNV"
+    "B"
   ],
   "train_start": "2012-01-03",
   "train_end": "2020-11-19",
@@ -14,39 +13,30 @@
   "k_ar_diff": 1,
   "k_selection": "BIC sobre VAR en log-niveles; k_ar_diff = p - 1 (mínimo 1)",
   "eigenvalues": [
-    0.016603475,
-    0.005877624,
-    0.0042196858,
-    0.00055389844
+    0.012247622,
+    0.0032099191,
+    0.00048961449
   ],
   "trace": [
     {
       "r0": 0,
-      "stat": 61.284791,
-      "cv90": 44.4929,
-      "cv95": 47.8545,
-      "cv99": 54.6815,
+      "stat": 35.822711,
+      "cv90": 27.0669,
+      "cv95": 29.7961,
+      "cv99": 35.4628,
       "reject_95": true
     },
     {
       "r0": 1,
-      "stat": 23.864505,
-      "cv90": 27.0669,
-      "cv95": 29.7961,
-      "cv99": 35.4628,
-      "reject_95": false
-    },
-    {
-      "r0": 2,
-      "stat": 10.689258,
+      "stat": 8.2802644,
       "cv90": 13.4294,
       "cv95": 15.4943,
       "cv99": 19.9349,
       "reject_95": false
     },
     {
-      "r0": 3,
-      "stat": 1.238306,
+      "r0": 2,
+      "stat": 1.0945564,
       "cv90": 2.7055,
       "cv95": 3.8415,
       "cv99": 6.6349,
@@ -56,31 +46,23 @@
   "max_eigen": [
     {
       "r0": 0,
-      "stat": 37.420287,
-      "cv90": 25.1236,
-      "cv95": 27.5858,
-      "cv99": 32.7172,
+      "stat": 27.542447,
+      "cv90": 18.8928,
+      "cv95": 21.1314,
+      "cv99": 25.865,
       "reject_95": true
     },
     {
       "r0": 1,
-      "stat": 13.175247,
-      "cv90": 18.8928,
-      "cv95": 21.1314,
-      "cv99": 25.865,
-      "reject_95": false
-    },
-    {
-      "r0": 2,
-      "stat": 9.4509517,
+      "stat": 7.1857081,
       "cv90": 12.2971,
       "cv95": 14.2639,
       "cv99": 18.52,
       "reject_95": false
     },
     {
-      "r0": 3,
-      "stat": 1.238306,
+      "r0": 2,
+      "stat": 1.0945564,
       "cv90": 2.7055,
       "cv95": 3.8415,
       "cv99": 6.6349,
@@ -91,23 +73,21 @@
   "rank_maxeig": 1,
   "chosen_vector": 1,
   "beta_raw": {
-    "GLD": 23.036591,
-    "GDX": -13.098485,
-    "AEM": 9.2242839,
-    "FNV": -8.5450745
+    "GLD": 14.472575,
+    "GDX": -17.509585,
+    "B": 7.8460111
   },
   "beta_normalized": {
-    "GLD": 1.0,
-    "GDX": -0.56859476,
-    "AEM": 0.40041879,
-    "FNV": -0.37093486
+    "GLD": -0.82655161,
+    "GDX": 1.0,
+    "B": -0.44809807
   },
-  "anchor": "GLD",
+  "anchor": "GDX",
   "sign_convention": "beta_anchor = +1 (largo el spread = comprar los activos con beta > 0, vender los de beta < 0)",
-  "intercept_c": 2.9877295,
-  "spread_adf_stat": -4.6815118,
-  "spread_adf_pvalue": 9.1146318e-05,
-  "half_life_days": 25.33555,
+  "intercept_c": -2.0659571,
+  "spread_adf_stat": -4.1290195,
+  "spread_adf_pvalue": 0.00086691049,
+  "half_life_days": 29.112791,
   "integration_order": {
     "GLD": {
       "adf_pvalue_level": 0.69258305,
@@ -119,44 +99,59 @@
       "adf_pvalue_diff": 0.0,
       "is_I1": true
     },
-    "AEM": {
-      "adf_pvalue_level": 0.52672716,
-      "adf_pvalue_diff": 0.0,
-      "is_I1": true
-    },
-    "FNV": {
-      "adf_pvalue_level": 0.77580324,
+    "B": {
+      "adf_pvalue_level": 0.19978962,
       "adf_pvalue_diff": 0.0,
       "is_I1": true
     }
   },
   "multiple_testing": {
-    "petroleras": {
-      "groups_tested": 126,
-      "johansen_reject_95": 11,
-      "johansen_reject_99": 2,
-      "expected_false_positives_95": 6.3,
-      "pass_correlation": 4,
-      "survive_all_stages": 0,
-      "bonferroni_alpha": 0.0003968254
-    },
     "oro": {
-      "groups_tested": 70,
-      "johansen_reject_95": 9,
-      "johansen_reject_99": 2,
-      "expected_false_positives_95": 3.5,
-      "pass_correlation": 66,
-      "survive_all_stages": 9,
-      "bonferroni_alpha": 0.00071428571
+      "groups_tested": 154,
+      "johansen_reject_95": 30,
+      "johansen_reject_99": 4,
+      "expected_false_positives_95": 7.7,
+      "pass_correlation": 136,
+      "survive_all_stages": 19,
+      "bonferroni_alpha": 0.00032467532
+    },
+    "by_size": {
+      "2": {
+        "groups_tested": 28,
+        "johansen_reject_95": 7,
+        "johansen_reject_99": 1,
+        "expected_false_positives_95": 1.4,
+        "pass_correlation": 22,
+        "survive_all_stages": 3,
+        "bonferroni_alpha": 0.0017857143
+      },
+      "3": {
+        "groups_tested": 56,
+        "johansen_reject_95": 14,
+        "johansen_reject_99": 1,
+        "expected_false_positives_95": 2.8,
+        "pass_correlation": 48,
+        "survive_all_stages": 7,
+        "bonferroni_alpha": 0.00089285714
+      },
+      "4": {
+        "groups_tested": 70,
+        "johansen_reject_95": 9,
+        "johansen_reject_99": 2,
+        "expected_false_positives_95": 3.5,
+        "pass_correlation": 66,
+        "survive_all_stages": 9,
+        "bonferroni_alpha": 0.00071428571
+      }
     },
     "total": {
-      "groups_tested": 196,
-      "johansen_reject_95": 20,
+      "groups_tested": 154,
+      "johansen_reject_95": 30,
       "johansen_reject_99": 4,
-      "expected_false_positives_95": 9.8,
-      "pass_correlation": 70,
-      "survive_all_stages": 9,
-      "bonferroni_alpha": 0.00025510204
+      "expected_false_positives_95": 7.7,
+      "pass_correlation": 136,
+      "survive_all_stages": 19,
+      "bonferroni_alpha": 0.00032467532
     }
   }
 }

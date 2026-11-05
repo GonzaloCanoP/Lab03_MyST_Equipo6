@@ -33,9 +33,9 @@ ROLLING_WINDOW = 504  # ≈ 2 años bursátiles (Johansen móvil, figura 4)
 ROLLING_STEP = 21  # ≈ 1 mes
 
 # Pata de normalización y signo, declaradas tras correr Johansen en entrenamiento sobre el grupo elegido
-# (GLD-GDX-AEM-FNV): GLD tiene el mayor |β_i| del primer eigenvector. main.py verifica que el ancla calculada
-# coincida con esta constante; si los datos cambian y deja de coincidir, el pipeline se detiene.
-ANCHOR_TICKER = "GLD"
+# (iteración 2, GLD-GDX-B): GDX tiene el mayor |β_i| del primer eigenvector (en la iteración 1, GLD-GDX-AEM-FNV,
+# era GLD). main.py verifica que el ancla calculada coincida con esta constante; si no, el pipeline se detiene.
+ANCHOR_TICKER = "GDX"
 SIGN_CONVENTION = "beta_anchor = +1 (largo el spread = comprar los activos con beta > 0, vender los de beta < 0)"
 
 

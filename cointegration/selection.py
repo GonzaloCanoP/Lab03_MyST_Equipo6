@@ -12,7 +12,13 @@ Etapas (criterio fijado antes de correr, ver `docs/decisiones.md`):
     5. Selección del vector: entre las r̂ columnas, vida media operable y menor p ADF
     6. Validación del spread: ADF p < 0.05 y vida media en [5, 60] días    → ELIMINA
     7. Estabilidad: Johansen en cada mitad de train                        → se reporta, no elimina
-Elección final: el sobreviviente con mayor LR_trace(0) / v.c. 95 %.
+Grupos: pares, tercias y cuartetos (`GROUP_SIZES`) del universo activo (iteración 2, solo oro).
+
+Elección final (iteración 2): el grupo `CHOSEN_GROUP`, que debe sobrevivir al embudo. En la iteración 1 la regla era
+"el sobreviviente con mayor LR_trace(0) / v.c. 95 %" (GLD-GDX-AEM-FNV); ese grupo perdió la cointegración en
+validación y, tras el proceso de búsqueda documentado en `docs/decisiones.md`, se eligió GLD-GDX-B: GDX es el ETF de
+mineras y Barrick una de sus posiciones más grandes, así que el metal, el ETF y su mayor componente comparten la
+tendencia casi de forma mecánica. La columna `trace_rank` muestra dónde queda cada grupo por la regla original.
 """
 
 from itertools import combinations
@@ -26,13 +32,14 @@ from cointegration.half_life import compute_half_life
 from cointegration.johansen import (CV_COLUMN, DET_ORDER, SIGN_CONVENTION, SIGNIFICANCE, adf_pvalue, anchor_index,
                                     build_spread, choose_vector, compare_vectors, normalize_beta, run_johansen,
                                     select_k_ar_diff)
-from data.split import N_ASSETS
 
 # --- Parámetros de este módulo (tabla de parámetros en CLAUDE.md) ---
 CORR_THRESHOLD = 0.70
 CORR_WINDOW = 252
 PVALUE_THRESHOLD = 0.05
 HALF_LIFE_RANGE = (5.0, 60.0)  # días; rango "operable" sugerido en clase
+GROUP_SIZES = (2, 3, 4)  # iteración 2: pares, tercias y cuartetos (iteración 1: solo 4)
+CHOSEN_GROUP = ("GLD", "GDX", "B")  # iteración 2 (ver docstring del módulo y docs/decisiones.md)
 
 
 def check_integration_order(log_prices: pd.DataFrame, pvalue_threshold: float = PVALUE_THRESHOLD) -> pd.DataFrame:
@@ -135,32 +142,37 @@ def evaluate_group(universe: str, tickers: list[str], log_prices: pd.DataFrame, 
     return row
 
 
-def run_funnel(train_prices: pd.DataFrame, universes: dict, group_size: int = N_ASSETS) -> pd.DataFrame:
-    """Corre el embudo sobre todos los grupos de `group_size` activos de cada universo.
+def run_funnel(train_prices: pd.DataFrame, universes: dict, group_sizes: tuple[int, ...] = GROUP_SIZES,
+               chosen_group: tuple[str, ...] = CHOSEN_GROUP) -> pd.DataFrame:
+    """Corre el embudo sobre todos los grupos de cada tamaño de `group_sizes` en cada universo.
 
     Parámetros:
         train_prices: precios (no log) de ENTRENAMIENTO de todos los tickers.
-        universes: dict nombre → {"tickers": [...]} (de `cointegration.universe.UNIVERSES`).
+        universes: dict nombre → {"tickers": [...]} (de `cointegration.universe.active_universes()`).
+        chosen_group: grupo elegido; debe sobrevivir a todas las etapas o se lanza un error.
     Retorna:
-        `selection_table`: una fila por grupo probado (C(9,4) + C(8,4) = 196), con la columna `chosen`.
+        `selection_table`: una fila por grupo probado (con solo oro: C(8,2) + C(8,3) + C(8,4) = 154), con `size`,
+        `trace_rank` (posición por LR_trace(0) / v.c. 95 % entre los sobrevivientes) y `chosen`.
     """
     rows = []
     for name, spec in universes.items():
         log_prices = np.log(train_prices[spec["tickers"]])
         rolling_corr = rolling_pairwise_correlation(log_prices.diff().dropna(), CORR_WINDOW)
         pair_eg = pairwise_engle_granger(log_prices)
-        for group in combinations(spec["tickers"], group_size):
-            rows.append(evaluate_group(name, list(group), log_prices, rolling_corr, pair_eg))
+        for size in group_sizes:
+            for group in combinations(spec["tickers"], size):
+                rows.append({"size": size, **evaluate_group(name, list(group), log_prices, rolling_corr, pair_eg)})
     table = pd.DataFrame(rows)
     table["survives"] = table["discard_stage"] == ""
-    table["chosen"] = False
-    if table["survives"].any():
-        table.loc[table.loc[table["survives"], "trace_ratio"].idxmax(), "chosen"] = True
+    table["trace_rank"] = table["trace_ratio"].where(table["survives"]).rank(ascending=False, method="min")
+    table["chosen"] = table["group"] == "-".join(chosen_group)
+    if not table.loc[table["chosen"], "survives"].all() or not table["chosen"].any():
+        raise ValueError(f"El grupo elegido {chosen_group} no sobrevive al embudo de selección")
     return table
 
 
 def multiple_testing_summary(table: pd.DataFrame, alpha: float = 1 - SIGNIFICANCE) -> dict:
-    """Números para la discusión de pruebas múltiples, por universo y en total.
+    """Números para la discusión de pruebas múltiples, por universo, por tamaño de grupo (`by_size`) y en total.
 
     Retorna:
         dict con, por universo y `total`: grupos probados, cuántos rechazan r = 0 al 95 % y al 99 %, cuántos se
@@ -180,6 +192,7 @@ def multiple_testing_summary(table: pd.DataFrame, alpha: float = 1 - SIGNIFICANC
         }
 
     summary = {name: summarize(df) for name, df in table.groupby("universe", sort=False)}
+    summary["by_size"] = {int(size): summarize(df) for size, df in table.groupby("size", sort=True)}
     summary["total"] = summarize(table)
     return summary
 
