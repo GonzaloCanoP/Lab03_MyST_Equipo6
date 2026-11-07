@@ -48,8 +48,10 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"], [data-
     {{ color: {AMBER} !important; }}
 [data-testid="stButtonGroup"] button {{ border-radius: 0 !important; border-color: {BORDER} !important;
     background: {PANEL} !important; }}
-[data-testid="stButtonGroup"] button[kind$="Active"] {{ background: {AMBER} !important; border-color: {AMBER} !important; }}
-[data-testid="stButtonGroup"] button[kind$="Active"] p {{ color: {BLACK} !important; font-weight: 700; }}
+/* Tecla activa: Streamlit 1.66 la marca con aria-checked (ya no con kind="...Active") */
+[data-testid="stButtonGroup"] button[aria-checked="true"] {{ background: {AMBER} !important;
+    border-color: {AMBER} !important; }}
+[data-testid="stButtonGroup"] button[aria-checked="true"] p {{ color: {BLACK} !important; font-weight: 700; }}
 [data-testid="stWidgetLabel"] p {{ color: {MUTED} !important; font-size: 0.75rem; text-transform: uppercase; }}
 h1, h2, h3, h4, p, span, label, div {{ color: {TEXT}; }}
 .cmdbar {{ display: flex; justify-content: space-between; align-items: center; background: {PANEL};
