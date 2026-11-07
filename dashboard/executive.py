@@ -4,6 +4,7 @@ Paneles (checklist de `docs/instrucciones/08_dashboard.md`):
     1) Curva de capital con drawdown (por partición o encadenada)
     2) Tabla de métricas: las cuatro columnas de `metrics.json`, con la partición elegida resaltada
     3) Atribución de costos: P&L bruto → comisiones → préstamo → P&L neto en el rango elegido
+    4) Rendimiento neto por año calendario
 
 La cinta de arriba es la tarjeta de la partición elegida (TODO = total encadenado), leída de `metrics.json`. Todo sale
 de los artefactos; lo único que se agrega aquí son sumas y productos de esas series para el rango elegido.
@@ -164,6 +165,29 @@ def costs_panel(data: dict, start, end) -> None:
     st.markdown(f'<div class="panel-note">{note}</div>', unsafe_allow_html=True)
 
 
+def yearly_returns(returns: pd.Series) -> pd.Series:
+    """Rendimiento neto de cada año calendario: producto de (1 + r_t) − 1 con los rendimientos diarios del rango."""
+    return (1.0 + returns).groupby(returns.index.year).prod() - 1.0
+
+
+def yearly_panel(data: dict, start, end) -> None:
+    """4) Barras del rendimiento neto por año; el signo va en la etiqueta además del color."""
+    yearly = yearly_returns(_window(daily_returns(data["equity_curve"]), start, end))
+    colors = [theme.UP if v > 0 else theme.DOWN for v in yearly]
+    fig = go.Figure(go.Bar(x=yearly.index.astype(str), y=yearly, marker={"color": colors},
+                           text=[f"{v:+.1%}" for v in yearly], textposition="outside",
+                           textfont={"color": theme.TEXT, "size": 10}, name="rendimiento",
+                           hovertemplate="%{x}: %{y:+.2%}<extra></extra>"))
+    fig.add_hline(y=0, line={"color": theme.MUTED, "width": 1})
+    fig.update_yaxes(title_text="rendimiento neto", tickformat=".0%")
+    fig.update_xaxes(type="category")
+    fig.update_layout(hovermode="closest")
+    _show(fig)
+    positives = int((yearly > 0).sum())
+    st.markdown(f'<div class="panel-note">{positives} de {len(yearly)} años con rendimiento positivo</div>',
+                unsafe_allow_html=True)
+
+
 def render(data: dict, start: pd.Timestamp, end: pd.Timestamp) -> None:
     """Dibuja la vista ejecutiva para el rango de fechas [start, end]."""
     metrics = data["metrics"]
@@ -182,3 +206,7 @@ def render(data: dict, start: pd.Timestamp, end: pd.Timestamp) -> None:
     with left:
         theme.panel_title(3, "Atribución de costos", "P&L bruto → neto en el rango de fechas elegido")
         costs_panel(data, start, end)
+    with right:
+        theme.panel_title(4, "Rendimiento por año", "años calendario; extremos parciales; 2020 y 2023 mezclan dos "
+                          "particiones")
+        yearly_panel(data, start, end)
