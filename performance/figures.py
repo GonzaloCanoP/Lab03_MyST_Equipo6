@@ -9,6 +9,7 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy.stats import jarque_bera, kurtosis, norm, skew
 
 SPLIT_COLORS = {"train": "#e8f0fe", "test": "#fef7e0", "validation": "#e6f4ea"}
 SPLIT_LABELS = {"train": "entrenamiento", "test": "prueba", "validation": "validación"}
@@ -344,6 +345,75 @@ def plot_equity_curves(equity: pd.DataFrame, path: Path | None = None) -> plt.Fi
     axes[0].set_ylabel("Capital ($)")
     axes[0].legend(fontsize=8, loc="upper left")
     fig.suptitle("Figura 7 — Curvas de capital por partición (cada una arranca con $1,000,000)")
+    fig.tight_layout()
+    if path is not None:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(path, dpi=150)
+    return fig
+
+
+def plot_trade_return_distribution(trade_ret: pd.Series, split: pd.Series, path: Path | None = None) -> plt.Figure:
+    """Figura 8: distribución de los rendimientos por operación con la normal de misma media y desviación superpuesta.
+
+    Parámetros:
+        trade_ret: rendimiento neto de cada operación (`performance.metrics.trade_returns`).
+        split: partición de cada operación (mismo orden), para apilar el histograma por color.
+        path: si se da, guarda la figura (PNG).
+    Las colas gruesas o la asimetría respecto a la normal dicen cómo pierde la estrategia: muchas ganancias chicas
+    por reversión y pocas pérdidas grandes cuando el spread no revierte.
+    """
+    r = 100 * np.asarray(trade_ret, dtype=float)  # en %
+    split = np.asarray(split)
+    order = [s for s in SPLIT_LABELS if s in set(split)]
+    bins = np.histogram_bin_edges(r, bins=min(20, max(8, len(r) // 2)))
+    edge_colors = {"train": "#4a7bd0", "test": "#d9a520", "validation": "#3a9a5b"}
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.hist([r[split == s] for s in order], bins=bins, stacked=True, density=True, rwidth=0.9,
+            color=[edge_colors[s] for s in order], alpha=0.75, label=[SPLIT_LABELS[s] for s in order])
+    mu, sd = r.mean(), r.std(ddof=1)
+    grid = np.linspace(min(bins[0], mu - 3 * sd), max(bins[-1], mu + 3 * sd), 300)
+    ax.plot(grid, norm.pdf(grid, mu, sd), color="black", linewidth=1.6, label=f"normal(μ = {mu:.2f} %, σ = {sd:.2f} %)")
+    ax.axvline(0, color="tab:gray", linewidth=0.8, linestyle=":")
+    stats_text = (f"n = {len(r)} operaciones\nasimetría = {skew(r):.2f}\ncurtosis = {kurtosis(r, fisher=False):.2f}"
+                  f"\nJarque–Bera p = {jarque_bera(r).pvalue:.3f}")
+    ax.text(0.02, 0.97, stats_text, transform=ax.transAxes, va="top", fontsize=9,
+            bbox={"facecolor": "white", "edgecolor": "0.8", "boxstyle": "round"})
+    ax.set_xlabel("Rendimiento neto por operación (% del capital al entrar)")
+    ax.set_ylabel("Densidad")
+    ax.set_title("Figura 8 — Distribución de rendimientos por operación vs normal")
+    ax.legend(fontsize=9, loc="upper right")
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+    if path is not None:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(path, dpi=150)
+    return fig
+
+
+def plot_rolling_sharpe(rolling: pd.Series, split: pd.Series, full_sample: dict, path: Path | None = None) -> plt.Figure:
+    """Sharpe neto móvil de 252 días sobre toda la muestra, con las particiones sombreadas.
+
+    Parámetros:
+        rolling: `rolling_sharpe_252` (`performance.metrics.rolling_sharpe` sobre los rendimientos encadenados).
+        split: partición de cada fecha.
+        full_sample: {partición: Sharpe neto de la partición completa}, se dibuja como referencia horizontal.
+        path: si se da, guarda la figura (PNG).
+    """
+    fig, ax = plt.subplots(figsize=(13, 4.5))
+    _shade_splits(ax, split)
+    ax.plot(rolling.index, rolling, color="tab:blue", linewidth=1.2, label="Sharpe neto móvil (252 días)")
+    for name, value in full_sample.items():
+        part = split.index[split == name]
+        ax.hlines(value, part[0], part[-1], color="black", linewidth=1.0, linestyle="--")
+        ax.annotate(f"{SPLIT_LABELS[name]}: {value:.2f}", (part[0], value), textcoords="offset points",
+                    xytext=(4, 5), fontsize=8)
+    ax.axhline(0, color="tab:gray", linewidth=0.8)
+    ax.set_xlabel("Fecha")
+    ax.set_ylabel("Sharpe anualizado")
+    ax.set_title("Sharpe neto móvil de 252 días (línea punteada: Sharpe de la partición completa)")
+    ax.legend(fontsize=8, loc="upper left", ncol=4)
+    ax.grid(alpha=0.3)
     fig.tight_layout()
     if path is not None:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
