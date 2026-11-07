@@ -21,7 +21,8 @@ RANGES = {"TODO": None, "TRAIN": "train", "TEST": "test", "VALID": "validation"}
 def select_range(data: dict) -> tuple[pd.Timestamp, pd.Timestamp]:
     """Selector de rango común: partición (TODO / TRAIN / TEST / VALID) y un ajuste fino de fechas dentro de ella."""
     signals = data["signals"]
-    left, right = st.columns([1, 3], gap="small")
+    # [2, 3]: con [1, 3] la cuarta tecla (VALID) se cortaba en ventanas de ≈ 800 px.
+    left, right = st.columns([2, 3], gap="small")
     with left:
         choice = st.segmented_control("Partición", list(RANGES), default="TODO", key="range") or "TODO"
     dates = signals.index if RANGES[choice] is None else signals.index[signals["split"] == RANGES[choice]]
