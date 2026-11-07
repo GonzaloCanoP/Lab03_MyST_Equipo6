@@ -77,7 +77,8 @@ kalman/              filtro 1 (pesos β_t) y filtro 2 (μ_t, σ_t² → z_t)
 strategy/            VECM, z-score, señales, sizing, grid search de umbrales
 backtest/            motor multi-pata con costos, walk-forward, comparación rebalanceo vs banda
 performance/         métricas (Sharpe, Sortino, Calmar, MDD, win rate, profit factor, Sharpe móvil 252d)
-dashboard/app.py     Streamlit: vista ejecutiva + vista técnica (lee artifacts/)
+dashboard/app.py     Streamlit: vista ejecutiva + vista técnica (lee artifacts/); theme.py, data.py, executive.py,
+                     technical.py y .streamlit/config.toml (tema, lo lee Streamlit junto a app.py)
 artifacts/           salidas del backtest (se versionan para que el dashboard corra sin main.py)
 tests/               pytest: causalidad, normalización, contabilidad multi-pata, filtro
 project_management/  charter.md, sprint_NN.md (uno por semana), postmortem.md
