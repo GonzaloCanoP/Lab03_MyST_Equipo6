@@ -1,4 +1,6 @@
 .claude
+# Agentes y skills locales del editor (p. ej. developing-with-streamlit): no se versionan
+.agents/
 .venv
 venv/
 env/
