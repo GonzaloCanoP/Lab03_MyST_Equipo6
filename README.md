@@ -81,7 +81,7 @@ z, posición (▲ largo / ▼ corto / ■ plano), β̂ actuales, θ y métricas 
 | 4) Eigenvector de Johansen móvil | β̃ por ventana de 504 días y la razón traza / crítico | arriba de 1 la ventana rechaza r = 0; los saltos de β̃ aparecen cuando no hay cointegración |
 | 5) Ganancia de Kalman | K_t del filtro 1 (c y pesos) y del filtro 2 (μ y x) | ganancias pequeñas = el filtro confía en su estado y se mueve despacio |
 | 6) Varianza posterior | diagonal de P_t\|t de ambos filtros (escala log) | crece si el filtro se vuelve más incierto |
-| 7) Sharpe móvil 252 días | Sharpe neto de un año contra el de cada partición completa | un año con un stop basta para volverlo negativo |
+| 7) Sharpe móvil 252 días | Sharpe neto de un año contra el de cada partición completa | un año con un stop basta para volverlo negativo; en el primer año de prueba y de validación la ventana todavía incluye días de la partición anterior |
 
 ## Uso de asistencia de IA
 

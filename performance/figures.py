@@ -395,7 +395,8 @@ def plot_rolling_sharpe(rolling: pd.Series, split: pd.Series, full_sample: dict,
     """Sharpe neto móvil de 252 días sobre toda la muestra, con las particiones sombreadas.
 
     Parámetros:
-        rolling: `rolling_sharpe_252` (`performance.metrics.rolling_sharpe` sobre los rendimientos encadenados).
+        rolling: `rolling_sharpe_252` (`performance.metrics.rolling_sharpe` sobre los rendimientos encadenados). La
+            ventana cruza el inicio de cada partición: sus primeros 251 valores mezclan días de la anterior.
         split: partición de cada fecha.
         full_sample: {partición: Sharpe neto de la partición completa}, se dibuja como referencia horizontal.
         path: si se da, guarda la figura (PNG).
@@ -411,7 +412,9 @@ def plot_rolling_sharpe(rolling: pd.Series, split: pd.Series, full_sample: dict,
     ax.axhline(0, color="tab:gray", linewidth=0.8)
     ax.set_xlabel("Fecha")
     ax.set_ylabel("Sharpe anualizado")
-    ax.set_title("Sharpe neto móvil de 252 días (línea punteada: Sharpe de la partición completa)")
+    ax.set_title("Sharpe neto móvil de 252 días (línea punteada: Sharpe de la partición completa)\n"
+                 "En el primer año de prueba y de validación la ventana todavía incluye días de la partición anterior",
+                 fontsize=10)
     ax.legend(fontsize=8, loc="upper left", ncol=4)
     ax.grid(alpha=0.3)
     fig.tight_layout()

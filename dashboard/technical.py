@@ -221,5 +221,6 @@ def render(data: dict, start: pd.Timestamp, end: pd.Timestamp) -> None:
         eigenvector_panel(data, start, end)
         theme.panel_title(6, "Varianza posterior", "diagonal de P_t|t en escala log (incertidumbre de cada estado)")
         variance_panel(data, start, end)
-    theme.panel_title(7, "Sharpe móvil 252 días", "punteado: Sharpe de la partición completa")
+    theme.panel_title(7, "Sharpe móvil 252 días", "punteado: Sharpe de la partición completa; en el primer año de TEST "
+                      "y de VALID la ventana todavía incluye días de la partición anterior")
     rolling_sharpe_panel(data, start, end)
