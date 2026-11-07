@@ -6,15 +6,18 @@ Paneles (checklist de `docs/instrucciones/08_dashboard.md`):
     3) Atribución de costos: P&L bruto → comisiones → préstamo → P&L neto en el rango elegido
     4) Rendimiento neto por año calendario
     5) Bitácora de operaciones filtrable por periodo (rango de arriba), dirección, resultado y motivo de salida
+    6) Histograma de rendimientos por operación con la normal de misma media y desviación
 
 La cinta de arriba es la tarjeta de la partición elegida (TODO = total encadenado), leída de `metrics.json`. Todo sale
 de los artefactos; lo único que se agrega aquí son sumas y productos de esas series para el rango elegido.
 """
 
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 from plotly.subplots import make_subplots
+from scipy.stats import jarque_bera, kurtosis, norm, skew
 
 from dashboard import theme
 from performance.metrics import daily_returns, drawdown, trade_returns
@@ -253,6 +256,33 @@ def log_panel(data: dict, start, end) -> None:
                 f'{money(chosen["net_pnl"].min())}</div>', unsafe_allow_html=True)
 
 
+def histogram_panel(data: dict, start, end) -> None:
+    """6) Distribución de los rendimientos por operación del rango contra la normal con su media y desviación."""
+    chosen = filter_trades(data["trades"], start, end)
+    ret = pd.Series(trade_returns(chosen, data["equity_curve"]))
+    if len(ret) < 3:
+        st.markdown('<div class="panel-note">se necesitan al menos 3 operaciones en el rango</div>',
+                    unsafe_allow_html=True)
+        return
+    mean, sd = ret.mean(), ret.std(ddof=1)
+    grid = np.linspace(ret.min() - sd, ret.max() + sd, 200)
+    fig = go.Figure()
+    fig.add_trace(go.Histogram(x=ret, histnorm="probability density", nbinsx=20, name="operaciones",
+                               marker={"color": theme.AMBER, "line": {"color": theme.BLACK, "width": 1}},
+                               hovertemplate="%{x}<br>densidad %{y:.1f}<extra></extra>"))
+    fig.add_trace(go.Scatter(x=grid, y=norm.pdf(grid, mean, sd), name=f"normal (μ {mean:+.2%}, σ {sd:.2%})",
+                             line={"color": theme.SERIES[0], "width": 1.8, "dash": "dash"}, hoverinfo="skip"))
+    fig.add_vline(x=0, line={"color": theme.MUTED, "width": 1})
+    fig.update_xaxes(title_text="rendimiento neto por operación", tickformat=".1%")
+    fig.update_yaxes(title_text="densidad")
+    fig.update_layout(hovermode="closest", bargap=0.02)
+    _show(fig, per_row=4)
+    jb = jarque_bera(ret).pvalue
+    st.markdown(f'<div class="panel-note">{len(ret)} operaciones · sesgo {skew(ret):+.2f} · curtosis '
+                f'{kurtosis(ret, fisher=False):.2f} (normal = 3) · Jarque–Bera p = {jb:.3g}'
+                f'{" → no es normal" if jb < 0.05 else ""}</div>', unsafe_allow_html=True)
+
+
 def render(data: dict, start: pd.Timestamp, end: pd.Timestamp) -> None:
     """Dibuja la vista ejecutiva para el rango de fechas [start, end]."""
     metrics = data["metrics"]
@@ -279,3 +309,7 @@ def render(data: dict, start: pd.Timestamp, end: pd.Timestamp) -> None:
     theme.panel_title(5, "Bitácora de operaciones", "operaciones que entran en el rango elegido; rend. = P&L neto / "
                       "capital antes de entrar")
     log_panel(data, start, end)
+
+    theme.panel_title(6, "Distribución de rendimientos por operación", "todas las operaciones que entran en el rango "
+                      "(sin los filtros de la bitácora); punteado = normal con la misma media y desviación")
+    histogram_panel(data, start, end)
