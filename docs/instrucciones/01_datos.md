@@ -10,7 +10,7 @@ cronológicamente 60/20/20 sin look-ahead.
 
 ## Parámetros de este módulo
 
-`SPLIT = (0.60, 0.20, 0.20)`, `N_ASSETS = 4` en `data/split.py`. `MAX_FFILL = 3` en `data/clean.py`, `JUMP_THRESHOLD = 0.40` en `data/validate.py`. Recibe `START_DATE`, `END_DATE`, `DATA_SNAPSHOT` desde `main.py`. Si cambian, actualizar la tabla de parámetros de `CLAUDE.md`.
+`SPLIT = (0.60, 0.20, 0.20)` en `data/split.py` (los tamaños de grupo viven en `cointegration/selection.py`). `MAX_FFILL = 3` en `data/clean.py`, `JUMP_THRESHOLD = 0.40` en `data/validate.py`. Recibe `START_DATE`, `END_DATE`, `DATA_SNAPSHOT` desde `main.py`. Si cambian, actualizar la tabla de parámetros de `CLAUDE.md`.
 
 ## Contrato
 

@@ -10,13 +10,13 @@ portafolio más reversivo S_t = βᵀP_t. **Todo sobre la partición de entrenam
 
 ## Parámetros de este módulo
 
-`CORR_THRESHOLD = 0.70`, `CORR_WINDOW = 252`, `PVALUE_THRESHOLD = 0.05`, `HALF_LIFE_RANGE = (5, 60)` en `cointegration/selection.py` (el tamaño del grupo es `N_ASSETS` de `data/split.py`); `DET_ORDER = 0`, `MAX_VAR_LAGS = 10`, `ROLLING_WINDOW = 504`, `ROLLING_STEP = 21`, `ANCHOR_TICKER = "GLD"` y `SIGN_CONVENTION` en `cointegration/johansen.py`. Si cambian, actualizar la tabla de parámetros de `CLAUDE.md`.
+`CORR_THRESHOLD = 0.70`, `CORR_WINDOW = 252`, `PVALUE_THRESHOLD = 0.05`, `HALF_LIFE_RANGE = (5, 60)` en `cointegration/selection.py` y los tamaños de grupo `GROUP_SIZES` y el grupo elegido `CHOSEN_GROUP`; universos activos `ACTIVE_UNIVERSES` en `cointegration/universe.py`; `DET_ORDER = 0`, `MAX_VAR_LAGS = 10`, `ROLLING_WINDOW = 504`, `ROLLING_STEP = 21`, `ANCHOR_TICKER = "GDX"` (GLD en la iteración 1) y `SIGN_CONVENTION` en `cointegration/johansen.py`. Si cambian, actualizar la tabla de parámetros de `CLAUDE.md`.
 
 ## Contrato
 
 - **Lee:** particiones de `data/`.
 - **Escribe:** `selection_table.csv`, `johansen_summary.json`, `vector_comparison.csv`, `rolling_eigenvector.parquet`.
-- **Expone:** `run_funnel(train_prices, universes) -> selection_table`, `describe_chosen_group(train_prices, tickers, universe) -> (summary, comparison)`, `compute_half_life(spread) -> float`, `normalize_beta(beta, anchor)`, `build_spread(log_prices, beta)`. `main.run_cointegration_stage` devuelve `(tickers, beta_normalizado)`; las demás partes leen `johansen_summary.json`.
+- **Expone:** `run_funnel(train_prices, universes, group_sizes, chosen_group) -> selection_table`, `describe_chosen_group(train_prices, tickers, universe) -> (summary, comparison)`, `compute_half_life(spread) -> float`, `normalize_beta(beta, anchor)`, `build_spread(log_prices, beta)`. `main.run_cointegration_stage` devuelve `(tickers, beta_normalizado)`; las demás partes leen `johansen_summary.json`.
 
 ## Loop de trabajo
 
@@ -53,13 +53,13 @@ REPETIR hasta cumplir el criterio de terminado:
 
 **Paso 6 — Documentación**
 - [x] `selection_table.csv`: **todos** los grupos probados, estadísticos, etapa de descarte y motivo.
-- [x] Número total de grupos evaluados reportado: 196 (`johansen_summary.json` → `multiple_testing`).
+- [x] Número total de grupos evaluados reportado: iteración 2 = 154 (28 pares, 56 tercias, 70 cuartetos; `johansen_summary.json` → `multiple_testing`, con `by_size`); iteración 1 = 196; 280 grupos distintos en todo el proceso.
 - [x] Johansen móvil (504 días, paso 21, sin look-ahead) → `rolling_eigenvector.parquet` y `docs/figuras/fig04_eigenvector_movil.png`.
 - [x] Discusión: ¿la relación es estructural o artefacto de haber probado muchos grupos? — notebook 02 (esperados por azar, 99 %, Bonferroni, mitades de train, Johansen móvil). El desempeño fuera de muestra se completa con el backtest.
 
 ## Criterio de terminado
 
-Existe un β normalizado para 4 activos, con spread estacionario en train (ADF p < 0.05), vida media razonable
+Existe un β normalizado para el grupo elegido (tercia GLD-GDX-B), con spread estacionario en train (ADF p < 0.05), vida media razonable
 para operar, tabla completa de selección y figura 4 generada.
 
 ## Trampas

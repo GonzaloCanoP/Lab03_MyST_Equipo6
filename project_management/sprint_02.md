@@ -21,7 +21,7 @@ queda en `docs/` antes del domingo 8 a las 23:59.
 | 06 Backtest + `test_accounting` + notebook 06 | JME | hecho: walk-forward, `equity_curve.parquet`, `trades.csv`, `rebalance_comparison.csv`, figuras 2 y 7, notebook 06 |
 | 07 Métricas, figuras 1–8, `test_causality` + notebook 07 | GC | `test_causality` y `sharpe` hechos (los necesitaba la 05); faltan las demás métricas, `metrics.json` y notebook 07 |
 | 08 Dashboard: vista ejecutiva / vista técnica | JME / GC | pendiente |
-| Iteración 2 de la selección: pruebas fuera del repo, tercia GLD-GDX-B, pipeline y notebooks 01/03/06 | JME | hecho (notebooks 02/04/05 y textos de GC pendientes de actualizar) |
+| Iteración 2 de la selección: pruebas fuera del repo, tercia GLD-GDX-B, pipeline, notebooks 01–06, guías y Powell | JME | hecho |
 | Reporte, formulación Powell, README final | ambos | pendiente |
 | Revisión desde clon limpio (`99_checklist_entrega.md`) y post-mortem | ambos | pendiente |
 
