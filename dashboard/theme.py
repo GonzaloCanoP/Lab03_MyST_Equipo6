@@ -103,6 +103,30 @@ def _plotly_template() -> go.layout.Template:
     })
 
 
+LEGEND_ROW_PX = 20   # alto de un renglón de leyenda
+LEGEND_PAD_PX = 10   # aire entre la leyenda y el área de datos
+
+
+def fit_legend(fig: go.Figure, height: int, per_row: int = 2) -> None:
+    """Reserva arriba del área de datos el espacio exacto de la leyenda, para que nunca tape las series.
+
+    Cada entrada ocupa 1 / `per_row` del ancho (`entrywidthmode = "fraction"`), así que el número de renglones no
+    depende del ancho de la pantalla: renglones = ⌈entradas / per_row⌉. El alto del área de datos queda en `height`
+    y la figura crece lo que mida la leyenda.
+    """
+    entries = sum(1 for t in fig.data if t.showlegend is not False and t.name)
+    shown = fig.layout.showlegend if fig.layout.showlegend is not None else entries > 1  # regla de Plotly
+    rows = -(-entries // per_row) if shown else 0
+    legend_px = rows * LEGEND_ROW_PX + (LEGEND_PAD_PX if rows else 0)
+    fig.update_layout(
+        height=height + legend_px,
+        margin={"t": 12 + legend_px},
+        legend={"orientation": "h", "x": 0, "xanchor": "left", "y": 1, "yanchor": "bottom", "yref": "paper",
+                "entrywidth": 1 / per_row, "entrywidthmode": "fraction", "tracegroupgap": 0,
+                "font": {"size": 9, "color": TEXT}},
+    )
+
+
 def command_bar(command: str, meta: str) -> None:
     """Barra superior tipo línea de comando: `COMANDO <GO>` a la izquierda y metadatos a la derecha."""
     st.markdown(f'<div class="cmdbar"><span><span class="cmd">{command}</span><span class="go">GO</span></span>'

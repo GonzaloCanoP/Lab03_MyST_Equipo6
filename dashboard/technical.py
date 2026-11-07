@@ -15,13 +15,13 @@ from plotly.subplots import make_subplots
 
 from dashboard import theme
 
-HEIGHT = 330
+HEIGHT = 300  # alto del área de datos; la leyenda se suma arriba (theme.fit_legend)
 PLOTLY_CONFIG = {"displaylogo": False, "scrollZoom": True, "modeBarButtonsToRemove": ["select2d", "lasso2d"]}
-EXIT_STYLE = {  # forma + color: el motivo nunca depende solo del color
-    "salida": ("circle", theme.NEUTRAL, "salida (reversión)"),
-    "stop": ("x", theme.DOWN, "stop"),
-    "holding": ("square", theme.SERIES[1], "holding máximo"),
-    "fin_particion": ("diamond", theme.MUTED, "fin de partición"),
+EXIT_STYLE = {  # forma + color: el motivo nunca depende solo del color. (símbolo, color, leyenda corta, hover)
+    "salida": ("circle", theme.NEUTRAL, "reversión", "salida por reversión"),
+    "stop": ("x", theme.DOWN, "stop", "stop"),
+    "holding": ("square", theme.SERIES[1], "holding", "holding máximo"),
+    "fin_particion": ("diamond", theme.MUTED, "forzada", "cierre forzado al final de la partición"),
 }
 
 
@@ -30,8 +30,9 @@ def _window(frame: pd.DataFrame | pd.Series, start: pd.Timestamp, end: pd.Timest
     return frame.loc[(frame.index >= start) & (frame.index <= end)]
 
 
-def _show(fig: go.Figure, height: int = HEIGHT) -> None:
-    fig.update_layout(height=height)
+def _show(fig: go.Figure, height: int = HEIGHT, per_row: int = 2) -> None:
+    """Dibuja la figura con la leyenda en su propio espacio (`theme.fit_legend`): `per_row` entradas por renglón."""
+    theme.fit_legend(fig, height, per_row)
     st.plotly_chart(fig, width="stretch", config=PLOTLY_CONFIG)
 
 
@@ -67,7 +68,7 @@ def spread_panel(data: dict, start, end) -> None:
     fig = go.Figure()
     theme.shade_splits(fig, kf2["split"])
     fig.add_trace(go.Scatter(x=kf2.index, y=kf2["ect"], name="ECT dinámico", line={"color": theme.AMBER, "width": 1.2}))
-    fig.add_trace(go.Scatter(x=kf2.index, y=kf2["mu_prior"], name="μ prior (filtro 2)",
+    fig.add_trace(go.Scatter(x=kf2.index, y=kf2["mu_prior"], name="μ prior filtro 2",
                              line={"color": theme.SERIES[0], "width": 1.6}))
     ect = data["kf2_signal"]["ect"]
     for direction, symbol, color, label in ((1, "triangle-up", theme.UP, "entrada largo ▲"),
@@ -76,7 +77,7 @@ def spread_panel(data: dict, start, end) -> None:
         fig.add_trace(go.Scatter(x=sel["entry_date"], y=ect.reindex(sel["entry_date"]).to_numpy(), mode="markers",
                                  name=label, marker={"symbol": symbol, "size": 10, "color": color,
                                                      "line": {"color": theme.BLACK, "width": 1}}))
-    for reason, (symbol, color, label) in EXIT_STYLE.items():
+    for reason, (symbol, color, label, hover) in EXIT_STYLE.items():
         sel = trades[(trades["exit_reason"] == reason) & trades["exit_date"].between(start, end)]
         if sel.empty:
             continue
@@ -84,7 +85,7 @@ def spread_panel(data: dict, start, end) -> None:
             x=sel["exit_date"], y=ect.reindex(sel["exit_date"]).to_numpy(), mode="markers", name=f"salida: {label}",
             marker={"symbol": symbol, "size": 9, "color": color, "line": {"color": theme.BLACK, "width": 1}},
             customdata=sel[["net_pnl", "days"]].to_numpy(),
-            hovertemplate="P&L neto %{customdata[0]:,.0f} · %{customdata[1]} días<extra>" + label + "</extra>"))
+            hovertemplate="P&L neto %{customdata[0]:,.0f} · %{customdata[1]} días<extra>" + hover + "</extra>"))
     fig.update_yaxes(title_text="ECT (log)")
     _show(fig)
 
@@ -199,7 +200,7 @@ def rolling_sharpe_panel(data: dict, start, end) -> None:
                            xanchor="left", yanchor="bottom", font={"color": theme.NEUTRAL, "size": 9})
     fig.add_hline(y=0, line={"color": theme.MUTED, "width": 1})
     fig.update_yaxes(title_text="Sharpe anualizado")
-    _show(fig, height=300)
+    _show(fig, height=300, per_row=4)
 
 
 def render(data: dict, start: pd.Timestamp, end: pd.Timestamp) -> None:
