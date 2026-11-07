@@ -1,0 +1,14 @@
+# Tema del dashboard (lo lee Streamlit por estar junto a dashboard/app.py). Los colores son los de dashboard/theme.py.
+[theme]
+base = "dark"
+primaryColor = "#FFA028"
+backgroundColor = "#000000"
+secondaryBackgroundColor = "#0A0A0A"
+textColor = "#E6E6E6"
+font = "monospace"
+
+[client]
+toolbarMode = "minimal"
+
+[browser]
+gatherUsageStats = false

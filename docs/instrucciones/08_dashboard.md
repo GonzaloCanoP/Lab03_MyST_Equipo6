@@ -17,7 +17,7 @@ REPETIR hasta cumplir el criterio de terminado:
   4. Marca [x], commit.
 ```
 
-## Checklist — Vista ejecutiva
+## Checklist — Vista ejecutiva (`dashboard/executive.py`, JME; base común en `theme.py` y `data.py`)
 
 - [ ] Curva de capital train / test / validación con drawdown superpuesto.
 - [ ] Tarjeta: Sharpe, Sortino, Calmar, Max Drawdown, Win Rate, Profit Factor.
@@ -25,21 +25,21 @@ REPETIR hasta cumplir el criterio de terminado:
 - [ ] Bitácora de operaciones filtrable por periodo, dirección (largo/corto) y resultado.
 - [ ] Histograma de retornos por operación con normal superpuesta.
 
-## Checklist — Vista técnica
+## Checklist — Vista técnica (`dashboard/technical.py`, GC)
 
-- [ ] Spread S_t con señales de entrada y salida anotadas.
-- [ ] β̂_t por activo en el tiempo.
-- [ ] Primer eigenvector de Johansen móvil en el tiempo.
-- [ ] Ganancia de Kalman en el tiempo, ambos filtros.
-- [ ] z-score con líneas de umbral de entrada y salida.
-- [ ] Varianza posterior (incertidumbre) de ambos filtros.
-- [ ] Sharpe móvil 252 días.
+- [x] Spread S_t con señales de entrada y salida anotadas (panel 1: ECT dinámico, μ prior, ▲▼ y motivo de salida).
+- [x] β̂_t por activo en el tiempo (panel 3, contra β̃ de Johansen).
+- [x] Primer eigenvector de Johansen móvil en el tiempo (panel 4, con traza / crítico).
+- [x] Ganancia de Kalman en el tiempo, ambos filtros (panel 5).
+- [x] z-score con líneas de umbral de entrada y salida (panel 2, también stop).
+- [x] Varianza posterior (incertidumbre) de ambos filtros (panel 6, escala log).
+- [x] Sharpe móvil 252 días (panel 7).
 
 ## Checklist — Requisitos
 
-- [ ] Corre con `streamlit run dashboard/app.py`.
+- [x] Corre con `streamlit run dashboard/app.py` (`tests/test_dashboard.py` lo verifica en los 4 rangos).
 - [ ] Todas las gráficas interactivas.
-- [ ] Carga desde `artifacts/` y falla con mensaje claro si faltan ("corre python main.py").
+- [x] Carga desde `artifacts/` y falla con mensaje claro si faltan ("corre python main.py") — `dashboard/data.py`.
 - [ ] Guía de uso de una página en el README.
 
 ## Criterio de terminado
