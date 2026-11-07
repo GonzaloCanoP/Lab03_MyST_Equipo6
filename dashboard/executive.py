@@ -5,6 +5,7 @@ Paneles (checklist de `docs/instrucciones/08_dashboard.md`):
     2) Tabla de métricas: las cuatro columnas de `metrics.json`, con la partición elegida resaltada
     3) Atribución de costos: P&L bruto → comisiones → préstamo → P&L neto en el rango elegido
     4) Rendimiento neto por año calendario
+    5) Bitácora de operaciones filtrable por periodo (rango de arriba), dirección, resultado y motivo de salida
 
 La cinta de arriba es la tarjeta de la partición elegida (TODO = total encadenado), leída de `metrics.json`. Todo sale
 de los artefactos; lo único que se agrega aquí son sumas y productos de esas series para el rango elegido.
@@ -16,13 +17,16 @@ import streamlit as st
 from plotly.subplots import make_subplots
 
 from dashboard import theme
-from performance.metrics import daily_returns, drawdown
+from performance.metrics import daily_returns, drawdown, trade_returns
 
 HEIGHT = 300
 PLOTLY_CONFIG = {"displaylogo": False, "scrollZoom": True, "modeBarButtonsToRemove": ["select2d", "lasso2d"]}
 METRICS_KEY = {"TODO": "total", "TRAIN": "train", "TEST": "test", "VALID": "validation"}  # tecla → metrics.json
 EQUITY_MODES = ("POR PARTICIÓN", "ENCADENADA")
 COLUMNS = ("train", "test", "validation", "total")
+DIRECTIONS = {"AMBAS": None, "▲ LARGO": 1, "▼ CORTO": -1}
+RESULTS = {"TODAS": None, "GANADORAS": True, "PERDEDORAS": False}
+REASON_LABEL = {"salida": "reversión", "stop": "stop", "holding": "holding máximo", "fin_particion": "cierre forzado"}
 # (etiqueta, llave de metrics.json, formato, ¿se colorea por signo?)
 METRIC_ROWS = (
     ("Rendimiento neto", "net_return", "{:+.1%}", True),
@@ -188,6 +192,67 @@ def yearly_panel(data: dict, start, end) -> None:
                 unsafe_allow_html=True)
 
 
+def filter_trades(trades: pd.DataFrame, start, end, direction: int | None = None, winners: bool | None = None,
+                  reasons: list[str] | None = None) -> pd.DataFrame:
+    """Operaciones que ENTRAN en [start, end], con filtros opcionales de dirección (1 / −1), resultado (P&L neto > 0
+    o ≤ 0) y motivo de salida (`exit_reason`)."""
+    keep = trades["entry_date"].between(start, end)
+    if direction is not None:
+        keep &= trades["direction"] == direction
+    if winners is not None:
+        keep &= (trades["net_pnl"] > 0) == winners
+    if reasons is not None:
+        keep &= trades["exit_reason"].isin(reasons)
+    return trades.loc[keep]
+
+
+def trade_log(trades: pd.DataFrame, equity: pd.DataFrame) -> pd.DataFrame:
+    """Bitácora para mostrar: fechas, dirección con forma, días, costos, P&L neto y su rendimiento sobre el capital."""
+    out = trades.assign(ret=trade_returns(trades, equity))
+    return pd.DataFrame({
+        "entrada": out["entry_date"].dt.strftime("%Y-%m-%d"),
+        "salida": out["exit_date"].dt.strftime("%Y-%m-%d"),
+        "partición": out["split"].map(theme.SPLIT_LABEL),
+        "dirección": out["direction"].map({1: "▲ LARGO", -1: "▼ CORTO"}),
+        "días": out["days"],
+        "P&L bruto": out["gross_pnl"],
+        "comisión": out["commission"],
+        "préstamo": out["borrow"],
+        "P&L neto": out["net_pnl"],
+        "rend.": out["ret"],
+        "motivo": out["exit_reason"].map(REASON_LABEL),
+    })
+
+
+def log_panel(data: dict, start, end) -> None:
+    """5) Filtros de la bitácora y la tabla de operaciones con su resumen."""
+    trades = data["trades"]
+    c1, c2, c3 = st.columns([1, 1, 2], gap="small")
+    with c1:
+        direction = st.segmented_control("Dirección", list(DIRECTIONS), default="AMBAS", key="log_direction") or "AMBAS"
+    with c2:
+        result = st.segmented_control("Resultado", list(RESULTS), default="TODAS", key="log_result") or "TODAS"
+    with c3:
+        present = [r for r in REASON_LABEL if r in set(trades["exit_reason"])]
+        reasons = st.multiselect("Motivo de salida", present, default=present, format_func=REASON_LABEL.get,
+                                 key="log_reasons")
+    chosen = filter_trades(trades, start, end, DIRECTIONS[direction], RESULTS[result], reasons)
+    if chosen.empty:
+        st.markdown('<div class="panel-note">ninguna operación cumple los filtros en este rango</div>',
+                    unsafe_allow_html=True)
+        return
+    log = trade_log(chosen, data["equity_curve"])
+    tone = lambda v: f"color: {theme.UP}" if v > 0 else f"color: {theme.DOWN}"  # noqa: E731
+    styled = (log.style.format({"P&L bruto": money, "comisión": "${:,.0f}", "préstamo": "${:,.0f}", "P&L neto": money,
+                                "rend.": "{:+.2%}"})
+              .map(tone, subset=["P&L neto", "rend."]))
+    st.dataframe(styled, hide_index=True, width="stretch", height=min(38 + 35 * len(log), 420))
+    wins = (chosen["net_pnl"] > 0).mean()
+    st.markdown(f'<div class="panel-note">{len(chosen)} operaciones · {wins:.0%} ganadoras · P&L neto '
+                f'{money(chosen["net_pnl"].sum())} · mejor {money(chosen["net_pnl"].max())} · peor '
+                f'{money(chosen["net_pnl"].min())}</div>', unsafe_allow_html=True)
+
+
 def render(data: dict, start: pd.Timestamp, end: pd.Timestamp) -> None:
     """Dibuja la vista ejecutiva para el rango de fechas [start, end]."""
     metrics = data["metrics"]
@@ -210,3 +275,7 @@ def render(data: dict, start: pd.Timestamp, end: pd.Timestamp) -> None:
         theme.panel_title(4, "Rendimiento por año", "años calendario; extremos parciales; 2020 y 2023 mezclan dos "
                           "particiones")
         yearly_panel(data, start, end)
+
+    theme.panel_title(5, "Bitácora de operaciones", "operaciones que entran en el rango elegido; rend. = P&L neto / "
+                      "capital antes de entrar")
+    log_panel(data, start, end)
