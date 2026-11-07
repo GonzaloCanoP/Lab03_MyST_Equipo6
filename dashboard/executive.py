@@ -3,6 +3,7 @@
 Paneles (checklist de `docs/instrucciones/08_dashboard.md`):
     1) Curva de capital con drawdown (por partición o encadenada)
     2) Tabla de métricas: las cuatro columnas de `metrics.json`, con la partición elegida resaltada
+    3) Atribución de costos: P&L bruto → comisiones → préstamo → P&L neto en el rango elegido
 
 La cinta de arriba es la tarjeta de la partición elegida (TODO = total encadenado), leída de `metrics.json`. Todo sale
 de los artefactos; lo único que se agrega aquí son sumas y productos de esas series para el rango elegido.
@@ -135,6 +136,34 @@ def metrics_table_html(metrics: dict, selected: str) -> str:
     return f'<table class="mtable"><tr><th>MÉTRICA</th>{"".join(head(c) for c in COLUMNS)}</tr>{rows}</table>'
 
 
+def cost_attribution(equity: pd.DataFrame) -> dict:
+    """Sumas del rango: P&L bruto, comisiones, préstamo y neto (neto = bruto − comisiones − préstamo)."""
+    return {key: float(equity[key].sum()) for key in ("gross_pnl", "commission", "borrow", "net_pnl")}
+
+
+def costs_panel(data: dict, start, end) -> None:
+    """3) Cascada del P&L bruto al neto: cuánto se llevan las comisiones y el préstamo de los cortos."""
+    c = cost_attribution(_window(data["equity_curve"], start, end))
+    steps = [("P&L bruto", c["gross_pnl"], "absolute"), ("comisiones", -c["commission"], "relative"),
+             ("préstamo", -c["borrow"], "relative"), ("P&L neto", c["net_pnl"], "total")]
+    fig = go.Figure(go.Waterfall(
+        x=[s[0] for s in steps], y=[s[1] for s in steps], measure=[s[2] for s in steps],
+        text=[money(s[1]) for s in steps], textposition="outside", textfont={"color": theme.TEXT, "size": 10},
+        increasing={"marker": {"color": theme.UP}}, decreasing={"marker": {"color": theme.DOWN}},
+        totals={"marker": {"color": theme.AMBER}}, connector={"line": {"color": theme.MUTED, "dash": "dot", "width": 1}},
+        hovertemplate="%{x}: %{text}<extra></extra>", name="P&L"))
+    fig.update_yaxes(title_text="$", tickformat="$,.0f")
+    fig.update_layout(hovermode="closest")
+    _show(fig)
+    if c["gross_pnl"] > 0:
+        share = (c["commission"] + c["borrow"]) / c["gross_pnl"]
+        note = (f"costos = {share:.0%} del P&L bruto (comisiones {c['commission'] / c['gross_pnl']:.0%}, "
+                f"préstamo {c['borrow'] / c['gross_pnl']:.1%}); comisión 0.125 % por pata y préstamo 0.25 % anual")
+    else:
+        note = "sin P&L bruto positivo en el rango: la proporción de costos no aplica"
+    st.markdown(f'<div class="panel-note">{note}</div>', unsafe_allow_html=True)
+
+
 def render(data: dict, start: pd.Timestamp, end: pd.Timestamp) -> None:
     """Dibuja la vista ejecutiva para el rango de fechas [start, end]."""
     metrics = data["metrics"]
@@ -148,3 +177,8 @@ def render(data: dict, start: pd.Timestamp, end: pd.Timestamp) -> None:
     theme.panel_title(2, "Métricas por partición", "partición completa (metrics.json); total = las tres encadenadas; "
                       "r_f = 0, anualización 252")
     st.markdown(metrics_table_html(metrics, selected_partition()), unsafe_allow_html=True)
+
+    left, right = st.columns(2, gap="small")
+    with left:
+        theme.panel_title(3, "Atribución de costos", "P&L bruto → neto en el rango de fechas elegido")
+        costs_panel(data, start, end)
