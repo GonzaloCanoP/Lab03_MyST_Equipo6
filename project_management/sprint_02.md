@@ -41,5 +41,7 @@ queda en `docs/` antes del domingo 8 a las 23:59.
   P&L bruto en train con rebalanceo diario; la comparación contra la banda (parte 06) importa.
 - Backtest: la estrategia gana fuera de muestra pero se degrada (Sharpe neto 0.77 → 0.33 / 0.39); los costos son
   27–54 % del P&L bruto. La banda de rebalanceo de 20 % gana también en train: decidir en equipo si se incluye en el grid.
+  (Iteración 1. Con la tercia la banda ya no mejora el Sharpe de train: se mantiene el rebalanceo diario y la banda
+  queda como escenario de ahorro de comisiones; ver `docs/decisiones.md`.)
 - Iteración 2: GLD-GDX-AEM-FNV perdió la cointegración en validación; tras el proceso de búsqueda (anidado,
   hiperparámetros, recalibración, un solo sector) se cambió a la tercia GLD-GDX-B con autorización del profesor.
