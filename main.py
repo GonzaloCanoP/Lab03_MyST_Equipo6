@@ -31,7 +31,10 @@ from kalman.signal_filter import calibrate_signal_filter, innovation_diagnostics
 from kalman.weights_filter import BURN_IN, absorbed_fraction, calibrate_q, run_weights_filter, static_ect
 from performance.figures import (plot_dynamic_weights, plot_ect_comparison, plot_equity_curves, plot_grid_heatmap,
                                  plot_kalman_gains, plot_normalized_prices, plot_rolling_eigenvector,
-                                 plot_spread_signals, plot_zscore_signals)
+                                 plot_rolling_sharpe, plot_spread_signals, plot_trade_return_distribution,
+                                 plot_zscore_signals)
+from performance.metrics import ROLLING_WINDOW as SHARPE_WINDOW
+from performance.metrics import compute_metrics, daily_returns, rolling_sharpe, trade_returns
 from strategy.optimization import (HOLDING_K_GRID, MIN_TRADES, OBJECTIVE, Z_ENTRY_GRID, Z_EXIT_GRID, Z_STOP_GRID,
                                    best_rule, grid_search)
 from strategy.signals import build_signals
@@ -261,17 +264,18 @@ def run_strategy_stage(prices: pd.DataFrame, split_dates: SplitDates, summary: d
 
 
 def run_backtest_stage(prices: pd.DataFrame, split_dates: SplitDates, signals: pd.DataFrame,
-                       kf2: pd.DataFrame) -> pd.DataFrame:
+                       kf2: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Etapa 5: walk-forward con θ congelado (rebalanceo diario) y comparación contra bandas de no-rebalanceo.
 
     Cada partición se simula por separado desde el primer día con señal (después de los burn-in) y arranca con el
-    capital inicial. Escribe equity_curve.parquet, trades.csv, rebalance_comparison.csv y las figuras 2 y 7.
-    Retorna el resumen por partición.
+    capital inicial. Escribe equity_curve.parquet (con el Sharpe móvil de 252 días), trades.csv,
+    rebalance_comparison.csv y las figuras 2 y 7. Retorna (curva de capital, bitácora).
     """
     tickers = [c.removeprefix("beta_") for c in signals.columns if c.startswith("beta_")]
     active_prices = prices.loc[signals.index, tickers]
     results = run_walk_forward(active_prices, signals, split_dates)
     equity, trades = stack_results(results)
+    equity[f"rolling_sharpe_{SHARPE_WINDOW}"] = rolling_sharpe(daily_returns(equity))
     summary = pd.DataFrame({name: split_summary(result) for name, result in results.items()}).T
     rebalance = compare_rebalance(active_prices, signals, split_dates, None, REBALANCE_BANDS)
 
@@ -292,7 +296,30 @@ def run_backtest_stage(prices: pd.DataFrame, split_dates: SplitDates, signals: p
     print("[backtest] rebalanceo en train (banda: comisiones, Sharpe neto): " + "; ".join(
         f"{band:g}: {row['commission']:,.0f}, {row['sharpe_net']:.2f}" for band, row in train_bands.iterrows())
         + " (detalle en rebalance_comparison.csv)")
-    return summary
+    return equity, trades
+
+
+def run_metrics_stage(equity: pd.DataFrame, trades: pd.DataFrame) -> dict:
+    """Etapa 6: métricas por partición y total (metrics.json), figura 8 y Sharpe móvil de 252 días.
+
+    Solo lee la salida del backtest; no recalcula nada. Retorna las métricas.
+    """
+    metrics = compute_metrics(equity, trades)
+    (ARTIFACTS / "metrics.json").write_text(json_text(metrics))
+
+    fig = plot_trade_return_distribution(pd.Series(trade_returns(trades, equity)), trades["split"],
+                                         FIGURES / "fig08_distribucion_operaciones.png")
+    plt.close(fig)
+    by_split = {name: m["sharpe"] for name, m in metrics.items() if name != "total"}
+    fig = plot_rolling_sharpe(equity[f"rolling_sharpe_{SHARPE_WINDOW}"], equity["split"], by_split,
+                              FIGURES / "sharpe_movil.png")
+    plt.close(fig)
+
+    for name, m in metrics.items():
+        print(f"[metrics] {name:<10} Sharpe {m['sharpe']:5.2f}, Sortino {m['sortino']:5.2f}, Calmar {m['calmar']:5.2f}, "
+              f"MDD {m['max_drawdown']:7.2%} ({m['max_drawdown_days']} días), win rate {m['win_rate']:.0%}, "
+              f"profit factor {m['profit_factor']:.2f}")
+    return metrics
 
 
 def main() -> None:
@@ -308,7 +335,8 @@ def main() -> None:
     # params.json: parámetros de cada etapa, todos calibrados solo con train.
     params = {"seed": SEED, "kf1": kf1_params, "kf2": kf2_params, "strategy": strategy_params}
     (ARTIFACTS / "params.json").write_text(json_text(params))
-    run_backtest_stage(prices, split_dates, signals, kf2)
+    equity, trades = run_backtest_stage(prices, split_dates, signals, kf2)
+    run_metrics_stage(equity, trades)
 
 
 if __name__ == "__main__":

@@ -24,15 +24,15 @@ REPETIR hasta cumplir el criterio de terminado:
 
 ## Checklist
 
-- [ ] Sharpe Ratio (anualizado, tasa libre de riesgo declarada).
-- [ ] Sortino Ratio.
-- [ ] Calmar Ratio.
-- [ ] Maximum Drawdown (y duración).
-- [ ] Win Rate (por operación).
-- [ ] Profit Factor.
-- [ ] Sharpe móvil de 252 días sobre toda la muestra.
-- [ ] Distribución de retornos por operación + normal superpuesta (figura 8).
-- [ ] Métricas por split (train / test / validación) para discutir degradación fuera de muestra.
+- [x] Sharpe Ratio (anualizado, r_f = 0 declarada): 0.66 / 0.74 / 1.01, total 0.75.
+- [x] Sortino Ratio (DD sobre todos los días, objetivo 0): 1.01 / 1.12 / 1.61.
+- [x] Calmar Ratio (CAGR / |MDD| del mismo tramo): 0.38 / 0.59 / 0.98.
+- [x] Maximum Drawdown (y duración): −6.6 % (1 185 días) / −4.5 % (244) / −3.7 % (171).
+- [x] Win Rate (por operación, P&L neto): 79 % / 89 % / 91 %.
+- [x] Profit Factor: 2.49 / 4.55 / 8.11.
+- [x] Sharpe móvil de 252 días sobre toda la muestra: columna `rolling_sharpe_252` de `equity_curve.parquet` y `docs/figuras/sharpe_movil.png`.
+- [x] Distribución de retornos por operación + normal superpuesta (figura 8): `docs/figuras/fig08_distribucion_operaciones.png`; asimetría −1.4, curtosis 4.7, Jarque–Bera p < 0.001.
+- [x] Métricas por split (train / test / validación) y total en `metrics.json`; discusión de degradación en el notebook 07.
 
 ## Criterio de terminado
 
