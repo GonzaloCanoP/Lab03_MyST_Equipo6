@@ -21,7 +21,7 @@ queda en `docs/` antes del domingo 8 a las 23:59.
 | 06 Backtest + `test_accounting` + notebook 06 | JME | hecho: walk-forward, `equity_curve.parquet`, `trades.csv`, `rebalance_comparison.csv`, figuras 2 y 7, notebook 06 |
 | 07 Métricas, figuras 1–8, `test_causality` + notebook 07 | GC | `test_causality` y `sharpe` hechos (los necesitaba la 05); faltan las demás métricas, `metrics.json` y notebook 07 |
 | 08 Dashboard: vista ejecutiva / vista técnica | JME / GC | pendiente |
-| Iteración 2 de la selección: pruebas fuera del repo, tercia GLD-GDX-B, pipeline y notebooks 01/03/06 | JME | hecho (notebooks 02/04/05 y textos de GC pendientes de actualizar) |
+| Iteración 2 de la selección: pruebas fuera del repo, tercia GLD-GDX-B, pipeline, notebooks 01–06, guías y Powell | JME | hecho |
 | Reporte, formulación Powell, README final | ambos | pendiente |
 | Revisión desde clon limpio (`99_checklist_entrega.md`) y post-mortem | ambos | pendiente |
 
@@ -41,5 +41,7 @@ queda en `docs/` antes del domingo 8 a las 23:59.
   P&L bruto en train con rebalanceo diario; la comparación contra la banda (parte 06) importa.
 - Backtest: la estrategia gana fuera de muestra pero se degrada (Sharpe neto 0.77 → 0.33 / 0.39); los costos son
   27–54 % del P&L bruto. La banda de rebalanceo de 20 % gana también en train: decidir en equipo si se incluye en el grid.
+  (Iteración 1. Con la tercia la banda ya no mejora el Sharpe de train: se mantiene el rebalanceo diario y la banda
+  queda como escenario de ahorro de comisiones; ver `docs/decisiones.md`.)
 - Iteración 2: GLD-GDX-AEM-FNV perdió la cointegración en validación; tras el proceso de búsqueda (anidado,
   hiperparámetros, recalibración, un solo sector) se cambió a la tercia GLD-GDX-B con autorización del profesor.

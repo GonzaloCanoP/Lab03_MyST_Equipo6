@@ -1,7 +1,7 @@
 """Costos de operación del backtest (§3.8 del enunciado): comisión por pata y préstamo sobre los cortos.
 
 - Comisión: 0.125 % del nocional operado en CADA pata, en cada operación (entrada, salida y cada rebalanceo).
-  Un spread de 4 patas paga 4 comisiones al entrar y 4 al salir.
+  Un spread de n patas paga n comisiones al entrar y n al salir (3 y 3 con la tercia GLD-GDX-B).
 - Préstamo: 0.25 % anual sobre el nocional corto, devengado cada día con base 252 días hábiles.
 """
 

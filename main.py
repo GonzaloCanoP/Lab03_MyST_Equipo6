@@ -287,9 +287,11 @@ def run_backtest_stage(prices: pd.DataFrame, split_dates: SplitDates, signals: p
         print(f"[backtest] {name:<10} neto {row['net_return']:+7.2%}, Sharpe neto {row['sharpe_net']:5.2f}, "
               f"MDD {row['max_drawdown']:7.2%}, {int(row['n_trades'])} operaciones, costos "
               f"{row['commission'] + row['borrow']:,.0f} ({row['cost_share_of_gross']:.0%} del bruto)")
-    best_band = rebalance.groupby("rebalance_band")["net_pnl"].sum().idxmax()
-    print(f"[backtest] rebalanceo: la banda con más P&L neto acumulado en las tres particiones es {best_band:g} "
-          f"(detalle en rebalance_comparison.csv)")
+    # Escenario de costos (no se elige banda con prueba ni validación): comisiones y Sharpe de train por banda.
+    train_bands = rebalance.loc[rebalance["split"] == "train"].set_index("rebalance_band")
+    print("[backtest] rebalanceo en train (banda: comisiones, Sharpe neto): " + "; ".join(
+        f"{band:g}: {row['commission']:,.0f}, {row['sharpe_net']:.2f}" for band, row in train_bands.iterrows())
+        + " (detalle en rebalance_comparison.csv)")
     return summary
 
 

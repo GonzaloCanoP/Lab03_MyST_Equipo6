@@ -37,7 +37,7 @@ REPETIR hasta cumplir el criterio de terminado:
 
 **VECM**
 - [x] VECM estimado en train con el β de Johansen (statsmodels `VECM`, rango r y k_ar_diff consistentes con 02): `deterministic="co"`, r = 1, k_ar_diff = 1; su β coincide con β̃ (tolerancia 1e-6) → `vecm_summary.json`.
-- [x] Reportar α (velocidades de ajuste): ¿qué activos corrigen hacia el equilibrio? → con la tercia, GDX (α = −0.039, t = −4.1) y B (α = −0.034, t = −3.4) son significativos y el oro no: GDX corrige. βᵀα = −0.021, vida media 33.3 días (iteración 1: solo GLD, βᵀα = −0.026).
+- [x] Reportar α (velocidades de ajuste): ¿qué activos corrigen hacia el equilibrio? → con la tercia, GDX (α = −0.039, t = −4.1) y B (α = −0.034, t = −3.4) son significativos y el oro no. Solo GDX corrige (β·α = −0.039); B se mueve con GDX y abre el spread (β·α = +0.015). βᵀα = −0.021, vida media 33.3 días (iteración 1: solo GLD, βᵀα = −0.026).
 - [x] Definir claramente qué "residual del VECM" alimenta a KF2 → **ECT dinámico del filtro 1** (respuesta del profesor, 2026-11-02; `docs/decisiones.md`).
 - [x] El ECT de t usa los pesos **prior** β̂_{t|t−1} (equivale a la innovación de KF1; causal) — decidido 2026-11-04, `docs/decisiones.md`.
 - [x] Comparar el ECT **estático** (β de Johansen fijo, βᵀP_t − c) contra el **dinámico** del filtro 1: gráfica de ambos, ADF y vida media de cada uno; si da tiempo, backtest de ambos (sugerencia del profesor). → `compare_static_dynamic`, notebook 05 §9: con el mismo θ, Sharpe neto prueba / validación 0.74 / 1.01 (dinámico) contra 0.20 / 1.31 (estático) con la tercia; el dinámico es más consistente entre particiones (iteración 1: 0.33 / 0.39 contra 0.10 / −0.59).
@@ -49,7 +49,7 @@ REPETIR hasta cumplir el criterio de terminado:
 - [x] Señal en t se ejecuta al cierre de t+1: lo hace el motor (`backtest/engine.py`), la estrategia solo entrega la señal de t (`docs/decisiones.md`).
 
 **Sizing**
-- [x] Tamaño por activo ∝ β̂_t, signo por dirección; nocional bruto total = 80 % del capital disponible (`strategy/sizing.py`, lo escribió JME porque el motor lo necesita; revisar).
+- [x] Tamaño por activo ∝ β̂_t, signo por dirección; nocional bruto total = 80 % del capital disponible (`strategy/sizing.py`, lo escribió JME porque el motor lo necesita; revisado por GC el 2026-11-07: nocional bruto = 80 % verificado en el notebook 05 §4).
 - [x] Rebalanceo diario conforme evoluciona β̂_t **y** política alternativa de banda de no-rebalanceo: parámetro `rebalance_band` del motor (0 = diario).
 
 **Optimización**

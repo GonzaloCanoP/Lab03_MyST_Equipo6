@@ -48,7 +48,7 @@ si cambias un valor o lo mueves, actualízala.
 | Rutas (`ARTIFACTS`, `DATA_SNAPSHOT`, `FIGURES`) | — | `main.py` |
 | Forward-fill máximo / umbral de salto | 3 días / \|rend. log\| > 0.40 | `data/clean.py` / `data/validate.py` |
 | Ventana histórica | 10–15 años, precios diarios (`START_DATE`, `END_DATE`) | `main.py` |
-| Activos por grupo / universo | iteración 2: tamaños 2–4 en el universo de oro, grupo elegido GLD-GDX-B (`GROUP_SIZES`, `CHOSEN_GROUP`); iteración 1: 4 (`N_ASSETS`) | `cointegration/selection.py`, `cointegration/universe.py` (`ACTIVE_UNIVERSES`) |
+| Activos por grupo / universo | iteración 2: tamaños 2–4 en el universo de oro, grupo elegido GLD-GDX-B (`GROUP_SIZES`, `CHOSEN_GROUP`); iteración 1: grupos de 4 (2·n) | `cointegration/selection.py`, `cointegration/universe.py` (`ACTIVE_UNIVERSES`) |
 | División | 60 / 20 / 20 cronológica | `data/split.py` |
 | Correlación mínima / ventana | 0.7 / 252 días | `cointegration/selection.py` |
 | p-value (EG, ADF) | 0.05 | `cointegration/selection.py` |
