@@ -19,8 +19,8 @@ queda en `docs/` antes del domingo 8 a las 23:59.
 | 04 Filtro 2 + `test_filter` + notebook 04 | GC | hecho (figura 6 generada con la parte 05); revisado por JME |
 | 05 VECM, señales, grid search + notebook 05 | GC | hecho: VECM, regla con stop/holding/rearme, grid en train, `signals.parquet`, figura 6, heatmap, comparación estático vs dinámico; revisado por JME |
 | 06 Backtest + `test_accounting` + notebook 06 | JME | hecho: walk-forward, `equity_curve.parquet`, `trades.csv`, `rebalance_comparison.csv`, figuras 2 y 7, notebook 06 |
-| 07 Métricas, figuras 1–8, `test_causality` + notebook 07 | GC | hecho: `performance/metrics.py`, `metrics.json`, figura 8, Sharpe móvil, `test_metrics` y notebook 07 (pendiente revisión de JME) |
-| 08 Dashboard: vista ejecutiva / vista técnica | JME / GC | base común (tema tipo terminal, carga de artefactos, app con F1/F2) y vista técnica hechas por GC; vista ejecutiva pendiente (JME) |
+| 07 Métricas, figuras 1–8, `test_causality` + notebook 07 | GC | hecho: `performance/metrics.py`, `metrics.json`, figura 8, Sharpe móvil, `test_metrics` y notebook 07; revisado por JME |
+| 08 Dashboard: vista ejecutiva / vista técnica | JME / GC | base común (tema tipo terminal, carga de artefactos, app con F1/F2) y vista técnica hechas por GC; vista ejecutiva (6 paneles y cinta) y correcciones de leyendas, selector y tecla activa por JME |
 | Iteración 2 de la selección: pruebas fuera del repo, tercia GLD-GDX-B, pipeline, notebooks 01–06, guías y Powell | JME | hecho |
 | Reporte, formulación Powell, README final | ambos | pendiente |
 | Revisión desde clon limpio (`99_checklist_entrega.md`) y post-mortem | ambos | pendiente |

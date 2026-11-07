@@ -19,11 +19,12 @@ REPETIR hasta cumplir el criterio de terminado:
 
 ## Checklist — Vista ejecutiva (`dashboard/executive.py`, JME; base común en `theme.py` y `data.py`)
 
-- [ ] Curva de capital train / test / validación con drawdown superpuesto.
-- [ ] Tarjeta: Sharpe, Sortino, Calmar, Max Drawdown, Win Rate, Profit Factor.
-- [ ] Atribución de costos: P&L bruto → neto, comisiones totales, préstamo total.
-- [ ] Bitácora de operaciones filtrable por periodo, dirección (largo/corto) y resultado.
-- [ ] Histograma de retornos por operación con normal superpuesta.
+- [x] Curva de capital train / test / validación con drawdown superpuesto (panel 1, por partición o encadenada).
+- [x] Tarjeta: Sharpe, Sortino, Calmar, Max Drawdown, Win Rate, Profit Factor (cinta de la partición elegida y tabla del panel 2).
+- [x] Atribución de costos: P&L bruto → neto, comisiones totales, préstamo total (panel 3, cascada).
+- [x] Bitácora de operaciones filtrable por periodo, dirección (largo/corto) y resultado (panel 5; también por motivo de salida).
+- [x] Histograma de retornos por operación con normal superpuesta (panel 6).
+- [x] Extra: rendimiento neto por año calendario (panel 4).
 
 ## Checklist — Vista técnica (`dashboard/technical.py`, GC)
 
@@ -38,9 +39,9 @@ REPETIR hasta cumplir el criterio de terminado:
 ## Checklist — Requisitos
 
 - [x] Corre con `streamlit run dashboard/app.py` (`tests/test_dashboard.py` lo verifica en los 4 rangos).
-- [ ] Todas las gráficas interactivas.
+- [x] Todas las gráficas interactivas (Plotly: zoom, hover, leyenda clicable; bitácora ordenable).
 - [x] Carga desde `artifacts/` y falla con mensaje claro si faltan ("corre python main.py") — `dashboard/data.py`.
-- [ ] Guía de uso de una página en el README.
+- [x] Guía de uso de una página en el README.
 
 ## Criterio de terminado
 

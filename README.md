@@ -67,8 +67,18 @@ Requiere los artefactos de `artifacts/` (ya versionados; si faltan, el dashboard
 - Todas las gráficas son interactivas (Plotly): arrastrar para hacer zoom, doble clic para regresar, pasar el cursor
   para ver valores; en la leyenda, un clic oculta una serie.
 
-**F1 — Vista ejecutiva (JME).** Curva de capital con drawdown, métricas, atribución de costos, bitácora filtrable y
-distribución de rendimientos por operación. _(en construcción)_
+**F1 — Vista ejecutiva (JME).** Qué tan bien le fue a la estrategia y cuánto costó. La cinta de arriba es la tarjeta
+de la partición elegida (`TODO` = las tres encadenadas): rendimiento, CAGR, Sharpe, Sortino, Calmar, MDD, win rate,
+profit factor y operaciones, leídos de `metrics.json`.
+
+| Panel | Qué muestra | Cómo leerlo |
+|---|---|---|
+| 1) Curva de capital y drawdown | capital por partición (cada una arranca con $1,000,000, como la figura 7) o encadenado; abajo, la caída bajo el máximo previo | `ENCADENADA` es la curva del total de `metrics.json`; los tramos planos son días sin posición |
+| 2) Métricas por partición | tabla de `metrics.json` para train, prueba, validación y total; la partición elegida va resaltada | métricas de la partición completa, no del ajuste fino de fechas |
+| 3) Atribución de costos | cascada P&L bruto → comisiones → préstamo → P&L neto en el rango elegido | la nota da los costos como % del bruto |
+| 4) Rendimiento por año | rendimiento neto compuesto de cada año calendario | el signo va en la etiqueta; el primer y el último año son parciales |
+| 5) Bitácora de operaciones | operaciones que entran en el rango, filtrables por dirección, resultado y motivo de salida | rend. = P&L neto / capital antes de entrar; abajo, número de operaciones, % ganadoras, mejor y peor |
+| 6) Distribución por operación | histograma de rendimientos por operación con la normal de misma media y desviación | sesgo, curtosis y Jarque–Bera en la nota; con todo el periodo coinciden con la figura 8 |
 
 **F2 — Vista técnica (GC).** Cómo se construye la señal. La cinta de arriba resume el estado al final del rango:
 z, posición (▲ largo / ▼ corto / ■ plano), β̂ actuales, θ y métricas totales.
