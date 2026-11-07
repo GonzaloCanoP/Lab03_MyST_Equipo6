@@ -76,6 +76,16 @@ h1, h2, h3, h4, p, span, label, div {{ color: {TEXT}; }}
 .stTabs [aria-selected="true"] {{ background: {AMBER} !important; outline: 2px solid {TEXT}; }}
 .stTabs [data-baseweb="tab-highlight"], .stTabs [data-baseweb="tab-border"] {{ display: none; }}
 [data-testid="stPlotlyChart"] {{ border: 1px solid {BORDER}; }}
+/* Tabla de métricas de la vista ejecutiva */
+.mtable {{ width: 100%; border-collapse: collapse; border: 1px solid {BORDER}; background: {PANEL}; font-size: 0.8rem; }}
+.mtable th, .mtable td {{ padding: 3px 10px; border-bottom: 1px solid {GRID}; text-align: right; white-space: nowrap; }}
+.mtable th {{ color: {MUTED}; font-weight: 600; }}
+.mtable td:first-child, .mtable th:first-child {{ text-align: left; color: {MUTED}; }}
+.mtable td {{ color: {AMBER}; }}
+.mtable .sel {{ background: rgba(255,160,40,0.12); }}
+.mtable th.sel {{ color: {AMBER}; }}
+.mtable .up {{ color: {UP}; }}
+.mtable .down {{ color: {DOWN}; }}
 </style>
 """
 

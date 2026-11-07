@@ -2,6 +2,7 @@
 
 Paneles (checklist de `docs/instrucciones/08_dashboard.md`):
     1) Curva de capital con drawdown (por partición o encadenada)
+    2) Tabla de métricas: las cuatro columnas de `metrics.json`, con la partición elegida resaltada
 
 La cinta de arriba es la tarjeta de la partición elegida (TODO = total encadenado), leída de `metrics.json`. Todo sale
 de los artefactos; lo único que se agrega aquí son sumas y productos de esas series para el rango elegido.
@@ -19,6 +20,22 @@ HEIGHT = 300
 PLOTLY_CONFIG = {"displaylogo": False, "scrollZoom": True, "modeBarButtonsToRemove": ["select2d", "lasso2d"]}
 METRICS_KEY = {"TODO": "total", "TRAIN": "train", "TEST": "test", "VALID": "validation"}  # tecla → metrics.json
 EQUITY_MODES = ("POR PARTICIÓN", "ENCADENADA")
+COLUMNS = ("train", "test", "validation", "total")
+# (etiqueta, llave de metrics.json, formato, ¿se colorea por signo?)
+METRIC_ROWS = (
+    ("Rendimiento neto", "net_return", "{:+.1%}", True),
+    ("CAGR", "cagr", "{:+.2%}", True),
+    ("Volatilidad anual", "volatility", "{:.2%}", False),
+    ("Sharpe", "sharpe", "{:.2f}", True),
+    ("Sortino", "sortino", "{:.2f}", True),
+    ("Calmar", "calmar", "{:.2f}", True),
+    ("Max drawdown", "max_drawdown", "{:.2%}", False),
+    ("Duración del MDD (días)", "max_drawdown_days", "{:d}", False),
+    ("Operaciones", "n_trades", "{:d}", False),
+    ("Win rate", "win_rate", "{:.0%}", False),
+    ("Profit factor", "profit_factor", "{:.2f}", False),
+    ("Rend. medio por operación", "avg_trade_return", "{:+.2%}", True),
+)
 
 
 def _window(frame: pd.DataFrame | pd.Series, start: pd.Timestamp, end: pd.Timestamp):
@@ -102,6 +119,22 @@ def equity_panel(data: dict, start, end, mode: str) -> None:
     _show(fig, height=380, per_row=4)
 
 
+def metrics_table_html(metrics: dict, selected: str) -> str:
+    """Tabla HTML métricas × particiones; la columna elegida va resaltada y los signos llevan color y signo."""
+    def head(col: str) -> str:
+        label = "TOTAL" if col == "total" else theme.SPLIT_LABEL[col]
+        return f'<th class="{"sel" if col == selected else ""}">{label}</th>'
+
+    def cell(col: str, key: str, fmt: str, signed: bool) -> str:
+        value = metrics[col][key]
+        tone = ("up" if value > 0 else "down") if signed else ""
+        return f'<td class="{tone} {"sel" if col == selected else ""}">{fmt.format(value)}</td>'
+
+    rows = "".join(f"<tr><td>{label}</td>{''.join(cell(c, key, fmt, signed) for c in COLUMNS)}</tr>"
+                   for label, key, fmt, signed in METRIC_ROWS)
+    return f'<table class="mtable"><tr><th>MÉTRICA</th>{"".join(head(c) for c in COLUMNS)}</tr>{rows}</table>'
+
+
 def render(data: dict, start: pd.Timestamp, end: pd.Timestamp) -> None:
     """Dibuja la vista ejecutiva para el rango de fechas [start, end]."""
     metrics = data["metrics"]
@@ -111,3 +144,7 @@ def render(data: dict, start: pd.Timestamp, end: pd.Timestamp) -> None:
                       "por partición: cada una arranca con $1,000,000 (figura 7); encadenada: las tres seguidas")
     mode = st.segmented_control("Curva", EQUITY_MODES, default=EQUITY_MODES[0], key="equity_mode") or EQUITY_MODES[0]
     equity_panel(data, start, end, mode)
+
+    theme.panel_title(2, "Métricas por partición", "partición completa (metrics.json); total = las tres encadenadas; "
+                      "r_f = 0, anualización 252")
+    st.markdown(metrics_table_html(metrics, selected_partition()), unsafe_allow_html=True)
