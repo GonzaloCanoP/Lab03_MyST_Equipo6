@@ -34,6 +34,7 @@ def select_range(data: dict) -> tuple[pd.Timestamp, pd.Timestamp]:
 
 
 def main() -> None:
+    """Arma la página: estilo, carga de artefactos, barra de comando, selector de rango y las vistas F1 y F2."""
     st.set_page_config(page_title="Lab03 · Arbitraje estadístico", layout="wide", initial_sidebar_state="collapsed")
     theme.apply_page_style()
     data = require_artifacts()

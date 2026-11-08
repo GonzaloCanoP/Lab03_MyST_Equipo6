@@ -28,7 +28,7 @@ corrección del sesgo de supervivencia más allá de excluir empresas adquiridas
 | Backtest completo (`python main.py` de punta a punta) | 2026-11-06 | JME | hecho (2026-11-04) |
 | Métricas, figuras 1–8 y 4 pruebas en verde | 2026-11-07 | GC | hecho (2026-11-07) |
 | Dashboard funcionando | 2026-11-07 | JME / GC | hecho (2026-11-07) |
-| Reporte PDF en `docs/` y revisión desde clon limpio | 2026-11-08 | ambos | reporte hecho (2026-11-07); clon limpio pendiente |
+| Reporte PDF en `docs/` y revisión desde clon limpio | 2026-11-08 | ambos | hecho (2026-11-07) |
 
 ## Registro de riesgos
 

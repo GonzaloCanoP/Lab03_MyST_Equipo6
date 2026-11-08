@@ -15,7 +15,7 @@
 | Backtest de punta a punta | 11-06 | 11-04 | adelantado |
 | Métricas, figuras 1–8, pruebas en verde | 11-07 | 11-07 | a tiempo (61 pruebas) |
 | Dashboard | 11-07 | 11-07 | a tiempo |
-| Reporte PDF y revisión desde clon limpio | 11-08 | reporte 11-07; clon limpio pendiente | — |
+| Reporte PDF y revisión desde clon limpio | 11-08 | 11-07 | adelantado; el clon limpio reproduce todo byte a byte |
 
 El pipeline completo corrió el 11-04, dos días antes de lo previsto, porque se trabajó en paralelo contra un
 contrato de artefactos fijo (`CLAUDE.md`): cada parte sabía qué columnas recibía y entregaba. Ese adelanto fue lo que
@@ -42,7 +42,7 @@ permitió absorber la iteración 2 sin mover la entrega.
   autorización y quedó registrado.
 - **Revisiones cruzadas.** Cada parte la revisó el otro integrante antes de seguir (registradas en
   `docs/decisiones.md`); detectaron detalles reales (det_order, regla con stop plano, estilo del dashboard).
-- **Balance de commits.** Al 2026-11-07: 33 (JME) y 30 (GC) commits de trabajo, más 3 merges de PR de GC.
+- **Balance de commits.** Al 2026-11-07: 34 (JME) y 30 (GC) commits de trabajo, más 3 merges de PR de GC.
 
 ## Qué haríamos distinto en producción real
 
@@ -83,4 +83,4 @@ se optimizaron ni se probaron dentro del backtest.
 | 6 | Ticker reasignado | **Sí** | `GOLD` ya no es Barrick; se usó `B` |
 | 7 | Cointegración de un solo episodio | **Sí** | las petroleras dependían de 2020; no pasaron la correlación |
 | 8 | Tiempo insuficiente | No | el adelanto del 11-04 absorbió la iteración 2 |
-| 9 | Commits desbalanceados | No | 33 / 30 commits de trabajo |
+| 9 | Commits desbalanceados | No | 34 / 30 commits de trabajo |

@@ -323,6 +323,12 @@ def run_metrics_stage(equity: pd.DataFrame, trades: pd.DataFrame) -> dict:
 
 
 def main() -> None:
+    """Corre el pipeline completo de punta a punta y escribe `artifacts/` y `docs/figuras/`.
+
+    Etapas en orden: datos (split congelado) → cointegración (embudo y Johansen) → filtro 1 (pesos) → filtro 2
+    (z-score) → estrategia (VECM, grid en train, señales) → backtest walk-forward → métricas. Todos los parámetros se
+    calibran solo con entrenamiento y se guardan en `params.json`; la semilla SEED fija cualquier aleatoriedad.
+    """
     np.random.seed(SEED)
     ARTIFACTS.mkdir(exist_ok=True)
     prices, split_dates = run_data_stage()
