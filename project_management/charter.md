@@ -24,11 +24,11 @@ corrección del sesgo de supervivencia más allá de excluir empresas adquiridas
 | Pipeline de datos completo (split congelado, snapshot) | 2026-11-04 | JME | hecho |
 | Prueba de cointegración completa (grupo elegido) | 2026-11-05 | GC | hecho (2026-11-04) |
 | Filtro 1 validado | 2026-11-05 | JME | hecho (2026-11-04) |
-| Filtro 2 + VECM + señales | 2026-11-06 | GC | pendiente |
+| Filtro 2 + VECM + señales | 2026-11-06 | GC | hecho (2026-11-04) |
 | Backtest completo (`python main.py` de punta a punta) | 2026-11-06 | JME | hecho (2026-11-04) |
-| Métricas, figuras 1–8 y 4 pruebas en verde | 2026-11-07 | GC | pendiente |
-| Dashboard funcionando | 2026-11-07 | JME / GC | pendiente |
-| Reporte PDF en `docs/` y revisión desde clon limpio | 2026-11-08 | ambos | pendiente |
+| Métricas, figuras 1–8 y 4 pruebas en verde | 2026-11-07 | GC | hecho (2026-11-07) |
+| Dashboard funcionando | 2026-11-07 | JME / GC | hecho (2026-11-07) |
+| Reporte PDF en `docs/` y revisión desde clon limpio | 2026-11-08 | ambos | reporte hecho (2026-11-07); clon limpio pendiente |
 
 ## Registro de riesgos
 

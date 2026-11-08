@@ -14,8 +14,15 @@ Lab03 completo **sin la sección 3.7 Risk Parity** (indicación del profesor). U
 
 ## Descripción
 
-_TODO: 1 párrafo — universo, grupo seleccionado, Johansen → filtro de Kalman 1 (pesos) → filtro de Kalman 2
-(z-score) → VECM → backtest con costos. Resultados clave en validación._
+Arbitraje estadístico sobre un grupo cointegrado elegido de un universo de oro y mineras (154 grupos probados en
+la iteración final, 280 en todo el proceso): la tercia **GLD-GDX-B**. Johansen en entrenamiento da el vector inicial
+(GDX = +1, GLD −0.83, B −0.45; vida media 29 días); el **filtro de Kalman 1** deja que esos pesos deriven despacio y
+produce el término de corrección de error (ECT) con pesos *prior*; el **filtro de Kalman 2** (media lenta + desviación
+AR(1)) lo convierte en un z-score *prior*; el **VECM** confirma que el vector corrige (βᵀα = −0.021); una regla de
+bandas con stop, holding máximo y rearme decide la dirección y el backtest walk-forward 60/20/20 cobra comisión por
+pata y préstamo de cortos. Con θ congelado desde entrenamiento, el Sharpe neto es **0.66 / 0.74 / 1.01** en
+entrenamiento / prueba / validación (+20.5 % / +8.1 % / +11.2 %). La relación se debilita fuera de muestra sin
+romperse; el reporte (`docs/reporte.pdf`) discute si es estructural o artefacto, con el sesgo de selección declarado.
 
 ## Instalación
 
@@ -95,4 +102,11 @@ z, posición (▲ largo / ▼ corto / ■ plano), β̂ actuales, θ y métricas 
 
 ## Uso de asistencia de IA
 
-_TODO: qué partes del proyecto usaron asistencia de IA y cómo se verificó._
+- **JME:** Claude Code (Anthropic) como asistente de programación y redacción: implementación del filtro 1, el motor
+  de backtest, la vista ejecutiva del dashboard, las pruebas exploratorias de la iteración 2 (fuera del repo),
+  revisiones de las partes de GC, la formulación de Powell del sistema, el post-mortem y el reporte.
+- **GC:** _por completar por GC._
+- **Cómo se verificó:** cada decisión de modelado la tomó el equipo y quedó en `docs/decisiones.md`; cada parte la
+  revisó el otro integrante; los resultados se reprodujeron con `python main.py` (artefactos idénticos) y `pytest`;
+  las cifras del reporte salen de `artifacts/` y se compararon contra los notebooks. Las fórmulas siguen las notas de
+  clase (`docs/notas_clase/`).

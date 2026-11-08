@@ -33,14 +33,14 @@ función de transición S^M(S_t, x_t, W_{t+1}), función objetivo.
 - [x] Ejemplo numérico de varios periodos.
 
 **Filtro 2**
-- [ ] 6 pasos. - [ ] 5 elementos. - [ ] Cálculo e interpretación de K_t. - [ ] Q y R justificados.
-- [ ] Ejemplo numérico de varios periodos.
+- [x] 6 pasos. - [x] 5 elementos. - [x] Cálculo e interpretación de K_t. - [x] Q y R justificados.
+- [x] Ejemplo numérico de varios periodos (notebook 04).
 
 **Sistema completo**
-- [ ] 6 pasos. - [ ] 5 elementos.
-- [ ] Estado separado explícitamente en **físico** (posiciones, efectivo), **información** (precios, S_t, z_t) y **creencia** (β̂_t, P_t, μ̂_t, σ̂_t).
-- [ ] Política de trading (umbrales, stop, holding) como decisión x_t; clase de política según Powell (ej. PFA).
-- [ ] Función objetivo (ej. maximizar riqueza neta de costos / Sharpe esperado).
+- [x] 6 pasos. - [x] 5 elementos.
+- [x] Estado separado explícitamente en **físico** (posiciones, efectivo), **información** (precios, S_t, z_t) y **creencia** (β̂_t, P_t, μ̂_t, σ̂_t).
+- [x] Política de trading (umbrales, stop, holding) como decisión x_t; clase de política según Powell (ej. PFA).
+- [x] Función objetivo (ej. maximizar riqueza neta de costos / Sharpe esperado).
 
 ## Criterio de terminado
 

@@ -125,6 +125,54 @@ Código: `strategy/signals.py`, `strategy/optimization.py`. Insumo para el siste
 - **Objetivo.** max_θ Sharpe(rendimientos netos de comisiones y préstamo) en train, con al menos 10 operaciones. Es la
   versión ajustada por riesgo de max E[Σ P&L neto] de la sesión 11.
 
-## Sistema completo (ambos)
+## Sistema completo — filtro 1 + filtro 2 + VECM + trading (ambos)
 
-*Pendiente.* Estado físico (posiciones, efectivo), información (precios, ECT_t, z_t) y creencia (β̂_t, P_t, μ̂_t, σ̂_t).
+Código: `main.py` (etapas), `kalman/weights_filter.py`, `kalman/signal_filter.py`, `strategy/signals.py`,
+`strategy/sizing.py`, `backtest/engine.py`, `backtest/costs.py`. Un día t es el cierre de mercado de t.
+
+### Proceso de 6 pasos
+
+1. **Problema.** Decidir cada día si el portafolio GLD-GDX-B debe estar largo, corto o plano en el spread, y con
+   cuántas acciones de cada activo, para maximizar la riqueza neta de comisiones y préstamo ajustada por riesgo, sin
+   usar información que no se conoce al decidir.
+2. **Estado.** S_t = (R_t, I_t, B_t), separado en físico, información y creencia (tabla de abajo).
+3. **Transición.** Llega P_{t+1}: el filtro 1 predice, calcula el ECT con los pesos prior y actualiza; el filtro 2
+   calcula z_{t+1} con sus estadísticos prior y actualiza; el motor ejecuta al cierre de t + 1 la decisión de t, cobra
+   comisión y préstamo y revalúa el portafolio.
+4. **Observación.** Solo se observan precios. ECT_t y z_t no son observaciones nuevas: son funciones de P_t y de la
+   creencia prior (estadísticos suficientes recursivos).
+5. **Política.** X^π(S_t | θ) = (d_t, N*_t), una **PFA** en dos niveles: la regla de bandas da la dirección d_t y el
+   sizing da las acciones objetivo. Los filtros son a su vez PFA para la creencia (regla de Kalman con θ_KF).
+6. **Aprendizaje.** θ_KF = (q, R, φ, q_μ, q_x, r) y θ = (z_entrada, z_salida, z_stop, h_max) se calibran una sola vez en
+   train y quedan congelados (walk-forward); la creencia se actualiza cada día. El VECM (train) no entra a la
+   política: valida que el vector corrige (βᵀα = −0.021) y da una tercera vida media (33.3 días).
+
+### 5 elementos
+
+| Elemento | Definición | En el código |
+|---|---|---|
+| **Estado físico** R_t | acciones N_{i,t} de GLD, GDX y B; efectivo C_t; valor V_t = C_t + Σ N_{i,t} e^{P_{i,t}}; dirección vigente d_{t−1}; días en la operación h_t; dirección armada o desarmada tras un stop o holding | `engine.run_backtest` (`shares`, `cash`, `equity`), `signals.generate_signals` (`holding_days`, rearme) |
+| **Información** I_t | log-precios P_t; ECT_t = ỹ_t (innovación del filtro 1 con pesos prior); z_t; θ y parámetros de costos congelados | `log_prices`, `ect_dynamic`, `zscore`, `params.json` |
+| **Creencia** B_t | filtro 1: ẑ_t = (ĉ_t, β̂_t^{GLD}, β̂_t^{B}) y P_t; filtro 2: (μ̂_t, x̂_t) y su P_t; escala σ̂_{t\|t−1} | `kf1_weights.parquet`, `kf2_signal.parquet` |
+| **Decisión** x_t | d_t ∈ {−1, 0, +1} y acciones objetivo N*_{i,t} = d_t · sgn(β̂_i) · 0.8 V_t \|β̂_i\| / (Σ_j \|β̂_j\| · e^{P_{i,t}}), con β̂ posterior de t; se ejecutan al cierre de t + 1 | `signals.generate_signals`, `sizing.target_shares` |
+| **Información exógena** W_{t+1} | el vector de precios P_{t+1}; nada más es aleatorio en el sistema | fila de `prices` |
+| **Transición** S^M | creencia: predecir/actualizar filtro 1 → ECT_{t+1} → predecir/actualizar filtro 2 → z_{t+1}. Físico: ΔN = N*_t − N_t (con banda de no-rebalanceo b); C_{t+1} = C_t − Σ ΔN_i e^{P_{i,t+1}} − 0.125 % Σ \|ΔN_i\| e^{P_{i,t+1}} − (0.25 % / 252) Σ_{cortos} \|N_i\| e^{P_{i,t+1}}; h y el rearme se actualizan con la regla | `WeightsFilter`, `SignalFilter`, `engine.run_backtest`, `costs.commission_cost`, `costs.borrow_cost` |
+| **Objetivo** | max_θ F^π(θ) = Sharpe neto anualizado de los rendimientos diarios r_t = V_{t+1} / V_t − 1 en train (r_f = 0, √252), con al menos 10 operaciones; versión ajustada por riesgo de max E[Σ_t P&L neto_t] | `optimization.grid_search`, `best_rule` |
+
+### Por qué una PFA
+
+La regla de bandas es interpretable, tiene 4 parámetros y se evalúa con la simulación completa (costos incluidos), que
+es lo que pide el criterio de optimización por simulación de la sesión 11. Una CFA o una DLA necesitarían un modelo
+de los precios futuros más allá del OU del spread; una VFA, estimar el valor de cada estado (z, posición, h) con muy
+pocas operaciones por año (≈ 3–4). La causalidad se cumple porque d_t usa solo S_t: z_t con estadísticos prior y
+ejecución en t + 1 (`tests/test_causality.py`).
+
+### Parámetros del sistema (congelados desde train)
+
+| Bloque | Valores |
+|---|---|
+| Johansen | β̃ = (GLD −0.827, GDX +1, B −0.448), c = −2.066, k_ar_diff = 1, vida media 29.1 días |
+| Filtro 1 | q = 1.6 × 10⁻⁹, R = 3.31 × 10⁻³, P₀ = 252·Q, burn-in 252 días |
+| Filtro 2 | φ = 0.969, q_μ = 9.3 × 10⁻⁷, q_x = 1.1 × 10⁻⁴, r = 2.8 × 10⁻⁵, burn-in 63 días |
+| Política | z_entrada 1.0, z_salida 0.0, z_stop 2.5, h_max 87 días (3 vidas medias) |
+| Ejecución | lag 1 día, 80 % del capital, comisión 0.125 % por pata, préstamo 0.25 % anual, rebalanceo diario |

@@ -14,18 +14,18 @@ REPETIR hasta cumplir el criterio de terminado:
 
 ## Checklist — Reporte
 
-- [ ] Universo y justificación económica; argumento contra pruebas múltiples.
-- [ ] Tabla de selección (todos los grupos, etapa de descarte, total evaluado).
-- [ ] Johansen: traza, max-eigen, rango, comparación de vectores, ADF y vida media.
-- [ ] Formulación Powell: filtro 1, filtro 2, sistema completo (ver 09).
-- [ ] Q, R, inicialización, burn-in, normalización y signo.
-- [ ] VECM: α y su interpretación.
-- [ ] Umbrales y procedimiento de búsqueda.
-- [ ] Resultados por split, costos, rebalanceo diario vs banda.
-- [ ] Figuras 1–8 con título, ejes y leyenda.
-- [ ] ¿Relación estructural o artefacto? Respuesta argumentada con cifras.
-- [ ] Supuestos y limitaciones explícitos.
-- [ ] PDF en `docs/reporte.pdf` **antes** de la exposición (−5 si no).
+- [x] Universo y justificación económica; argumento contra pruebas múltiples.
+- [x] Tabla de selección (todos los grupos, etapa de descarte, total evaluado).
+- [x] Johansen: traza, max-eigen, rango, comparación de vectores, ADF y vida media.
+- [x] Formulación Powell: filtro 1, filtro 2, sistema completo (ver 09).
+- [x] Q, R, inicialización, burn-in, normalización y signo.
+- [x] VECM: α y su interpretación.
+- [x] Umbrales y procedimiento de búsqueda.
+- [x] Resultados por split, costos, rebalanceo diario vs banda.
+- [x] Figuras 1–8 con título, ejes y leyenda.
+- [x] ¿Relación estructural o artefacto? Respuesta argumentada con cifras.
+- [x] Supuestos y limitaciones explícitos.
+- [x] PDF en `docs/reporte.pdf` **antes** de la exposición (−5 si no).
 
 ## Checklist — Exposición (10 min + 5 de preguntas)
 
