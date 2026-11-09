@@ -13,6 +13,6 @@ CADA SEMANA:
 
 ## Checklist
 
-- [ ] `charter.md` (1 página): alcance (hará / no hará), hitos con fechas, ≥ 5 riesgos con probabilidad/impacto/mitigación, roles con referencia a commits esperados.
-- [ ] Un `sprint_NN.md` por semana, con objetivo, tareas + estado, bloqueos.
+- [x] `charter.md` (1 página): alcance (hará / no hará), hitos con fechas, ≥ 5 riesgos con probabilidad/impacto/mitigación, roles con referencia a commits esperados.
+- [x] Un `sprint_NN.md` por semana, con objetivo, tareas + estado, bloqueos.
 - [x] `postmortem.md` (1–2 páginas) al final: hitos a tiempo/retrasados y por qué, cuellos de botella técnicos y organizacionales, qué cambiaría en producción, riesgos materializados.
