@@ -23,7 +23,7 @@ queda en `docs/` antes del domingo 8 a las 23:59.
 | 08 Dashboard: vista ejecutiva / vista técnica | JME / GC | base común (tema tipo terminal, carga de artefactos, app con F1/F2) y vista técnica hechas por GC; vista ejecutiva (6 paneles y cinta) y correcciones de leyendas, selector y tecla activa por JME |
 | Iteración 2 de la selección: pruebas fuera del repo, tercia GLD-GDX-B, pipeline, notebooks 01–06, guías y Powell | JME | hecho |
 | Reporte, formulación Powell, README final | ambos | hecho por JME (2026-11-07): `docs/reporte.md` → `docs/reporte.pdf`, Powell del sistema completo, decisiones de sobreajuste y regla de apagado, README; pendiente revisión de GC y su parte de uso de IA |
-| Revisión desde clon limpio (`99_checklist_entrega.md`) y post-mortem | ambos | post-mortem hecho (JME, 2026-11-07); clon limpio hecho (JME, 2026-11-07): todo corre y se reproduce byte a byte; falta la parte de uso de IA de GC en el README |
+| Revisión desde clon limpio (`99_checklist_entrega.md`) y post-mortem | ambos | post-mortem hecho (JME, 2026-11-07); clon limpio hecho (JME, 2026-11-07): todo corre y se reproduce byte a byte; la parte de uso de IA de GC en el README se agregó el 2026-11-08 |
 
 ## Bloqueos y desviaciones
 

@@ -42,7 +42,7 @@ permitió absorber la iteración 2 sin mover la entrega.
   autorización y quedó registrado.
 - **Revisiones cruzadas.** Cada parte la revisó el otro integrante antes de seguir (registradas en
   `docs/decisiones.md`); detectaron detalles reales (det_order, regla con stop plano, estilo del dashboard).
-- **Balance de commits.** Al 2026-11-07: 34 (JME) y 30 (GC) commits de trabajo, más 3 merges de PR de GC.
+- **Balance de commits.** Al cierre (2026-11-08): 36 (JME) y 31 (GC) commits de trabajo, más 4 merges de PR de GC.
 
 ## Qué haríamos distinto en producción real
 
@@ -83,4 +83,4 @@ se optimizaron ni se probaron dentro del backtest.
 | 6 | Ticker reasignado | **Sí** | `GOLD` ya no es Barrick; se usó `B` |
 | 7 | Cointegración de un solo episodio | **Sí** | las petroleras dependían de 2020; no pasaron la correlación |
 | 8 | Tiempo insuficiente | No | el adelanto del 11-04 absorbió la iteración 2 |
-| 9 | Commits desbalanceados | No | 34 / 30 commits de trabajo |
+| 9 | Commits desbalanceados | No | 36 / 31 commits de trabajo |

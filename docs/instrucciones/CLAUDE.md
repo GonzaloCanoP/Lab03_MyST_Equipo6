@@ -64,7 +64,7 @@ si cambias un valor o lo mueves, actualízala.
 | Ejecución / rebalanceo | señal del cierre de t se ejecuta al cierre de t + 1 (`EXECUTION_LAG = 1`); `REBALANCE_BAND = 0` (diario), banda por pata relativa a su objetivo | `backtest/engine.py` (se cambian con `params`) |
 | VECM | `deterministic="co"`, r = 1, k_ar_diff de Johansen; β debe coincidir con β̃ (tol. 1e-6) | `strategy/vecm.py` |
 | Bandas de no-rebalanceo comparadas | 0 (diario, política evaluada), 5 %, 10 %, 20 % | `backtest/walk_forward.py` (`REBALANCE_BANDS`) |
-| Umbrales z, stop, holding máx. | grid en train: z_entrada {1, 1.25, 1.5, 1.75, 2, 2.5}, z_salida {0, 0.25, 0.5}, z_stop {2.5, 3, 3.5, 4}, k {1, 2, 3} (h_max = k · vida media); objetivo Sharpe neto, mín. 10 operaciones; desempate stop más estricto → θ = (1.0, 0.5, 3.0, 51 días) | `strategy/optimization.py` → `artifacts/params.json` (`strategy`) |
+| Umbrales z, stop, holding máx. | grid en train: z_entrada {1, 1.25, 1.5, 1.75, 2, 2.5}, z_salida {0, 0.25, 0.5}, z_stop {2.5, 3, 3.5, 4}, k {1, 2, 3} (h_max = k · vida media); objetivo Sharpe neto, mín. 10 operaciones; desempate stop más estricto → θ = (1.0, 0.0, 2.5, 87 días) | `strategy/optimization.py` → `artifacts/params.json` (`strategy`) |
 | Sharpe y métricas | tasa libre de riesgo 0, anualización 252, Sharpe móvil de 252 días (`ROLLING_WINDOW`); definiciones en `docs/decisiones.md` (2026-11-07) | `performance/metrics.py` |
 
 ## Estructura (obligatoria por el enunciado + extras marcados con *)

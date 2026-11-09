@@ -1,6 +1,6 @@
 # 99 — Checklist final de entrega (contra la rúbrica)
 
-Revisión desde clon limpio hecha el 2026-11-07 (JME): `main.py`, `pytest`, dashboard y los 7 notebooks sin errores.
+Revisión desde clon limpio hecha el 2026-11-07 y repetida el 2026-11-08 (JME): `main.py`, `pytest`, dashboard y los 7 notebooks sin errores.
 
 Correr este loop el día anterior a la entrega, **antes** de las 23:59, desde un clon limpio del repo.
 
@@ -20,7 +20,7 @@ REPETIR hasta que todo esté en [x]:
 - [x] `requirements.txt` con versiones fijadas (instala en un entorno nuevo de Python 3.12).
 - [x] Semilla fijada y documentada (`SEED = 42`, README).
 - [x] README: integrantes, nivel de alcance, descripción, instalación, comando exacto, guía del dashboard, uso de IA (ambos integrantes).
-- [x] Ambos integrantes con commits propios y balanceados; historial descriptivo (`git shortlog -sn --no-merges`: JME 34, GC 30).
+- [x] Ambos integrantes con commits propios y balanceados; historial descriptivo (`git shortlog -sn --no-merges`: JME 36, GC 31).
 
 ## B. Lógica del modelo (10)
 
@@ -41,5 +41,5 @@ REPETIR hasta que todo esté en [x]:
 
 ## Penalizaciones a evitar
 
-- [ ] Último commit antes de las 23:59 del día previo.
+- [x] Último commit antes de las 23:59 del día previo (2026-11-08).
 - [x] `docs/reporte.pdf` y dashboard en el repo antes de la exposición.

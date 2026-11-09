@@ -1,4 +1,4 @@
-# Formulación de Powell (borrador para el reporte)
+# Formulación de Powell (versión con enlaces al código; va también en el Apéndice A del reporte)
 
 Plantilla de `docs/instrucciones/09_formulacion_powell.md` y notación de `docs/notas_clase/01_sequential_decision_analytics.md`.
 Secciones: filtro 1 (JME), filtro 2 (GC) y sistema completo (ambos).
@@ -53,7 +53,8 @@ Código: `kalman/weights_filter.py`. Grupo GLD-GDX-B (iteración 2), pata ancla 
 ### Ejemplo numérico
 
 En el notebook 03: (a) el ejemplo 1 de la sesión 13 reproducido por `WeightsFilter` (4 periodos: P⁻, ỹ, S, K, β̂, P);
-(b) 5 días reales después del burn-in (prior, innovación, S_t, K_t, C_tK_t, posterior).
+(b) 5 días reales después del burn-in (prior, innovación, S_t, K_t, C_tK_t, posterior). Los números de (b), con un día
+calculado paso a paso, están en el Apéndice A.1 del reporte.
 
 ## Filtro 2 — media y escala del ECT → z-score (GC)
 
@@ -104,14 +105,16 @@ Código: `kalman/signal_filter.py`. Entrada: ECT dinámico del filtro 1 (pesos p
 ### Ejemplo numérico
 
 En el notebook 04: (a) el ejemplo 2 de la sesión 13 reproducido por `SignalFilter` (caso φ = 0, q_x = 0), con el día 4
-donde el z prior (2.04) abre la operación y el posterior (1.82) no; (b) 5 días reales después del burn-in.
+donde el z prior (2.04) abre la operación y el posterior (1.82) no; (b) 5 días reales después del burn-in. Los números
+de (b), con un día calculado paso a paso, están en el Apéndice A.2 del reporte.
 
 ## Política de trading — regla de bandas sobre z_t (GC, parte 05)
 
 Código: `strategy/signals.py`, `strategy/optimization.py`. Insumo para el sistema completo.
 
 - **Decisión.** d_t ∈ {−1, 0, +1}, la dirección del spread decidida al cierre de t. Se ejecuta al cierre de t + 1 con
-  q_i = d_t · sgn(β̂_i) · 0.8 V_t |β̂_i| / (Σ|β̂_j| P_i).
+  q_i = d_t · sgn(β̂_i) · 0.8 V |β̂_i| / (Σ|β̂_j| P_i), donde β̂ es el posterior de t, y V (antes de operar) y P_i son los
+  del cierre de t + 1.
 - **Estado que usa la política.** z_t (sale de la creencia del filtro 2), la posición actual d_{t−1}, los días en la
   operación h_t y si cada dirección está armada. Estos dos últimos son parte del estado físico: sin ellos la regla
   no sabe cuándo cerrar por holding ni si puede reentrar.
@@ -154,7 +157,7 @@ Código: `main.py` (etapas), `kalman/weights_filter.py`, `kalman/signal_filter.p
 | **Estado físico** R_t | acciones N_{i,t} de GLD, GDX y B; efectivo C_t; valor V_t = C_t + Σ N_{i,t} e^{P_{i,t}}; dirección vigente d_{t−1}; días en la operación h_t; dirección armada o desarmada tras un stop o holding | `engine.run_backtest` (`shares`, `cash`, `equity`), `signals.generate_signals` (`holding_days`, rearme) |
 | **Información** I_t | log-precios P_t; ECT_t = ỹ_t (innovación del filtro 1 con pesos prior); z_t; θ y parámetros de costos congelados | `log_prices`, `ect_dynamic`, `zscore`, `params.json` |
 | **Creencia** B_t | filtro 1: ẑ_t = (ĉ_t, β̂_t^{GLD}, β̂_t^{B}) y P_t; filtro 2: (μ̂_t, x̂_t) y su P_t; escala σ̂_{t\|t−1} | `kf1_weights.parquet`, `kf2_signal.parquet` |
-| **Decisión** x_t | d_t ∈ {−1, 0, +1} y acciones objetivo N*_{i,t} = d_t · sgn(β̂_i) · 0.8 V_t \|β̂_i\| / (Σ_j \|β̂_j\| · e^{P_{i,t}}), con β̂ posterior de t; se ejecutan al cierre de t + 1 | `signals.generate_signals`, `sizing.target_shares` |
+| **Decisión** x_t | d_t ∈ {−1, 0, +1} y acciones objetivo N*_{i,t} = d_t · sgn(β̂_i) · 0.8 V \|β̂_i\| / (Σ_j \|β̂_j\| · e^{P_i}), con β̂ posterior de t; se ejecutan al cierre de t + 1 con V (antes de operar) y P_i de ese cierre | `signals.generate_signals`, `sizing.target_shares` |
 | **Información exógena** W_{t+1} | el vector de precios P_{t+1}; nada más es aleatorio en el sistema | fila de `prices` |
 | **Transición** S^M | creencia: predecir/actualizar filtro 1 → ECT_{t+1} → predecir/actualizar filtro 2 → z_{t+1}. Físico: ΔN = N*_t − N_t (con banda de no-rebalanceo b); C_{t+1} = C_t − Σ ΔN_i e^{P_{i,t+1}} − 0.125 % Σ \|ΔN_i\| e^{P_{i,t+1}} − (0.25 % / 252) Σ_{cortos} \|N_i\| e^{P_{i,t+1}}; h y el rearme se actualizan con la regla | `WeightsFilter`, `SignalFilter`, `engine.run_backtest`, `costs.commission_cost`, `costs.borrow_cost` |
 | **Objetivo** | max_θ F^π(θ) = Sharpe neto anualizado de los rendimientos diarios r_t = V_{t+1} / V_t − 1 en train (r_f = 0, √252), con al menos 10 operaciones; versión ajustada por riesgo de max E[Σ_t P&L neto_t] | `optimization.grid_search`, `best_rule` |
