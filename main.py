@@ -317,7 +317,7 @@ def run_metrics_stage(equity: pd.DataFrame, trades: pd.DataFrame) -> dict:
 
     for name, m in metrics.items():
         print(f"[metrics] {name:<10} Sharpe {m['sharpe']:5.2f}, Sortino {m['sortino']:5.2f}, Calmar {m['calmar']:5.2f}, "
-              f"MDD {m['max_drawdown']:7.2%} ({m['max_drawdown_days']} días), win rate {m['win_rate']:.0%}, "
+              f"MDD {m['max_drawdown']:7.2%} (racha bajo el máximo: {m['max_drawdown_days']} días), win rate {m['win_rate']:.0%}, "
               f"profit factor {m['profit_factor']:.2f}")
     return metrics
 

@@ -39,7 +39,7 @@ METRIC_ROWS = (
     ("Sortino", "sortino", "{:.2f}", True),
     ("Calmar", "calmar", "{:.2f}", True),
     ("Max drawdown", "max_drawdown", "{:.2%}", False),
-    ("Duración del MDD (días)", "max_drawdown_days", "{:d}", False),
+    ("Racha más larga bajo el máximo (días)", "max_drawdown_days", "{:d}", False),
     ("Operaciones", "n_trades", "{:d}", False),
     ("Win rate", "win_rate", "{:.0%}", False),
     ("Profit factor", "profit_factor", "{:.2f}", False),
@@ -83,7 +83,8 @@ def tape_cells(metrics: dict, partition: str) -> list[tuple[str, str, str]]:
         ("SHARPE", f"{m['sharpe']:.2f}", tone(m["sharpe"])),
         ("SORTINO", f"{m['sortino']:.2f}", tone(m["sortino"])),
         ("CALMAR", f"{m['calmar']:.2f}", tone(m["calmar"])),
-        ("MDD", f"{m['max_drawdown']:.1%} ({m['max_drawdown_days']}d)", "down"),
+        ("MDD", f"{m['max_drawdown']:.1%}", "down"),
+        ("RACHA BAJO MÁX.", f"{m['max_drawdown_days']}d", "v"),  # puede ser otro episodio, no el del MDD
         ("WIN RATE", f"{m['win_rate']:.0%}", "v"),
         ("PROFIT F.", f"{m['profit_factor']:.2f}", tone(m["profit_factor"] - 1)),
         ("OPERACIONES", f"{m['n_trades']}", "v"),

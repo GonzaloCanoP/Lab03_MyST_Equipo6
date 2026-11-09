@@ -179,7 +179,8 @@ ajuste. Las tres vidas medias (Johansen 29.1, VECM 33.3, filtro 2 22.1 días) co
 | Sharpe neto | 0.66 | 0.74 | 1.01 | 0.75 |
 | Sortino | 1.01 | 1.12 | 1.61 | 1.16 |
 | Calmar | 0.38 | 0.59 | 0.98 | 0.42 |
-| Max drawdown (días) | −6.6 % (1 185) | −4.5 % (244) | −3.7 % (171) | −6.6 % (1 185) |
+| Max drawdown | −6.6 % | −4.5 % | −3.7 % | −6.6 % |
+| Racha más larga bajo el máximo (días hábiles) | 1 185 | 244 | 171 | 1 185 |
 | Operaciones / ganadoras | 24 / 79 % | 9 / 89 % | 11 / 91 % | 44 / 84 % |
 | Profit factor | 2.49 | 4.55 | 8.11 | 3.26 |
 
