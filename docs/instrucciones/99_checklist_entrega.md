@@ -19,7 +19,7 @@ REPETIR hasta que todo esté en [x]:
 - [x] `python main.py` corre sin errores desde un clon limpio (−10 si no): 1 min 23 s, sin descargas, artefactos y figuras idénticos byte a byte.
 - [x] `requirements.txt` con versiones fijadas (instala en un entorno nuevo de Python 3.12).
 - [x] Semilla fijada y documentada (`SEED = 42`, README).
-- [ ] README: integrantes, nivel de alcance, descripción, instalación, comando exacto, guía del dashboard, uso de IA. **Falta la parte de GC en "Uso de asistencia de IA"**; lo demás está.
+- [x] README: integrantes, nivel de alcance, descripción, instalación, comando exacto, guía del dashboard, uso de IA (ambos integrantes).
 - [x] Ambos integrantes con commits propios y balanceados; historial descriptivo (`git shortlog -sn --no-merges`: JME 34, GC 30).
 
 ## B. Lógica del modelo (10)
@@ -37,7 +37,7 @@ REPETIR hasta que todo esté en [x]:
 
 - [x] 4 pruebas pasan con `pytest` (61 en total en el clon limpio, 52 s).
 - [x] Docstrings en funciones principales; sin código muerto ni duplicado (revisión automática: todas las funciones públicas con docstring y ninguna definida sin usar; la duplicación se revisó en las revisiones cruzadas).
-- [ ] Uso de IA declarado (falta la parte de GC en el README).
+- [x] Uso de IA declarado por ambos integrantes (README, "Uso de asistencia de IA").
 
 ## Penalizaciones a evitar
 

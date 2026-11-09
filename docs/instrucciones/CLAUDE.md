@@ -118,7 +118,7 @@ Toda serie de tiempo lleva una columna `split ∈ {train, test, validation}`.
 | `equity_curve.parquet` | backtest | equity, cash, valor por pata, drawdown, P&L bruto/neto, comisiones, préstamo, `rolling_sharpe_252` (Sharpe neto móvil de la parte 07) |
 | `trades.csv` | backtest | bitácora: entrada, salida, dirección, días, P&L bruto/neto, costos, motivo de salida |
 | `rebalance_comparison.csv` | backtest | rebalanceo diario vs banda de no-rebalanceo |
-| `metrics.json` | performance | por partición y `total` (encadenado): rendimiento, CAGR, volatilidad, Sharpe, Sortino, Calmar, MDD y su duración, operaciones, win rate, profit factor y momentos de los rendimientos por operación (asimetría, curtosis, Jarque–Bera) |
+| `metrics.json` | performance | por partición y `total` (encadenado): rendimiento, CAGR, volatilidad, Sharpe, Sortino, Calmar, MDD y la racha más larga bajo el máximo (`max_drawdown_days`), operaciones, win rate, profit factor y momentos de los rendimientos por operación (asimetría, curtosis, Jarque–Bera) |
 
 Si cambias el esquema de un artefacto, actualiza esta tabla **y** avisa al otro integrante.
 

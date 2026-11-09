@@ -105,7 +105,10 @@ z, posición (▲ largo / ▼ corto / ■ plano), β̂ actuales, θ y métricas 
 - **JME:** Claude Code (Anthropic) como asistente de programación y redacción: implementación del filtro 1, el motor
   de backtest, la vista ejecutiva del dashboard, las pruebas exploratorias de la iteración 2 (fuera del repo),
   revisiones de las partes de GC, la formulación de Powell del sistema, el post-mortem y el reporte.
-- **GC:** _por completar por GC._
+- **GC:** Claude Code (Anthropic) como asistente de programación y redacción: la selección por cointegración
+  (embudo, Engle–Granger, Johansen fijo y móvil, vida media), el filtro 2 y su calibración, el VECM, la regla de
+  señales y el grid search, las métricas y la figura 8, la vista técnica y la base común del dashboard, las pruebas
+  de causalidad y del filtro, revisiones de las partes de JME y la redacción de decisiones, notebooks y reporte.
 - **Cómo se verificó:** cada decisión de modelado la tomó el equipo y quedó en `docs/decisiones.md`; cada parte la
   revisó el otro integrante; los resultados se reprodujeron con `python main.py` (artefactos idénticos) y `pytest`;
   las cifras del reporte salen de `artifacts/` y se compararon contra los notebooks. Las fórmulas siguen las notas de
